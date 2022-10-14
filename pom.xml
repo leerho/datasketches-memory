@@ -34,7 +34,7 @@ under the License.
   <artifactId>datasketches-memory-root</artifactId>
   <version>2.3.0-SNAPSHOT</version>
   <!-- Required for multi-module project -->
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
   <description>High-performance native memory access.</description>
@@ -128,7 +128,7 @@ under the License.
     <maven-release-plugin.version>3.0.0-M4</maven-release-plugin.version> <!-- overrides parent -->
     <maven-remote-resources-plugin.version>1.7.0</maven-remote-resources-plugin.version> <!-- overrides parent -->
     <maven-source-plugin.version>3.2.1</maven-source-plugin.version> <!-- overrides parent -->
-    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version> <!-- overrides parent -->
+    <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version> <!-- overrides parent -->
     <maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
     <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
     <maven-exec-plugin.version>3.0.0</maven-exec-plugin.version>
@@ -144,6 +144,8 @@ under the License.
     <maven.deploy.skip>true</maven.deploy.skip>
     <maven.install.skip>true</maven.install.skip>
     <maven.javadoc.skip>true</maven.javadoc.skip>
+    
+    <maven.build.timestamp.format>yyyy-MM-dd'T'HH mm ss'Z'</maven.build.timestamp.format>
   </properties>
 
   <repositories>
@@ -196,6 +198,26 @@ under the License.
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- Used for UTF8 testing -->
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- Used for xxHash testing -->
+      <groupId>net.openhft</groupId>
+      <artifactId>zero-allocation-hashing</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <pluginManagement>
       <plugins>
@@ -233,6 +255,13 @@ under the License.
               <goals>
                 <goal>jar</goal>
               </goals>
+              <configuration>
+                <archive>
+                  <manifestEntries>
+                    <Multi-Release>true</Multi-Release>
+                  </manifestEntries>
+                </archive>
+              </configuration>
             </execution>
             <execution>
               <id>default-test-jar</id>
@@ -323,6 +352,7 @@ under the License.
               <exclude>**/.clover/**/*</exclude>
               <exclude>**/test/resources/**/*.txt</exclude>
               <exclude>**/test-output/**/*</exclude>
+              <exclude>**/validation-output/**/*</exclude>
               <exclude>**/img/**/*.png</exclude>
               <exclude>**/git.properties</exclude>
               <exclude>**/scripts/assets/LoremIpsum.txt</exclude>
@@ -368,6 +398,22 @@ under the License.
               <version>${jdk-toolchain.version}</version>
             </jdkToolchain>
             <reportsDirectory>${project.build.directory}/test-output/${maven.build.timestamp}</reportsDirectory>
+          </configuration>
+        </plugin>
+        
+        <plugin>
+          <!-- Apache Parent pom, pluginManagement-->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <trimStackTrace>false</trimStackTrace>
+            <useManifestOnlyJar>false</useManifestOnlyJar>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            <jdkToolchain>
+              <version>${jdk-toolchain.version}</version>
+            </jdkToolchain>
+            <reportsDirectory>${project.build.directory}/validation-output/${maven.build.timestamp}</reportsDirectory>
           </configuration>
         </plugin>
 
@@ -439,6 +485,109 @@ under the License.
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <jdkToolchain>
+            <version>${jdk-toolchain.version}</version>
+          </jdkToolchain>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default-compile</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <jdkToolchain>
+                <version>8</version>
+              </jdkToolchain>
+              <source>1.8</source>
+              <target>1.8</target>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-testCompile</id>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <jdkToolchain>
+                <version>8</version>
+              </jdkToolchain>
+              <source>1.8</source>
+              <target>1.8</target>
+              <testExcludes>
+                <testExclude>module-info.java</testExclude>
+              </testExcludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compile-java-11</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <compilerArgs>
+                <arg>--add-exports</arg>
+                <arg>java.base/jdk.internal.ref=org.apache.datasketches.memory</arg>
+              </compilerArgs>
+              <jdkToolchain>
+                <version>11</version>
+              </jdkToolchain>
+              <source>11</source>
+              <target>11</target>
+              <compileSourceRoots>
+                <compileSourceRoot>${project.basedir}/src/main/java11</compileSourceRoot>
+              </compileSourceRoots>
+              <!-- multiReleaseOutput>true</multiReleaseOutput -->
+              <outputDirectory>${project.build.outputDirectory}/META-INF/versions/11</outputDirectory>
+            </configuration>
+          </execution>
+          <!--
+          <execution>
+            <id>testCompile-java-11</id>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <jdkToolchain>
+                <version>11</version>
+              </jdkToolchain>
+              <source>11</source>
+              <target>11</target>
+              <testExcludes>
+                <testExclude>**</testExclude>
+              </testExcludes>
+              <testIncludes>
+                <testInclude>module-info.java</testInclude>
+              </testIncludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compile-java-17</id>
+            <phase>compile</phase>
+            <goals>
+            <goal>compile</goal>
+            </goals>
+            <configuration>
+            <release>17</release>
+            <jdkToolchain>
+            <version>17</version>
+            </jdkToolchain>
+            <compileSourceRoots>
+            <compileSourceRoot>${project.basedir}/src/main/java17</compileSourceRoot>
+            </compileSourceRoots>
+            <multiReleaseOutput>true</multiReleaseOutput>
+            </configuration>
+            </execution>
+          -->
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
       </plugin>
       <plugin>
@@ -470,9 +619,51 @@ under the License.
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
       <plugin>
+        <!-- Apache Parent pom, pluginManagement-->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>jdk8</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <jdkToolchain>
+                <version>8</version>
+              </jdkToolchain>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jdk11</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <jdkToolchain>
+                <version>11</version>
+              </jdkToolchain>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- 
+      <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
+       -->
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
@@ -529,15 +720,4 @@ under the License.
     </profile>
 
   </profiles>
-
-  <!-- This Maven project is divided into an aggregator project (the root), that manages a group of submodules that
-       inherit configuration from this root module.
-       A multi-module project is used to target different version-specific features of the Java language APIs.
-       Furthermore, it is a structure that is supported in most IDEs allowing minimal disruption to developers that
-       contribute to this project -->
-  <modules>
-    <module>datasketches-memory-java8</module>
-    <module>datasketches-memory-java11</module>
-  </modules>
-
 </project>
