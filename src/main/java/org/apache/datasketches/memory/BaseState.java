@@ -43,7 +43,7 @@ public interface BaseState {
    * This may be different from the ByteOrder of the backing resource and of the Native Byte Order.
    * @return the current Type ByteOrder.
    */
-  ByteOrder getTypeByteOrder();
+  ByteOrder getByteOrder();
 
   /**
    * Returns true if the Native ByteOrder is the same as the ByteOrder of the

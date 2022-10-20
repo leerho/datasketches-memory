@@ -100,7 +100,7 @@ public abstract class BaseStateImpl implements BaseState {
   //Byte Order Related
 
   @Override
-  public final ByteOrder getTypeByteOrder() {
+  public final ByteOrder getByteOrder() {
     return isNonNativeType() ? Util.NON_NATIVE_BYTE_ORDER : ByteOrder.nativeOrder();
   }
 
@@ -118,7 +118,7 @@ public abstract class BaseStateImpl implements BaseState {
 
   @Override
   public final boolean isByteOrderCompatible(final ByteOrder byteOrder) {
-    final ByteOrder typeBO = getTypeByteOrder();
+    final ByteOrder typeBO = getByteOrder();
     return typeBO == ByteOrder.nativeOrder() && typeBO == byteOrder;
   }
 
@@ -437,7 +437,7 @@ public abstract class BaseStateImpl implements BaseState {
     sb.append("MemReq, hashCode    : ").append(memReqStr).append(LS);
     sb.append("Valid               : ").append(state.isValid()).append(LS);
     sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
-    sb.append("Type Byte Order     : ").append(state.getTypeByteOrder().toString()).append(LS);
+    sb.append("Type Byte Order     : ").append(state.getByteOrder().toString()).append(LS);
     sb.append("Native Byte Order   : ").append(ByteOrder.nativeOrder().toString()).append(LS);
     sb.append("JDK Runtime Version : ").append(UnsafeUtil.JDK).append(LS);
     //Data detail

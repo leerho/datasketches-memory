@@ -92,7 +92,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   //REGIONS
   @Override
   public Buffer region() {
-    return writableRegionImpl(getPosition(), getEnd() - getPosition(), true, getTypeByteOrder());
+    return writableRegionImpl(getPosition(), getEnd() - getPosition(), true, getByteOrder());
   }
 
   @Override
@@ -104,7 +104,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
 
   @Override
   public WritableBuffer writableRegion() {
-    return writableRegionImpl(getPosition(), getEnd() - getPosition(), false, getTypeByteOrder());
+    return writableRegionImpl(getPosition(), getEnd() - getPosition(), false, getByteOrder());
   }
 
   @Override
@@ -132,7 +132,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   //DUPLICATES
   @Override
   public Buffer duplicate() {
-    return writableDuplicateImpl(true, getTypeByteOrder());
+    return writableDuplicateImpl(true, getByteOrder());
   }
 
   @Override
@@ -142,7 +142,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
 
   @Override
   public WritableBuffer writableDuplicate() {
-    return writableDuplicateImpl(false, getTypeByteOrder());
+    return writableDuplicateImpl(false, getByteOrder());
   }
 
   @Override

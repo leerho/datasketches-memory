@@ -249,6 +249,7 @@ under the License.
                 <archive>
                   <manifestEntries>
                     <Multi-Release>true</Multi-Release>
+                    <Automatic-Module-Name>org.apache.datasketches.memory</Automatic-Module-Name>
                   </manifestEntries>
                 </archive>
               </configuration>
@@ -536,44 +537,23 @@ under the License.
               <outputDirectory>${project.build.outputDirectory}/META-INF/versions/11</outputDirectory>
             </configuration>
           </execution>
-          <!--
-          <execution>
-            <id>testCompile-java-11</id>
-            <goals>
-              <goal>testCompile</goal>
-            </goals>
-            <configuration>
-              <jdkToolchain>
-                <version>11</version>
-              </jdkToolchain>
-              <source>11</source>
-              <target>11</target>
-              <testExcludes>
-                <testExclude>**</testExclude>
-              </testExcludes>
-              <testIncludes>
-                <testInclude>module-info.java</testInclude>
-              </testIncludes>
-            </configuration>
-          </execution>
           <execution>
             <id>compile-java-17</id>
             <phase>compile</phase>
             <goals>
-            <goal>compile</goal>
+              <goal>compile</goal>
             </goals>
             <configuration>
-            <release>17</release>
-            <jdkToolchain>
-            <version>17</version>
-            </jdkToolchain>
-            <compileSourceRoots>
-            <compileSourceRoot>${project.basedir}/src/main/java17</compileSourceRoot>
-            </compileSourceRoots>
-            <multiReleaseOutput>true</multiReleaseOutput>
+              <release>17</release>
+              <jdkToolchain>
+                <version>17</version>
+              </jdkToolchain>
+              <compileSourceRoots>
+                <compileSourceRoot>${project.basedir}/src/main/java17</compileSourceRoot>
+              </compileSourceRoots>
+              <multiReleaseOutput>true</multiReleaseOutput>
             </configuration>
-            </execution>
-          -->
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -634,6 +614,18 @@ under the License.
             <configuration>
               <jdkToolchain>
                 <version>11</version>
+              </jdkToolchain>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jdk17</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <jdkToolchain>
+                <version>17</version>
               </jdkToolchain>
             </configuration>
           </execution>

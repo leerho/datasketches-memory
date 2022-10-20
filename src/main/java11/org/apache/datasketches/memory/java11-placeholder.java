@@ -21,6 +21,6 @@ package org.apache.datasketches.memory;
 /**
  * Inaccessible placeholder class to ensure the multi-release jar for java11 includes this package.
  */
-class Placeholder {
+class Placeholder11 {
     
 }
