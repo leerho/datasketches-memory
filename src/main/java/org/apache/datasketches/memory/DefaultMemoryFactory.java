@@ -34,9 +34,13 @@ import static org.apache.datasketches.memory.internal.Util.negativeCheck;
  */
 public class DefaultMemoryFactory implements MemoryFactory {
     
-    public final static MemoryFactory DEFAULT = DefaultMemoryRequestServer.DEFAULT.getFactory();
+    public final static MemoryFactory DEFAULT = new DefaultMemoryFactory();
     
     private final MemoryRequestServer memoryRequestServer;
+    
+    public DefaultMemoryFactory() {
+        this(DefaultMemoryRequestServer.DEFAULT);
+    }
     
     public DefaultMemoryFactory(MemoryRequestServer memoryRequestServer) {
         this.memoryRequestServer = memoryRequestServer;
