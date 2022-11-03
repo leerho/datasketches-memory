@@ -88,6 +88,9 @@
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH mm ss'Z'</maven.build.timestamp.format>
 
     <jdk-toolchain.version>8</jdk-toolchain.version>
+    <!-- org.eluder Maven Plugins -->
+    <coveralls-repo-token></coveralls-repo-token>
+    <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
   </properties>
 
   <repositories>
