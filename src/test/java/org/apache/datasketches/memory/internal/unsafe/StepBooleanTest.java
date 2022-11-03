@@ -19,31 +19,30 @@
 
 package org.apache.datasketches.memory.internal.unsafe;
 
-import org.testng.annotations.Test;
-
 import static org.testng.Assert.assertTrue;
 
+import org.testng.annotations.Test;
+
 /**
- * 
+ *
  */
 public class StepBooleanTest {
-    //StepBoolean checks
-    @Test
-    public void checkStepBoolean() {
-      checkStepBoolean(true);
-      checkStepBoolean(false);
-    }
+  // StepBoolean checks
+  @Test
+  public void checkStepBoolean() {
+    checkStepBoolean(true);
+    checkStepBoolean(false);
+  }
 
-    private static void checkStepBoolean(boolean initialState) {
-      StepBoolean step = new StepBoolean(initialState);
-      assertTrue(step.get() == initialState); //confirm initialState
-      step.change();
-      assertTrue(step.hasChanged());      //1st change was successful
-      assertTrue(step.get() != initialState); //confirm it is different from initialState
-      step.change();
-      assertTrue(step.get() != initialState); //Still different from initialState
-      assertTrue(step.hasChanged());  //confirm it was changed from initialState value
-    }
-
+  private static void checkStepBoolean(boolean initialState) {
+    StepBoolean step = new StepBoolean(initialState);
+    assertTrue(step.get() == initialState); // confirm initialState
+    step.change();
+    assertTrue(step.hasChanged()); // 1st change was successful
+    assertTrue(step.get() != initialState); // confirm it is different from initialState
+    step.change();
+    assertTrue(step.get() != initialState); // Still different from initialState
+    assertTrue(step.hasChanged()); // confirm it was changed from initialState value
+  }
 
 }

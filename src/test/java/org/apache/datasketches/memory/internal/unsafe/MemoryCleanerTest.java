@@ -28,35 +28,35 @@ import org.testng.annotations.Test;
 
 public class MemoryCleanerTest {
 
-    @Test
-    public void cleanerDeallocates() {
-       SimpleDeallocator deallocator = new SimpleDeallocator();
-       MemoryCleaner cleaner = new MemoryCleaner(this, deallocator);
-       cleaner.clean();
-       assertTrue(SimpleDeallocator.getHasRun());
+  @Test
+  public void cleanerDeallocates() {
+    SimpleDeallocator deallocator = new SimpleDeallocator();
+    MemoryCleaner cleaner = new MemoryCleaner(this, deallocator);
+    cleaner.clean();
+    assertTrue(SimpleDeallocator.getHasRun());
+  }
+
+  @Test
+  public void noDeallocation() {
+    SimpleDeallocator deallocator = new SimpleDeallocator();
+    new MemoryCleaner(this, deallocator);
+    assertFalse(SimpleDeallocator.getHasRun());
+  }
+
+  static final class SimpleDeallocator implements Runnable {
+    static final AtomicBoolean hasRun = new AtomicBoolean();
+
+    SimpleDeallocator() {
+      hasRun.set(false);
     }
 
-    @Test
-    public void noDeallocation() {
-        SimpleDeallocator deallocator = new SimpleDeallocator();
-        new MemoryCleaner(this, deallocator);
-        assertFalse(SimpleDeallocator.getHasRun());
+    @Override
+    public void run() {
+      hasRun.compareAndSet(false, true);
     }
 
-    static final class SimpleDeallocator implements Runnable {
-        static final AtomicBoolean hasRun = new AtomicBoolean();
-
-        SimpleDeallocator() {
-            hasRun.set(false);
-        }
-
-        @Override
-        public void run() {
-            hasRun.compareAndSet(false, true);
-        }
-
-        public static Boolean getHasRun() {
-            return hasRun.get();
-        }
+    public static Boolean getHasRun() {
+      return hasRun.get();
     }
+  }
 }
