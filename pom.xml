@@ -324,8 +324,13 @@
             </goals>
             <configuration>
               <compilerArgs>
+                <!-- exports required for compile only -->
                 <arg>--add-exports</arg>
                 <arg>java.base/jdk.internal.ref=org.apache.datasketches.memory</arg>
+                <arg>--add-exports</arg>
+                <arg>java.base/jdk.internal.misc=org.apache.datasketches.memory</arg>
+                <arg>--add-exports</arg>
+                <arg>java.base/sun.nio.ch=org.apache.datasketches.memory</arg>
               </compilerArgs>
               <jdkToolchain>
                 <version>11</version>
@@ -470,8 +475,14 @@
             <configuration>
               <jdkToolchain>
                 <version>11</version>
-              </jdkToolchain>
-              <argLine>--add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED</argLine>
+              </jdkToolchain>  <!-- exports required for compile, opens required for runtime -->
+              <argLine>
+                --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
+                --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
+                --add-exports java.base/sun.nio.ch=ALL-UNNAMED
+                --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+                --add-opens java.base/java.nio=ALL-UNNAMED
+              </argLine>
             </configuration>
           </execution>
         </executions>
