@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>23</version>
+    <version>27</version>
   </parent>
 
   <groupId>org.apache.datasketches</groupId>
@@ -85,9 +85,8 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.build.timestamp.format>yyyy-MM-dd'T'HH mm ss'Z'</maven.build.timestamp.format>
-
     <jdk-toolchain.version>8</jdk-toolchain.version>
+    <maven.build.timestamp.format>yyyy-MM-dd'T'HH mm ss'Z'</maven.build.timestamp.format>
     <!-- org.eluder Maven Plugins -->
     <coveralls-repo-token></coveralls-repo-token>
     <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
@@ -144,7 +143,8 @@
   <build>
     <pluginManagement>
       <plugins>
-        <plugin>
+
+        <plugin><!-- Extends maven-apache-parent pom.xml -->
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.10.1</version>
@@ -154,14 +154,35 @@
             </jdkToolchain>
           </configuration>
         </plugin>
-        <plugin>
-          <!-- Extends Apache Parent pom, pluginManagement -->
+
+        <plugin><!-- Extends maven-apache-parent pom.xml -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+
+        <plugin><!-- Extends maven-apache-parent pom.xml -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.0.0-M7</version><!-- same as surefire -->
+          <configuration>
+            <trimStackTrace>false</trimStackTrace>
+            <useManifestOnlyJar>false</useManifestOnlyJar>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            <jdkToolchain>
+              <version>${jdk-toolchain.version}</version>
+            </jdkToolchain>
+            <reportsDirectory>${project.build.directory}/validation-output/${maven.build.timestamp}</reportsDirectory>
+          </configuration>
+        </plugin>
+
+        <plugin><!-- Extends maven-apache-parent pom.xml -->
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.3.0</version>
         </plugin>
-        <plugin>
-          <!-- Extends Apache Parent pom, apache-release profile -->
+
+        <plugin><!-- Extends maven-apache-parent pom.xml -->
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.4.1</version>
@@ -175,17 +196,10 @@
           </configuration>
         </plugin>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-
-        <plugin>
-          <!-- Apache Parent pom, pluginManagement -->
+        <plugin><!-- Extends maven-apache-parent pom.xml -->
           <groupId>org.apache.rat</groupId>
           <artifactId>apache-rat-plugin</artifactId>
-          <version>0.13</version>
+          <version>0.15</version>
           <configuration>
             <outputDirectory>${project.basedir}/rat</outputDirectory>
             <consoleOutput>true</consoleOutput>
@@ -200,6 +214,9 @@
               <exclude>**/validation-output/**/*</exclude>
               <exclude>**/img/**/*.png</exclude>
               <exclude>**/git.properties</exclude>
+              <exclude>.gitattributes</exclude>
+              <exclude>.gitignore</exclude>
+              <exclude>.git/**</exclude>
               <exclude>**/scripts/assets/LoremIpsum.txt</exclude>
               <exclude>LICENSE</exclude>
               <exclude>NOTICE</exclude>
@@ -207,15 +224,13 @@
           </configuration>
         </plugin>
 
-        <plugin>
-          <!-- Extends Apache Parent pom, apache-release profile -->
+        <plugin><!-- Extends maven-apache-parent pom.xml -->
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
           <version>3.2.1</version>
         </plugin>
 
-        <plugin>
-          <!-- Apache Parent pom, pluginManagement -->
+        <plugin><!-- Extends maven-apache-parent pom.xml -->
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.0.0-M7</version>
@@ -227,22 +242,6 @@
               <version>${jdk-toolchain.version}</version>
             </jdkToolchain>
             <reportsDirectory>${project.build.directory}/test-output/${maven.build.timestamp}</reportsDirectory>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <!-- Apache Parent pom, pluginManagement -->
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.0.0-M7</version>
-          <configuration>
-            <trimStackTrace>false</trimStackTrace>
-            <useManifestOnlyJar>false</useManifestOnlyJar>
-            <redirectTestOutputToFile>true</redirectTestOutputToFile>
-            <jdkToolchain>
-              <version>${jdk-toolchain.version}</version>
-            </jdkToolchain>
-            <reportsDirectory>${project.build.directory}/validation-output/${maven.build.timestamp}</reportsDirectory>
           </configuration>
         </plugin>
 
@@ -263,7 +262,7 @@
           <!-- Generates code coverage report from website. -->
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.6</version>
+          <version>0.8.8</version>
         </plugin>
 
         <plugin>
@@ -288,6 +287,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
           <execution>
+            <!-- Compiling main code with Java 8.
+                 All Java 9+ code must be excluded elsewhere, incuding add-excludes & opens -->
             <id>default-compile</id>
             <goals>
               <goal>compile</goal>
@@ -301,6 +302,8 @@
             </configuration>
           </execution>
           <execution>
+            <!-- Compiling test code with Java 8. All test code is run only from Java 8.
+                 Any Java 9+ tests must be excluded elsewhere, incuding add-excludes and opens -->
             <id>default-testCompile</id>
             <goals>
               <goal>testCompile</goal>
@@ -312,11 +315,14 @@
               <source>1.8</source>
               <target>1.8</target>
               <testExcludes>
+                <!-- In Java 8 this is not allowed, if not excluded elsewhere -->
                 <testExclude>module-info.java</testExclude>
               </testExcludes>
             </configuration>
           </execution>
           <execution>
+            <!-- Compiling main code with Java 11. 
+                 All code specific to other Java versions must be excluded elsewhere -->
             <id>compile-java-11</id>
             <phase>compile</phase>
             <goals>
@@ -324,13 +330,9 @@
             </goals>
             <configuration>
               <compilerArgs>
-                <!-- exports required for compile only -->
+                <!-- The following export provides access to the JVM Cleaner and is required at compile time: -->
                 <arg>--add-exports</arg>
                 <arg>java.base/jdk.internal.ref=org.apache.datasketches.memory</arg>
-                <arg>--add-exports</arg>
-                <arg>java.base/jdk.internal.misc=org.apache.datasketches.memory</arg>
-                <arg>--add-exports</arg>
-                <arg>java.base/sun.nio.ch=org.apache.datasketches.memory</arg>
               </compilerArgs>
               <jdkToolchain>
                 <version>11</version>
@@ -344,10 +346,17 @@
               <outputDirectory>${project.build.outputDirectory}/META-INF/versions/11</outputDirectory>
             </configuration>
           </execution>
+          <!-- The following exports would be required to compile tests IF the tests were run from Java 11.
+               They are provided here for reference if this fact changes.
+               Note that the target is ALL-UNNAMED, because test code is part of the classpath, not modulepath.
+                <arg>==add-exports</arg>
+                <arg>java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+                <arg>==add-exports</arg>
+                <arg>java.base/sun.nio.ch=ALL-UNNAMED</arg> -->
         </executions>
       </plugin>
-      <plugin>
-        <!-- Extends Apache Parent pom, pluginManagement -->
+
+      <plugin><!-- Extends maven-apache-parent pom.xml -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
@@ -375,7 +384,8 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+
+      <plugin><!-- Extends maven-apache-parent pom.xml -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <executions>
@@ -388,7 +398,8 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+
+      <plugin><!-- Extends maven-apache-parent pom.xml -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
@@ -417,7 +428,8 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+
+      <plugin><!-- Extends maven-apache-parent pom.xml -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <executions>
@@ -437,7 +449,8 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+
+      <plugin><!-- Extends maven-apache-parent pom.xml -->
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <executions>
@@ -449,8 +462,8 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <!-- Apache Parent pom, pluginManagement -->
+
+      <plugin><!-- Extends maven-apache-parent pom.xml -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <executions>
@@ -475,11 +488,15 @@
             <configuration>
               <jdkToolchain>
                 <version>11</version>
-              </jdkToolchain>  <!-- exports required for compile, opens required for runtime -->
+              </jdkToolchain>  
+              <!-- 'exports' are required for compile by verify, which runs against the produced jars.
+                   'opens'' is required to run the tests.  Note that the target is ALL-UNNAMED,
+                   because the test code is part of the classpath not the modulepath.
+                   The following export may be required in a different environment:
+                ==add-exports java.base/sun.nio.ch=ALL-UNNAMED  -->
               <argLine>
                 --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
                 --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-                --add-exports java.base/sun.nio.ch=ALL-UNNAMED
                 --add-opens java.base/sun.nio.ch=ALL-UNNAMED
                 --add-opens java.base/java.nio=ALL-UNNAMED
               </argLine>
@@ -487,6 +504,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-toolchains-plugin</artifactId>
@@ -525,7 +543,7 @@
       <build>
         <pluginManagement>
           <plugins>
-            <plugin>
+            <plugin><!-- Extends maven-apache-parent pom.xml -->
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-remote-resources-plugin</artifactId>
               <version>${maven-remote-resources-plugin.version}</version>
