@@ -42,23 +42,22 @@ public class IsValidUtf8TestUtil {
   static final long EXPECTED_TWO_BYTE_ROUNDTRIPPABLE_COUNT =
       // Both bytes are one byte characters
       (long) Math.pow(EXPECTED_ONE_BYTE_ROUNDTRIPPABLE_COUNT, 2)
-      // The possible number of two byte characters
-      + TWO_BYTE_ROUNDTRIPPABLE_CHARACTERS;
+          // The possible number of two byte characters
+          + TWO_BYTE_ROUNDTRIPPABLE_CHARACTERS;
 
   // 2048
   static final long THREE_BYTE_SURROGATES = 2 * 1024;
 
   // 61,440 [chars 0x0800 to 0xFFFF, minus surrogates]
-  static final long THREE_BYTE_ROUNDTRIPPABLE_CHARACTERS =
-      ((0xFFFF - 0x0800) + 1) - THREE_BYTE_SURROGATES;
+  static final long THREE_BYTE_ROUNDTRIPPABLE_CHARACTERS = ((0xFFFF - 0x0800) + 1) - THREE_BYTE_SURROGATES;
 
   // 2,650,112
   static final long EXPECTED_THREE_BYTE_ROUNDTRIPPABLE_COUNT =
       // All one byte characters
       (long) Math.pow(EXPECTED_ONE_BYTE_ROUNDTRIPPABLE_COUNT, 3)
-      // One two byte character and a one byte character
-      + (2 * TWO_BYTE_ROUNDTRIPPABLE_CHARACTERS * ONE_BYTE_ROUNDTRIPPABLE_CHARACTERS)
-      // Three byte characters
-      + THREE_BYTE_ROUNDTRIPPABLE_CHARACTERS;
+          // One two byte character and a one byte character
+          + (2 * TWO_BYTE_ROUNDTRIPPABLE_CHARACTERS * ONE_BYTE_ROUNDTRIPPABLE_CHARACTERS)
+          // Three byte characters
+          + THREE_BYTE_ROUNDTRIPPABLE_CHARACTERS;
 
 }

@@ -19,24 +19,25 @@
 
 package org.apache.datasketches.memory.internal.unsafe;
 
-import org.testng.annotations.Test;
-
 import static org.apache.datasketches.memory.internal.unsafe.UnsafeUtil.ARRAY_DOUBLE_INDEX_SCALE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import org.testng.annotations.Test;
+
 /**
- * 
+ *
  */
 public class PrimTest {
-    @Test
-    public void checkPrimOffset() {
-      int off = (int)Prim.BYTE.off();
-      assertTrue(off > 0);
-    }
 
-    @Test
-    public void checkPrim() {
-      assertEquals(Prim.DOUBLE.scale(), ARRAY_DOUBLE_INDEX_SCALE);
-    }
+  @Test
+  public void checkPrimOffset() {
+    int off = (int) Prim.BYTE.off();
+    assertTrue(off > 0);
+  }
+
+  @Test
+  public void checkPrim() {
+    assertEquals(Prim.DOUBLE.scale(), ARRAY_DOUBLE_INDEX_SCALE);
+  }
 }

@@ -68,8 +68,8 @@ public final class DefaultMemoryRequestServer implements MemoryRequestServer {
     
   public static final DefaultMemoryRequestServer DEFAULT = new DefaultMemoryRequestServer();
     
-  private MemoryFactory factory = new DefaultMemoryFactory(this);
-
+  private MemoryFactory factory;
+  
   /**
    * {@inheritDoc}
    *
@@ -77,6 +77,9 @@ public final class DefaultMemoryRequestServer implements MemoryRequestServer {
    */
   @Override
   public WritableMemory request(final WritableMemory currentWritableMemory, final long capacityBytes) {
+    if (factory == null) {
+        factory = DefaultMemoryFactory.DEFAULT;
+    }
     final WritableMemory wmem = factory.allocate((int)capacityBytes, currentWritableMemory.getByteOrder());
     return wmem;
   }
@@ -92,15 +95,12 @@ public final class DefaultMemoryRequestServer implements MemoryRequestServer {
   public void requestClose(final WritableMemory memToRelease, final WritableMemory newMemory) {
     //do nothing
   }
-  
-  /**
-   * Get the associated {@link MemoryFactory}. This has package level access so that the default
-   * {@link DefaultMemoryFactory} can correctly initialize itself with a cross reference to this.
-   * 
-   * @return The current {@link MemoryFactory}
-   */
-  MemoryFactory getFactory() {
+
+  public MemoryFactory getFactory() {
     return factory;
   }
 
+  public void setFactory(MemoryFactory factory) {
+    this.factory = factory;
+  }
 }
