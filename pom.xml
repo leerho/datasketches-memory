@@ -287,8 +287,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
           <execution>
-            <!-- Compiling main code with Java 8.
-                 All Java 9+ code must be excluded elsewhere, incuding add-excludes & opens -->
+            <!-- Compiling main code with Java 8. -->
             <id>default-compile</id>
             <goals>
               <goal>compile</goal>
@@ -302,8 +301,8 @@
             </configuration>
           </execution>
           <execution>
-            <!-- Compiling test code with Java 8. All test code is run only from Java 8.
-                 Any Java 9+ tests must be excluded elsewhere, incuding add-excludes and opens -->
+            <!-- Compiling test code with Java 8. All unit tests are run with java8 only.
+                 All integration tests are run with all configured JDKs. -->
             <id>default-testCompile</id>
             <goals>
               <goal>testCompile</goal>
@@ -321,8 +320,7 @@
             </configuration>
           </execution>
           <execution>
-            <!-- Compiling main code with Java 11. 
-                 All code specific to other Java versions must be excluded elsewhere -->
+            <!-- Compiling java 11 overrides of the base code. -->
             <id>compile-java-11</id>
             <phase>compile</phase>
             <goals>
@@ -342,6 +340,7 @@
               <compileSourceRoots>
                 <compileSourceRoot>${project.basedir}/src/main/java11</compileSourceRoot>
               </compileSourceRoots>
+              <!-- multiReleaseOutput is incompatible with JPMS ==add-exports. -->
               <!-- multiReleaseOutput>true</multiReleaseOutput -->
               <outputDirectory>${project.build.outputDirectory}/META-INF/versions/11</outputDirectory>
             </configuration>
@@ -463,7 +462,7 @@
         </executions>
       </plugin>
 
-      <plugin><!-- Extends maven-apache-parent pom.xml -->
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <executions>
@@ -489,7 +488,7 @@
               <jdkToolchain>
                 <version>11</version>
               </jdkToolchain>  
-              <!-- 'exports' are required for compile by verify, which runs against the produced jars.
+              <!-- 'Verify' runs against the produced jars.
                    'opens'' is required to run the tests.  Note that the target is ALL-UNNAMED,
                    because the test code is part of the classpath not the modulepath.
                    The following export may be required in a different environment:
