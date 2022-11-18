@@ -19,7 +19,15 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.XxHash.*;
+import static org.apache.datasketches.memory.XxHash.hashByteArr;
+import static org.apache.datasketches.memory.XxHash.hashCharArr;
+import static org.apache.datasketches.memory.XxHash.hashDoubleArr;
+import static org.apache.datasketches.memory.XxHash.hashFloatArr;
+import static org.apache.datasketches.memory.XxHash.hashIntArr;
+import static org.apache.datasketches.memory.XxHash.hashLong;
+import static org.apache.datasketches.memory.XxHash.hashLongArr;
+import static org.apache.datasketches.memory.XxHash.hashShortArr;
+import static org.apache.datasketches.memory.XxHash.hashString;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

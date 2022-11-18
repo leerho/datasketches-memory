@@ -190,6 +190,7 @@ under the License.
         <!-- Used for xxHash testing -->
         <groupId>net.openhft</groupId>
         <artifactId>zero-allocation-hashing</artifactId>
+        <type>bundle</type>
         <version>${zero-allocation-hashing.version}</version>
         <scope>test</scope>
       </dependency>
@@ -361,6 +362,7 @@ under the License.
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
           <configuration>
+            <useModulePath>false</useModulePath> <!-- tests use classpath -->
             <trimStackTrace>false</trimStackTrace>
             <useManifestOnlyJar>false</useManifestOnlyJar>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>

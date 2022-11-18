@@ -57,6 +57,7 @@
       <!-- Used for xxHash testing -->
       <groupId>net.openhft</groupId>
       <artifactId>zero-allocation-hashing</artifactId>
+      <version>${zero-allocation-hashing.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
