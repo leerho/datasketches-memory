@@ -83,7 +83,7 @@ under the License.
   </developers>
 
   <!--
-       NOTE:
+       N O T E:
        The datasketches-memory submodule uses the Maven project-aggregation feature and does not inherit
        from this root module as a parent; so that there is no runtime dependency on the parent project (root module).
        As a result, some properties from this POM (including the version) are duplicated in the datasketches-memory
@@ -95,7 +95,7 @@ under the License.
     <!-- UNIQUE FOR THIS JAVA COMPONENT -->
     <protobuf-java.version>4.0.0-rc-2</protobuf-java.version>
     <!-- Used for UTF8 testing -->
-    <zero-allocation-hashing.version>0.15</zero-allocation-hashing.version>
+    <zero-allocation-hashing.version>0.16</zero-allocation-hashing.version>
     <!-- END:UNIQUE FOR THIS JAVA COMPONENT -->
 
     <!-- Test -->
