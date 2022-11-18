@@ -538,6 +538,7 @@ under the License.
   <modules>
     <module>datasketches-memory-java8</module>
     <module>datasketches-memory-java11</module>
+    <module>datasketches-memory-java17</module>
   </modules>
 
 </project>
