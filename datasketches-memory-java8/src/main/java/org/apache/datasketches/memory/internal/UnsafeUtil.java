@@ -78,8 +78,6 @@ public final class UnsafeUtil {
   public static final long DOUBLE_SHIFT    = 3;
   public static final long OBJECT_SHIFT;     // varies, 2 or 3 depending on coop
 
-  public static final String LS = System.getProperty("line.separator");
-
   //@formatter:on
 
   static {

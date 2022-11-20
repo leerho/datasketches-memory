@@ -19,10 +19,10 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.UnsafeUtil.LS;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.assertBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.checkBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
+import static org.apache.datasketches.memory.internal.Util.LS;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

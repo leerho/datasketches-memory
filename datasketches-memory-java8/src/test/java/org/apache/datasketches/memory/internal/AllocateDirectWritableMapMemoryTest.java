@@ -24,6 +24,7 @@
 package org.apache.datasketches.memory.internal;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.datasketches.memory.internal.Util.LS;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -48,7 +49,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class AllocateDirectWritableMapMemoryTest {
-  private static final String LS = System.getProperty("line.separator");
 
   @BeforeClass
   public void setReadOnly() {

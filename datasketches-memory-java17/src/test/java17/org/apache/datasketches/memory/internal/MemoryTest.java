@@ -23,6 +23,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.LS;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -46,7 +47,6 @@ import org.testng.collections.Lists;
 import jdk.incubator.foreign.ResourceScope;
 
 public class MemoryTest {
-  private static final String LS = System.getProperty("line.separator");
   private static final MemoryRequestServer memReqSvr = BaseState.defaultMemReqSvr;
 
 

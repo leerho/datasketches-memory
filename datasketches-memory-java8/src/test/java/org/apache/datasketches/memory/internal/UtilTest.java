@@ -23,6 +23,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.LS;
 import static org.apache.datasketches.memory.internal.Util.characterPad;
 import static org.apache.datasketches.memory.internal.Util.getResourceBytes;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
@@ -46,7 +47,6 @@ import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
 public class UtilTest {
-  private static final String LS = System.getProperty("line.separator");
 
   //Binary Search
   @Test

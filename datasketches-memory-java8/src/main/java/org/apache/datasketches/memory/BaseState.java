@@ -31,6 +31,12 @@ import org.apache.datasketches.memory.internal.BaseStateImpl;
  * @author Lee Rhodes
  */
 public interface BaseState {
+
+  /**
+   * The java line separator character as a String.
+   */
+  static final String LS = System.getProperty("line.separator");
+
   /**
    * The placeholder for the default MemoryRequestServer, if set at all.
    */

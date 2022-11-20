@@ -21,7 +21,19 @@ package org.apache.datasketches.memory;
 
 /**
  * Defines the relative positional API.
- *
+ * This is different from and simpler than Java ByteBuffer positional API.
+ * <ul><li>All based on longs instead of ints.</li>
+ * <li>Eliminated "mark". Rarely used and confusing with its silent side effects.</li>
+ * <li>The invariants are {@code 0 <= start <= position <= end <= capacity}.</li>
+ * <li>It always starts up as (0, 0, capacity, capacity).</li>
+ * <li>You set (start, position, end) in one call with
+ * {@link #setStartPositionEnd(long, long, long)}</li>
+ * <li>Position can be set directly or indirectly when using the positional get/put methods.
+ * <li>Added incrementPosition(long), which is much easier when you know the increment.</li>
+ * <li>This approach eliminated a number of methods and checks, and has no unseen side effects,
+ * e.g., mark being invalidated.</li>
+ * <li>Clearer method naming (IMHO).</li>
+ * </ul>
  * @author Lee Rhodes
  */
 public interface BaseBuffer extends BaseState {

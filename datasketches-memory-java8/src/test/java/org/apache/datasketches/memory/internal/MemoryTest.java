@@ -23,6 +23,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.LS;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -46,7 +47,6 @@ import org.testng.annotations.Test;
 import org.testng.collections.Lists;
 
 public class MemoryTest {
-  private static final String LS = System.getProperty("line.separator");
 
   @BeforeClass
   public void setReadOnly() {
