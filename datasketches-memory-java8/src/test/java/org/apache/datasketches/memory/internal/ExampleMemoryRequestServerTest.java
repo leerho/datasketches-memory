@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertFalse;
 
 import java.nio.ByteOrder;
@@ -65,7 +66,7 @@ public class ExampleMemoryRequestServerTest {
   public void checkExampleMemoryRequestServer2() throws Exception {
     int bytes = 8;
     ExampleMemoryRequestServer svr = new ExampleMemoryRequestServer();
-    try (WritableHandle handle = WritableMemory.allocateDirect(bytes, ByteOrder.nativeOrder(), svr)) {
+    try (WritableHandle handle = WritableMemory.allocateDirect(bytes, NATIVE_BYTE_ORDER, svr)) {
       WritableMemory memStart = handle.getWritable();
       MemoryClient client = new MemoryClient(memStart);
       client.process();
@@ -76,7 +77,7 @@ public class ExampleMemoryRequestServerTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void checkZeroCapacity() throws Exception {
     ExampleMemoryRequestServer svr = new ExampleMemoryRequestServer();
-    try (WritableHandle wh = WritableMemory.allocateDirect(0, ByteOrder.nativeOrder(), svr)) {
+    try (WritableHandle wh = WritableMemory.allocateDirect(0, NATIVE_BYTE_ORDER, svr)) {
 
     }
   }

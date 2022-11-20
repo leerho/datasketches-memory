@@ -24,6 +24,7 @@
 package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.Util.LS;
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -31,7 +32,6 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 import java.io.File;
-import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.MapHandle;
 import org.apache.datasketches.memory.Memory;
@@ -59,13 +59,13 @@ public class AllocateDirectMapMemoryTest {
   @Test
   public void testIllegalArguments() throws Exception {
     File file = getResourceFile("GettysburgAddress.txt");
-    try (MapHandle rh = Memory.map(file, -1, Integer.MAX_VALUE, ByteOrder.nativeOrder())) {
+    try (MapHandle rh = Memory.map(file, -1, Integer.MAX_VALUE, NATIVE_BYTE_ORDER)) {
       fail("Failed: testIllegalArgumentException: Position was negative.");
     } catch (IllegalArgumentException e) {
       //ok
     }
 
-    try (MapHandle rh = Memory.map(file, 0, -1, ByteOrder.nativeOrder())) {
+    try (MapHandle rh = Memory.map(file, 0, -1, NATIVE_BYTE_ORDER)) {
       fail("Failed: testIllegalArgumentException: Size was negative.");
     } catch (IllegalArgumentException e) {
       //ok
@@ -76,7 +76,7 @@ public class AllocateDirectMapMemoryTest {
   public void testMapAndMultipleClose() throws Exception {
     File file = getResourceFile("GettysburgAddress.txt");
     long memCapacity = file.length();
-    try (MapHandle rh = Memory.map(file, 0, memCapacity, ByteOrder.nativeOrder())) {
+    try (MapHandle rh = Memory.map(file, 0, memCapacity, NATIVE_BYTE_ORDER)) {
       Memory map = rh.get();
       assertEquals(memCapacity, map.getCapacity());
       rh.close();
@@ -91,7 +91,7 @@ public class AllocateDirectMapMemoryTest {
   public void testReadFailAfterClose() throws Exception {
     File file = getResourceFile("GettysburgAddress.txt");
     long memCapacity = file.length();
-    try (MapHandle rh = Memory.map(file, 0, memCapacity, ByteOrder.nativeOrder())) {
+    try (MapHandle rh = Memory.map(file, 0, memCapacity, NATIVE_BYTE_ORDER)) {
       Memory mmf = rh.get();
       rh.close();
       mmf.getByte(0);
@@ -104,7 +104,7 @@ public class AllocateDirectMapMemoryTest {
   public void testLoad() throws Exception {
     File file = getResourceFile("GettysburgAddress.txt");
     long memCapacity = file.length();
-    try (MapHandle rh = Memory.map(file, 0, memCapacity, ByteOrder.nativeOrder())) {
+    try (MapHandle rh = Memory.map(file, 0, memCapacity, NATIVE_BYTE_ORDER)) {
       rh.load();
       assertTrue(rh.isLoaded());
       rh.close();
@@ -116,7 +116,7 @@ public class AllocateDirectMapMemoryTest {
     File file = getResourceFile("GettysburgAddress.txt");
     long memCapacity = file.length();
     Memory mem;
-    try (MapHandle rh = Memory.map(file, 0, memCapacity, ByteOrder.nativeOrder())) {
+    try (MapHandle rh = Memory.map(file, 0, memCapacity, NATIVE_BYTE_ORDER)) {
       rh.load();
       assertTrue(rh.isLoaded());
       hand = rh;
@@ -130,7 +130,7 @@ public class AllocateDirectMapMemoryTest {
   public void testHandoffWithoutClose() throws Exception {
     File file = getResourceFile("GettysburgAddress.txt");
     long memCapacity = file.length();
-    MapHandle rh = Memory.map(file, 0, memCapacity, ByteOrder.nativeOrder());
+    MapHandle rh = Memory.map(file, 0, memCapacity, NATIVE_BYTE_ORDER);
     rh.load();
     assertTrue(rh.isLoaded());
     hand = rh;

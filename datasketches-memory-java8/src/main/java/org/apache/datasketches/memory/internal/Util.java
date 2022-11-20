@@ -36,14 +36,19 @@ import org.apache.datasketches.memory.Memory;
  * @author Lee Rhodes
  */
 public final class Util {
+
+  /**
+   * The java line separator character as a String.
+   */
   public static final String LS = System.getProperty("line.separator");
 
   //Byte Order related
-  public static final ByteOrder NON_NATIVE_BYTE_ORDER = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
+  public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
+  public static final ByteOrder NON_NATIVE_BYTE_ORDER = NATIVE_BYTE_ORDER == ByteOrder.LITTLE_ENDIAN
       ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 
   public static ByteOrder otherByteOrder(final ByteOrder order) {
-    return (order == ByteOrder.nativeOrder()) ? NON_NATIVE_BYTE_ORDER : ByteOrder.nativeOrder();
+    return (order == NATIVE_BYTE_ORDER) ? NON_NATIVE_BYTE_ORDER : ByteOrder.nativeOrder();
   }
 
   /**

@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -83,7 +84,7 @@ public class AllocateDirectMemoryTest {
     WritableMemory wmem = null;
     try (ResourceScope scope = ResourceScope.newConfinedScope()) {
       wmem = WritableMemory.allocateDirect( 128, 8, scope,
-          BaseState.NON_NATIVE_BYTE_ORDER, memReqSvr);
+          NON_NATIVE_BYTE_ORDER, memReqSvr);
       wmem.putChar(0, (char) 1);
       assertEquals(wmem.getByte(1), (byte) 1);
     }

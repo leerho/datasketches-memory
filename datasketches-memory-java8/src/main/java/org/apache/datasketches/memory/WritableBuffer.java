@@ -19,6 +19,8 @@
 
 package org.apache.datasketches.memory;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -151,7 +153,7 @@ public interface WritableBuffer extends Buffer {
    * @return WritableMemory
    */
   default WritableMemory asWritableMemory() {
-    return asWritableMemory(ByteOrder.nativeOrder());
+    return asWritableMemory(NATIVE_BYTE_ORDER);
   }
 
   /**

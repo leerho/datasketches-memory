@@ -19,6 +19,9 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
+
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 

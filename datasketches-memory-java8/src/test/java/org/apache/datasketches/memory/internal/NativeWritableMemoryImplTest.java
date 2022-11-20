@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -27,11 +28,11 @@ import static org.testng.Assert.fail;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.ReadOnlyException;
 import org.apache.datasketches.memory.WritableBuffer;
+import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
@@ -436,7 +437,7 @@ public class NativeWritableMemoryImplTest {
   public void checkByteBufferWrap() {
     int memCapacity = 64;
     ByteBuffer byteBuf = ByteBuffer.allocate(memCapacity);
-    byteBuf.order(ByteOrder.nativeOrder());
+    byteBuf.order(NATIVE_BYTE_ORDER);
 
     for (int i=0; i<memCapacity; i++) {
       byteBuf.put(i, (byte) i);
@@ -477,7 +478,7 @@ public class NativeWritableMemoryImplTest {
   public void checkWrapWithBBReadonly2() {
     int memCapacity = 64;
     ByteBuffer byteBuf = ByteBuffer.allocate(memCapacity);
-    byteBuf.order(ByteOrder.nativeOrder());
+    byteBuf.order(NATIVE_BYTE_ORDER);
     ByteBuffer byteBufRO = byteBuf.asReadOnlyBuffer();
 
     WritableMemory.writableWrap(byteBufRO);
@@ -487,13 +488,13 @@ public class NativeWritableMemoryImplTest {
   public void checkWrapWithDirectBBReadonly() {
     int memCapacity = 64;
     ByteBuffer byteBuf = ByteBuffer.allocateDirect(memCapacity);
-    byteBuf.order(ByteOrder.nativeOrder());
+    byteBuf.order(NATIVE_BYTE_ORDER);
 
     for (int i = 0; i < memCapacity; i++) {
       byteBuf.put(i, (byte) i);
     }
     ByteBuffer byteBufRO = byteBuf.asReadOnlyBuffer();
-    byteBufRO.order(ByteOrder.nativeOrder());
+    byteBufRO.order(NATIVE_BYTE_ORDER);
 
     Memory mem = Memory.wrap(byteBufRO);
 
@@ -509,7 +510,7 @@ public class NativeWritableMemoryImplTest {
     int memCapacity = 64;
     ByteBuffer byteBuf = ByteBuffer.allocateDirect(memCapacity);
     ByteBuffer byteBufRO = byteBuf.asReadOnlyBuffer();
-    byteBufRO.order(ByteOrder.nativeOrder());
+    byteBufRO.order(NATIVE_BYTE_ORDER);
 
     WritableMemory.writableWrap(byteBufRO);
   }
@@ -518,7 +519,7 @@ public class NativeWritableMemoryImplTest {
   public void checkByteBufferWrapDirectAccess() {
     int memCapacity = 64;
     ByteBuffer byteBuf = ByteBuffer.allocateDirect(memCapacity);
-    byteBuf.order(ByteOrder.nativeOrder());
+    byteBuf.order(NATIVE_BYTE_ORDER);
 
     for (int i=0; i<memCapacity; i++) {
       byteBuf.put(i, (byte) i);

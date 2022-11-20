@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -33,7 +34,16 @@ import java.util.Objects;
  */
 @SuppressWarnings("javadoc")
 final class Util {
+
+  /**
+   * The java line separator character as a String.
+   */
   static final String LS = System.getProperty("line.separator");
+
+  static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
+  static final ByteOrder NON_NATIVE_BYTE_ORDER =
+      (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+
 
   private Util() { }
 

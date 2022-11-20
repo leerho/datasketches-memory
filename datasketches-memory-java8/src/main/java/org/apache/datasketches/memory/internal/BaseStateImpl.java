@@ -22,7 +22,7 @@ package org.apache.datasketches.memory.internal;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.assertBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.checkBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
-import static org.apache.datasketches.memory.internal.Util.LS;
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -101,7 +101,7 @@ public abstract class BaseStateImpl implements BaseState {
 
   @Override
   public final ByteOrder getTypeByteOrder() {
-    return isNonNativeType() ? Util.NON_NATIVE_BYTE_ORDER : ByteOrder.nativeOrder();
+    return isNonNativeType() ? Util.NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
   }
 
   /**
@@ -113,13 +113,13 @@ public abstract class BaseStateImpl implements BaseState {
     if (byteOrder == null) {
       throw new IllegalArgumentException("ByteOrder parameter cannot be null.");
     }
-    return ByteOrder.nativeOrder() == byteOrder;
+    return NATIVE_BYTE_ORDER == byteOrder;
   }
 
   @Override
   public final boolean isByteOrderCompatible(final ByteOrder byteOrder) {
     final ByteOrder typeBO = getTypeByteOrder();
-    return typeBO == ByteOrder.nativeOrder() && typeBO == byteOrder;
+    return typeBO == NATIVE_BYTE_ORDER && typeBO == byteOrder;
   }
 
   @Override
@@ -438,7 +438,7 @@ public abstract class BaseStateImpl implements BaseState {
     sb.append("Valid               : ").append(state.isValid()).append(LS);
     sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
     sb.append("Type Byte Order     : ").append(state.getTypeByteOrder().toString()).append(LS);
-    sb.append("Native Byte Order   : ").append(ByteOrder.nativeOrder().toString()).append(LS);
+    sb.append("Native Byte Order   : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
     sb.append("JDK Runtime Version : ").append(UnsafeUtil.JDK).append(LS);
     //Data detail
     sb.append("Data, littleEndian  :  0  1  2  3  4  5  6  7");

@@ -21,6 +21,7 @@ package org.apache.datasketches.memory.internal;
 
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

@@ -33,14 +33,9 @@ import jdk.incubator.foreign.ResourceScope;
  */
 public interface BaseState {
 
-  /**
-   * The java line separator character as a String.
-   */
-  static final String LS = System.getProperty("line.separator");
-
-  static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-  static final ByteOrder NON_NATIVE_BYTE_ORDER =
-      (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+//  static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
+//  static final ByteOrder NON_NATIVE_BYTE_ORDER =
+//      (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 
   /**
    * Currently used only for test, hold for possible future use

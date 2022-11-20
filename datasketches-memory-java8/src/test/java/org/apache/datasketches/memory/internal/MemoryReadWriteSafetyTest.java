@@ -19,10 +19,11 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.MapHandle;
 import org.apache.datasketches.memory.Memory;
@@ -132,13 +133,13 @@ public class MemoryReadWriteSafetyTest {
 
   @Test(expectedExceptions = AssertionError.class)
   public void testByteArrayWrapWithBO() {
-    WritableMemory mem1 = (WritableMemory) Memory.wrap(new byte[8], ByteOrder.nativeOrder());
+    WritableMemory mem1 = (WritableMemory) Memory.wrap(new byte[8], NATIVE_BYTE_ORDER);
     mem1.putInt(0, 1);
   }
 
   @Test(expectedExceptions = AssertionError.class)
   public void testByteArrayWrapWithOffsetsAndBO() {
-    WritableMemory mem1 = (WritableMemory) Memory.wrap(new byte[8], 0, 4, ByteOrder.nativeOrder());
+    WritableMemory mem1 = (WritableMemory) Memory.wrap(new byte[8], 0, 4, NATIVE_BYTE_ORDER);
     mem1.putInt(0, 1);
   }
 
@@ -210,7 +211,7 @@ public class MemoryReadWriteSafetyTest {
     File tempFile = File.createTempFile("test", "test");
     tempFile.deleteOnExit();
     new RandomAccessFile(tempFile, "rw").setLength(8);
-    try (MapHandle h = Memory.map(tempFile, 0, 4, ByteOrder.nativeOrder())) {
+    try (MapHandle h = Memory.map(tempFile, 0, 4, NATIVE_BYTE_ORDER)) {
       ((WritableMemory) h.get()).putInt(0, 1);
     }
   }
@@ -221,7 +222,7 @@ public class MemoryReadWriteSafetyTest {
     File tempFile = File.createTempFile("test", "test");
     tempFile.deleteOnExit();
     new RandomAccessFile(tempFile, "rw").setLength(8);
-    try (MapHandle unused = Memory.map(tempFile, 0, 16, ByteOrder.nativeOrder())) {
+    try (MapHandle unused = Memory.map(tempFile, 0, 16, NATIVE_BYTE_ORDER)) {
     }
   }
 }

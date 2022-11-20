@@ -24,6 +24,8 @@
 package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.Util.LS;
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -177,7 +179,7 @@ public class MemoryTest {
     int n = 10; //longs
     byte[] arr = new byte[n * 8];
     ByteBuffer bb = ByteBuffer.wrap(arr); //non-native order
-    WritableMemory wmem = WritableMemory.writableWrap(bb, BaseState.NON_NATIVE_BYTE_ORDER, memReqSvr);
+    WritableMemory wmem = WritableMemory.writableWrap(bb, NON_NATIVE_BYTE_ORDER, memReqSvr);
     for (int i = 0; i < n; i++) { //write to wmem
       wmem.putLong(i * 8, i);
     }
@@ -189,7 +191,7 @@ public class MemoryTest {
       long v = bb.getLong(i * 8);
       assertEquals(v, i);
     }
-    Memory mem1 = Memory.wrap(arr, BaseState.NON_NATIVE_BYTE_ORDER);
+    Memory mem1 = Memory.wrap(arr, NON_NATIVE_BYTE_ORDER);
     for (int i = 0; i < n; i++) { //read from wrapped arr
       long v = mem1.getLong(i * 8);
       assertEquals(v, i);
@@ -238,10 +240,10 @@ public class MemoryTest {
     ByteBuffer bb = ByteBuffer.allocate(n * 8);
     bb.order(ByteOrder.BIG_ENDIAN); //ignored
     Memory mem = Memory.wrap(bb); //Defaults to LE
-    assertTrue(mem.getByteOrder() == ByteOrder.nativeOrder());
+    assertTrue(mem.getByteOrder() == NATIVE_BYTE_ORDER);
     assertEquals(mem.getByteOrder(), ByteOrder.LITTLE_ENDIAN);
     //Now explicitly set it
-    mem = Memory.wrap(bb, BaseState.NON_NATIVE_BYTE_ORDER);
+    mem = Memory.wrap(bb, NON_NATIVE_BYTE_ORDER);
     assertFalse(mem.getByteOrder() == ByteOrder.nativeOrder());
     assertEquals(mem.getByteOrder(), ByteOrder.BIG_ENDIAN);
   }
@@ -298,7 +300,7 @@ public class MemoryTest {
     long[] arr = new long[n];
     for (int i = 0; i < n; i++) { arr[i] = i; }
     Memory mem = Memory.wrap(arr);
-    Memory reg = mem.region(n2 * 8, n2 * 8, BaseState.NON_NATIVE_BYTE_ORDER); //top half
+    Memory reg = mem.region(n2 * 8, n2 * 8, NON_NATIVE_BYTE_ORDER); //top half
     for (int i = 0; i < n2; i++) {
       long v = Long.reverseBytes(reg.getLong(i * 8));
       long e = i + n2;
@@ -338,7 +340,7 @@ public class MemoryTest {
       //println("" + wmem.getLong(i * 8));
     }
     //println("");
-    WritableMemory reg = wmem.writableRegion(n2 * 8, n2 * 8, BaseState.NON_NATIVE_BYTE_ORDER);
+    WritableMemory reg = wmem.writableRegion(n2 * 8, n2 * 8, NON_NATIVE_BYTE_ORDER);
     for (int i = 0; i < n2; i++) { reg.putLong(i * 8, i); }
     for (int i = 0; i < n; i++) {
       long v = wmem.getLong(i * 8);
@@ -401,7 +403,7 @@ public class MemoryTest {
     assertNull(wbuf.getMemoryRequestServer());
 
     //ON HEAP
-    wmem = WritableMemory.writableWrap(new byte[16], 0, 16, BaseState.NATIVE_BYTE_ORDER, memReqSvr);
+    wmem = WritableMemory.writableWrap(new byte[16], 0, 16, NATIVE_BYTE_ORDER, memReqSvr);
     assertNotNull(wmem.getMemoryRequestServer());
     wbuf = wmem.asWritableBuffer();
     assertNotNull(wbuf.getMemoryRequestServer());

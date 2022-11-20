@@ -25,6 +25,7 @@ package org.apache.datasketches.memory.internal;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.datasketches.memory.internal.Util.LS;
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -122,7 +123,7 @@ public class AllocateDirectWritableMapMemoryTest {
     final long bytes = 8;
     WritableMemory wmem = null;
     try (ResourceScope scope = ResourceScope.newConfinedScope()) {
-      wmem = WritableMemory.writableMap(file, 0L, bytes, scope, BaseState.NON_NATIVE_BYTE_ORDER);
+      wmem = WritableMemory.writableMap(file, 0L, bytes, scope, NON_NATIVE_BYTE_ORDER);
       wmem.putChar(0, (char) 1);
       assertEquals(wmem.getByte(1), (byte) 1);
     }

@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.Util.negativeCheck;
 
 import java.io.File;
@@ -75,7 +76,7 @@ public interface Memory extends BaseState {
    * Please read Javadocs for {@link Handle}.
    */
   static MapHandle map(File file) {
-    return map(file, 0, file.length(), ByteOrder.nativeOrder());
+    return map(file, 0, file.length(), NATIVE_BYTE_ORDER);
   }
 
   /**
@@ -109,7 +110,7 @@ public interface Memory extends BaseState {
    * offsetBytes and capacityBytes.
    */
   default Memory region(long offsetBytes, long capacityBytes) {
-    return region(offsetBytes, capacityBytes, ByteOrder.nativeOrder());
+    return region(offsetBytes, capacityBytes, NATIVE_BYTE_ORDER);
   }
 
   /**
@@ -141,7 +142,7 @@ public interface Memory extends BaseState {
    * @return a new <i>Buffer</i>
    */
   default Buffer asBuffer() {
-    return asBuffer(ByteOrder.nativeOrder());
+    return asBuffer(NATIVE_BYTE_ORDER);
   }
 
   /**
@@ -168,7 +169,7 @@ public interface Memory extends BaseState {
    */
   static Memory wrap(byte[] array) {
     Objects.requireNonNull(array, "array must be non-null");
-    return wrap(array, 0, array.length, ByteOrder.nativeOrder());
+    return wrap(array, 0, array.length, NATIVE_BYTE_ORDER);
   }
 
   /**
@@ -195,7 +196,7 @@ public interface Memory extends BaseState {
     negativeCheck(offsetBytes, "offsetBytes");
     negativeCheck(lengthBytes, "lengthBytes");
     UnsafeUtil.checkBounds(offsetBytes, lengthBytes, array.length);
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0, lengthBytes, true, ByteOrder.nativeOrder(), null);
+    return BaseWritableMemoryImpl.wrapHeapArray(array, 0, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -206,7 +207,7 @@ public interface Memory extends BaseState {
   static Memory wrap(boolean[] array) {
     Objects.requireNonNull(array, "array must be non-null");
     final long lengthBytes = array.length << Prim.BOOLEAN.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0, lengthBytes, true, ByteOrder.nativeOrder(), null);
+    return BaseWritableMemoryImpl.wrapHeapArray(array, 0, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -217,7 +218,7 @@ public interface Memory extends BaseState {
   static Memory wrap(char[] array) {
     Objects.requireNonNull(array, "array must be non-null");
     final long lengthBytes = array.length << Prim.CHAR.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, ByteOrder.nativeOrder(), null);
+    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -228,7 +229,7 @@ public interface Memory extends BaseState {
   static Memory wrap(short[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.SHORT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, ByteOrder.nativeOrder(), null);
+    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -239,7 +240,7 @@ public interface Memory extends BaseState {
   static Memory wrap(int[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.INT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, ByteOrder.nativeOrder(), null);
+    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -250,7 +251,7 @@ public interface Memory extends BaseState {
   static Memory wrap(long[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.LONG.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, ByteOrder.nativeOrder(), null);
+    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -261,7 +262,7 @@ public interface Memory extends BaseState {
   static Memory wrap(float[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.FLOAT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, ByteOrder.nativeOrder(), null);
+    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -272,7 +273,7 @@ public interface Memory extends BaseState {
   static Memory wrap(double[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.DOUBLE.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, ByteOrder.nativeOrder(), null);
+    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   //PRIMITIVE getX() and getXArray()

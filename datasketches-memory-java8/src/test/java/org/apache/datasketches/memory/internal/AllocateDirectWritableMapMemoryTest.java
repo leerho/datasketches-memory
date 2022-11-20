@@ -25,6 +25,7 @@ package org.apache.datasketches.memory.internal;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.datasketches.memory.internal.Util.LS;
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -93,7 +94,7 @@ public class AllocateDirectWritableMapMemoryTest {
 
     try (
         WritableMapHandle dstHandle
-          = WritableMemory.writableMap(file, 0, bytes, ByteOrder.nativeOrder());
+          = WritableMemory.writableMap(file, 0, bytes, NATIVE_BYTE_ORDER);
         WritableHandle srcHandle = WritableMemory.allocateDirect(bytes)) {
 
       WritableMemory dstMem = dstHandle.getWritable();
@@ -139,7 +140,7 @@ public class AllocateDirectWritableMapMemoryTest {
   public void testMapException() throws IOException {
     File dummy = createFile("dummy.txt", ""); //zero length
     //throws java.lang.reflect.InvocationTargetException
-    Memory.map(dummy, 0, dummy.length(), ByteOrder.nativeOrder());
+    Memory.map(dummy, 0, dummy.length(), NATIVE_BYTE_ORDER);
   }
 
   @Test(expectedExceptions = ReadOnlyException.class)
@@ -156,7 +157,7 @@ public class AllocateDirectWritableMapMemoryTest {
   public void checkOverLength() throws Exception  {
     File file = getResourceFile("GettysburgAddress.txt");
     try (WritableMapHandle rh =
-        WritableMemory.writableMap(file, 0, 1 << 20, ByteOrder.nativeOrder())) {
+        WritableMemory.writableMap(file, 0, 1 << 20, NATIVE_BYTE_ORDER)) {
       //
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -173,7 +174,7 @@ public class AllocateDirectWritableMapMemoryTest {
     byte[] correctByteArr = correctStr.getBytes(UTF_8);
     long corrBytes = correctByteArr.length;
 
-    try (MapHandle rh = Memory.map(origFile, 0, origBytes, ByteOrder.nativeOrder())) {
+    try (MapHandle rh = Memory.map(origFile, 0, origBytes, NATIVE_BYTE_ORDER)) {
       Memory map = rh.get();
       rh.load();
       assertTrue(rh.isLoaded());

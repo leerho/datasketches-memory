@@ -19,13 +19,13 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.DefaultMemoryRequestServer;
 import org.apache.datasketches.memory.MemoryRequestServer;
@@ -57,7 +57,7 @@ public class DruidIssue11544Test {
 
     //Start with a ByteBuffer
     ByteBuffer bb = ByteBuffer.allocateDirect(size1);
-    bb.order(ByteOrder.nativeOrder());
+    bb.order(NATIVE_BYTE_ORDER);
 
     //Wrap bb into WritableMemory
     WritableMemory mem1 = WritableMemory.writableWrap(bb);

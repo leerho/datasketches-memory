@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -39,7 +40,7 @@ public class WritableMemoryTest {
     ByteBuffer bb = ByteBuffer.allocate(64); //big endian
     WritableMemory wmem = WritableMemory.writableWrap(bb);
     assertEquals(wmem.getTypeByteOrder(), ByteOrder.BIG_ENDIAN);
-    wmem = WritableMemory.writableWrap(bb, ByteOrder.nativeOrder());
+    wmem = WritableMemory.writableWrap(bb, NATIVE_BYTE_ORDER);
     assertEquals(wmem.getTypeByteOrder(), ByteOrder.LITTLE_ENDIAN);
   }
 
@@ -163,11 +164,11 @@ public class WritableMemoryTest {
   @Test
   public void checkWrapWithBO() {
     WritableMemory wmem = WritableMemory.writableWrap(new byte[0], ByteOrder.BIG_ENDIAN);
-    boolean nativeBO = wmem.getTypeByteOrder() == ByteOrder.nativeOrder();
+    boolean nativeBO = wmem.getTypeByteOrder() == NATIVE_BYTE_ORDER;
     assertFalse(nativeBO);
     println("" + nativeBO);
     wmem = WritableMemory.writableWrap(new byte[8], ByteOrder.BIG_ENDIAN);
-    nativeBO = wmem.getTypeByteOrder() == ByteOrder.nativeOrder();
+    nativeBO = wmem.getTypeByteOrder() == NATIVE_BYTE_ORDER;
     assertFalse(nativeBO);
     println("" + nativeBO);
   }

@@ -20,12 +20,11 @@
 package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_DOUBLE_INDEX_SCALE;
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-
-import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
@@ -94,7 +93,7 @@ public class BaseStateTest {
   @Test
   public void checkIsByteOrderCompatible() {
     WritableMemory wmem = WritableMemory.allocate(8);
-    assertTrue(wmem.isByteOrderCompatible(ByteOrder.nativeOrder()));
+    assertTrue(wmem.isByteOrderCompatible(NATIVE_BYTE_ORDER));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -105,7 +104,7 @@ public class BaseStateTest {
 
   @Test
   public void checkIsNativeByteOrder() {
-    assertTrue(BaseStateImpl.isNativeByteOrder(ByteOrder.nativeOrder()));
+    assertTrue(BaseStateImpl.isNativeByteOrder(NATIVE_BYTE_ORDER));
     try {
       BaseStateImpl.isNativeByteOrder(null);
       fail();

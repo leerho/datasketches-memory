@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
@@ -43,7 +44,7 @@ public class SpecificLeafTest {
   public void checkByteBufferLeafs() {
     int bytes = 128;
     ByteBuffer bb = ByteBuffer.allocate(bytes);
-    bb.order(ByteOrder.nativeOrder());
+    bb.order(NATIVE_BYTE_ORDER);
 
     Memory mem = Memory.wrap(bb).region(0, bytes, ByteOrder.nativeOrder());
     assertTrue(((BaseStateImpl)mem).isBBType());
@@ -73,8 +74,8 @@ public class SpecificLeafTest {
       checkCrossLeafTypeIds(wmem);
       WritableMemory nnwmem = wmem.writableRegion(0, bytes, Util.NON_NATIVE_BYTE_ORDER);
 
-      Memory mem = wmem.region(0, bytes, ByteOrder.nativeOrder());
-      Buffer buf = mem.asBuffer().region(0, bytes, ByteOrder.nativeOrder());
+      Memory mem = wmem.region(0, bytes, NATIVE_BYTE_ORDER);
+      Buffer buf = mem.asBuffer().region(0, bytes, NATIVE_BYTE_ORDER);
 
 
       Memory mem2 = nnwmem.region(0, bytes, Util.NON_NATIVE_BYTE_ORDER);
@@ -106,15 +107,15 @@ public class SpecificLeafTest {
 
     final long bytes = 128;
 
-    try (WritableMapHandle h = WritableMemory.writableMap(file, 0L, bytes, ByteOrder.nativeOrder())) {
+    try (WritableMapHandle h = WritableMemory.writableMap(file, 0L, bytes, NATIVE_BYTE_ORDER)) {
       WritableMemory mem = h.getWritable(); //native mem
       assertTrue(((BaseStateImpl)mem).isMapType());
       assertFalse(mem.isReadOnly());
       checkCrossLeafTypeIds(mem);
       Memory nnreg = mem.region(0, bytes, Util.NON_NATIVE_BYTE_ORDER);
 
-      Memory reg = mem.region(0, bytes, ByteOrder.nativeOrder());
-      Buffer buf = reg.asBuffer().region(0, bytes, ByteOrder.nativeOrder());
+      Memory reg = mem.region(0, bytes, NATIVE_BYTE_ORDER);
+      Buffer buf = reg.asBuffer().region(0, bytes, NATIVE_BYTE_ORDER);
       Buffer buf4 = buf.duplicate();
 
       Memory reg2 = nnreg.region(0, bytes, Util.NON_NATIVE_BYTE_ORDER);
@@ -139,8 +140,8 @@ public class SpecificLeafTest {
     checkCrossLeafTypeIds(mem);
     Memory nnreg = mem.region(0, bytes, Util.NON_NATIVE_BYTE_ORDER);
 
-    Memory reg = mem.region(0, bytes, ByteOrder.nativeOrder());
-    Buffer buf = reg.asBuffer().region(0, bytes, ByteOrder.nativeOrder());
+    Memory reg = mem.region(0, bytes, NATIVE_BYTE_ORDER);
+    Buffer buf = reg.asBuffer().region(0, bytes, NATIVE_BYTE_ORDER);
     Buffer buf4 = buf.duplicate();
 
     Memory reg2 = nnreg.region(0, bytes, Util.NON_NATIVE_BYTE_ORDER);

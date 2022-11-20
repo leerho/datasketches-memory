@@ -19,13 +19,13 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.DefaultMemoryRequestServer;
@@ -39,7 +39,7 @@ public class Buffer2Test {
 
   @Test
   public void testWrapByteBuf() {
-    ByteBuffer bb = ByteBuffer.allocate(64).order(ByteOrder.nativeOrder());
+    ByteBuffer bb = ByteBuffer.allocate(64).order(NATIVE_BYTE_ORDER);
 
     Byte b = 0;
     while (bb.hasRemaining()) {
@@ -48,7 +48,7 @@ public class Buffer2Test {
     }
     bb.position(0);
 
-    Buffer buffer = Buffer.wrap(bb.asReadOnlyBuffer().order(ByteOrder.nativeOrder()));
+    Buffer buffer = Buffer.wrap(bb.asReadOnlyBuffer().order(NATIVE_BYTE_ORDER));
     while (buffer.hasRemaining()) {
       assertEquals(bb.get(), buffer.getByte());
     }
@@ -59,7 +59,7 @@ public class Buffer2Test {
 
   @Test
   public void testWrapDirectBB() {
-    ByteBuffer bb = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder());
+    ByteBuffer bb = ByteBuffer.allocateDirect(64).order(NATIVE_BYTE_ORDER);
 
     Byte b = 0;
     while (bb.hasRemaining()) {
@@ -246,7 +246,7 @@ public class Buffer2Test {
 
   @Test
   public void testByteBufferPositionPreservation() {
-    ByteBuffer bb = ByteBuffer.allocate(64).order(ByteOrder.nativeOrder());
+    ByteBuffer bb = ByteBuffer.allocate(64).order(NATIVE_BYTE_ORDER);
 
     Byte b = 0;
     while (bb.hasRemaining()) {
@@ -263,7 +263,7 @@ public class Buffer2Test {
 
   @Test
   public void testGetAndHasRemaining() {
-    ByteBuffer bb = ByteBuffer.allocate(64).order(ByteOrder.nativeOrder());
+    ByteBuffer bb = ByteBuffer.allocate(64).order(NATIVE_BYTE_ORDER);
 
     Byte b = 0;
     while (bb.hasRemaining()) {
@@ -279,7 +279,7 @@ public class Buffer2Test {
 
   @Test
   public void testGetSetIncResetPosition() {
-    ByteBuffer bb = ByteBuffer.allocate(64).order(ByteOrder.nativeOrder());
+    ByteBuffer bb = ByteBuffer.allocate(64).order(NATIVE_BYTE_ORDER);
 
     Byte b = 0;
     while (bb.hasRemaining()) {
@@ -297,7 +297,7 @@ public class Buffer2Test {
 
   @Test
   public void testByteBufferSlice() {
-    ByteBuffer bb = ByteBuffer.allocate(64).order(ByteOrder.nativeOrder());
+    ByteBuffer bb = ByteBuffer.allocate(64).order(NATIVE_BYTE_ORDER);
 
     Byte b = 0;
     while (bb.hasRemaining()) {
@@ -306,7 +306,7 @@ public class Buffer2Test {
     }
     bb.position(10);
 
-    Buffer buffer = Buffer.wrap(bb.slice().order(ByteOrder.nativeOrder()));
+    Buffer buffer = Buffer.wrap(bb.slice().order(NATIVE_BYTE_ORDER));
     while (buffer.hasRemaining()) {
       assertEquals(bb.get(), buffer.getByte());
     }
@@ -319,7 +319,7 @@ public class Buffer2Test {
 
   @Test
   public void testDuplicateAndRegion() {
-    ByteBuffer bb = ByteBuffer.allocate(64).order(ByteOrder.nativeOrder());
+    ByteBuffer bb = ByteBuffer.allocate(64).order(NATIVE_BYTE_ORDER);
 
     Byte b = 0;
     while (bb.hasRemaining()) {
@@ -328,7 +328,7 @@ public class Buffer2Test {
     }
     bb.position(10);
 
-    Buffer buffer = Buffer.wrap(bb.slice().order(ByteOrder.nativeOrder())); //slice = 54
+    Buffer buffer = Buffer.wrap(bb.slice().order(NATIVE_BYTE_ORDER)); //slice = 54
     buffer.setPosition(30);//remaining = 24
     Buffer dupBuffer = buffer.duplicate(); //all 54
     Buffer regionBuffer = buffer.region(); //24
@@ -361,7 +361,7 @@ public class Buffer2Test {
 
   @Test
   public void testAsMemory() {
-    ByteBuffer bb = ByteBuffer.allocate(64).order(ByteOrder.nativeOrder());
+    ByteBuffer bb = ByteBuffer.allocate(64).order(NATIVE_BYTE_ORDER);
 
     Byte b = 0;
     while (bb.hasRemaining()) {
@@ -410,9 +410,9 @@ public class Buffer2Test {
   @Test
   public void checkWritableWrap() {
     ByteBuffer bb = ByteBuffer.allocate(16);
-    WritableBuffer buf = WritableBuffer.writableWrap(bb, ByteOrder.nativeOrder(), null);
+    WritableBuffer buf = WritableBuffer.writableWrap(bb, NATIVE_BYTE_ORDER, null);
     assertNotNull(buf);
-    buf = WritableBuffer.writableWrap(bb, ByteOrder.nativeOrder(), new DefaultMemoryRequestServer());
+    buf = WritableBuffer.writableWrap(bb, NATIVE_BYTE_ORDER, new DefaultMemoryRequestServer());
     assertNotNull(buf);
   }
 

@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -660,7 +661,7 @@ public class NativeWritableMemoryImplTest {
   public void checkAsBufferNonNative() {
     WritableMemory wmem = WritableMemory.allocate(64);
     wmem.putShort(0, (short) 1);
-    Buffer buf = wmem.asBuffer(BaseState.NON_NATIVE_BYTE_ORDER);
+    Buffer buf = wmem.asBuffer(NON_NATIVE_BYTE_ORDER);
     assertEquals(buf.getShort(0), 256);
   }
 

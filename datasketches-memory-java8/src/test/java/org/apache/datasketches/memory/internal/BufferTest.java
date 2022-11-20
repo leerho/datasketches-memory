@@ -19,16 +19,17 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
-import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.WritableBuffer;
+import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 import org.testng.collections.Lists;
@@ -113,7 +114,7 @@ public class BufferTest {
     int n = 1024; //longs
     byte[] arr = new byte[n * 8];
     ByteBuffer bb = ByteBuffer.wrap(arr);
-    bb.order(ByteOrder.nativeOrder());
+    bb.order(NATIVE_BYTE_ORDER);
 
     WritableBuffer wbuf = WritableBuffer.writableWrap(bb);
     for (int i = 0; i < n; i++) { //write to wbuf
@@ -135,7 +136,7 @@ public class BufferTest {
     int n = 1024; //longs
     byte[] arr = new byte[n * 8];
     ByteBuffer bb = ByteBuffer.wrap(arr);
-    bb.order(ByteOrder.nativeOrder());
+    bb.order(NATIVE_BYTE_ORDER);
 
     WritableBuffer wbuf = WritableBuffer.writableWrap(bb);
     for (int i = 0; i < n; i++) { //write to wbuf
@@ -168,7 +169,7 @@ public class BufferTest {
   public void checkByteBufDirect() {
     int n = 1024; //longs
     ByteBuffer bb = ByteBuffer.allocateDirect(n * 8);
-    bb.order(ByteOrder.nativeOrder());
+    bb.order(NATIVE_BYTE_ORDER);
 
     WritableBuffer wbuf = WritableBuffer.writableWrap(bb);
     for (int i = 0; i < n; i++) { //write to wmem
@@ -209,12 +210,12 @@ public class BufferTest {
   @Test
   public void checkReadOnlyHeapByteBuffer() {
     ByteBuffer bb = ByteBuffer.allocate(128);
-    bb.order(ByteOrder.nativeOrder());
+    bb.order(NATIVE_BYTE_ORDER);
     for (int i = 0; i < 128; i++) { bb.put(i, (byte)i); }
 
     bb.position(64);
     ByteBuffer slice = bb.slice().asReadOnlyBuffer();
-    slice.order(ByteOrder.nativeOrder());
+    slice.order(NATIVE_BYTE_ORDER);
 
     Buffer buf = Buffer.wrap(slice);
     for (int i = 0; i < 64; i++) {

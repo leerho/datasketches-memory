@@ -20,6 +20,8 @@
 package org.apache.datasketches.memory.internal;
 
 import static jdk.incubator.foreign.MemoryAccess.getByteAtOffset;
+import static org.apache.datasketches.memory.internal.Util.LS;
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
