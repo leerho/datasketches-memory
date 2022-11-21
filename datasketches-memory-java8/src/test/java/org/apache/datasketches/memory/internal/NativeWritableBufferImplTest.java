@@ -20,6 +20,7 @@
 package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -581,7 +582,7 @@ public class NativeWritableBufferImplTest {
   public void checkDuplicateNonNative() {
     WritableMemory wmem = WritableMemory.allocate(64);
     wmem.putShort(0, (short) 1);
-    Buffer buf = wmem.asWritableBuffer().duplicate(Util.NON_NATIVE_BYTE_ORDER);
+    Buffer buf = wmem.asWritableBuffer().duplicate(NON_NATIVE_BYTE_ORDER);
     assertEquals(buf.getShort(0), 256);
   }
 

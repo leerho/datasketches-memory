@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.fail;
@@ -90,7 +91,7 @@ public class AllocateDirectMemoryTest {
 
   @Test
   public void checkNonNativeDirect() throws Exception {
-    try (WritableHandle h = WritableMemory.allocateDirect(128, Util.NON_NATIVE_BYTE_ORDER, null)) {
+    try (WritableHandle h = WritableMemory.allocateDirect(128, NON_NATIVE_BYTE_ORDER, null)) {
       WritableMemory wmem = h.getWritable();
       wmem.putChar(0, (char) 1);
       assertEquals(wmem.getByte(1), (byte) 1);
