@@ -23,6 +23,7 @@ import static org.apache.datasketches.memory.internal.UnsafeUtil.assertBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.checkBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
 import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -101,7 +102,7 @@ public abstract class BaseStateImpl implements BaseState {
 
   @Override
   public final ByteOrder getTypeByteOrder() {
-    return isNonNativeType() ? Util.NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
+    return isNonNativeType() ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
   }
 
   /**

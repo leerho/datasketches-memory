@@ -25,6 +25,7 @@ package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.Util.LS;
 import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -267,7 +268,7 @@ public class MemoryTest {
     long[] arr = new long[n];
     for (int i = 0; i < n; i++) { arr[i] = i; }
     Memory mem = Memory.wrap(arr);
-    Memory reg = mem.region(n2 * 8, n2 * 8, Util.NON_NATIVE_BYTE_ORDER); //top half
+    Memory reg = mem.region(n2 * 8, n2 * 8, NON_NATIVE_BYTE_ORDER); //top half
     for (int i = 0; i < n2; i++) {
       long v = Long.reverseBytes(reg.getLong(i * 8));
       long e = i + n2;
@@ -307,7 +308,7 @@ public class MemoryTest {
       //println("" + wmem.getLong(i * 8));
     }
     //println("");
-    WritableMemory reg = wmem.writableRegion(n2 * 8, n2 * 8, Util.NON_NATIVE_BYTE_ORDER);
+    WritableMemory reg = wmem.writableRegion(n2 * 8, n2 * 8, NON_NATIVE_BYTE_ORDER);
     for (int i = 0; i < n2; i++) { reg.putLong(i * 8, i); }
     for (int i = 0; i < n; i++) {
       long v = wmem.getLong(i * 8);
