@@ -21,7 +21,6 @@ package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.Util.otherByteOrder;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -47,6 +46,10 @@ public class LeafImplTest {
   private static final ByteOrder NBO = NATIVE_BYTE_ORDER;
   private static final ByteOrder NNBO = NON_NATIVE_BYTE_ORDER;
   private static final MemoryRequestServer dummyMemReqSvr = new DummyMemoryRequestServer();
+
+  private static ByteOrder otherByteOrder(final ByteOrder order) {
+    return (order == ByteOrder.nativeOrder()) ? NNBO : ByteOrder.nativeOrder();
+  }
 
   static class DummyMemoryRequestServer implements MemoryRequestServer {
     @Override

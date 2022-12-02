@@ -20,6 +20,8 @@
 package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.Util.UNSAFE_COPY_THRESHOLD_BYTES;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,10 +29,9 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.Memory;
+import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class MemoryWriteToTest {
@@ -86,11 +87,16 @@ public class MemoryWriteToTest {
   }
 
   private static void testWriteTo(Memory mem) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    int cap = (int)mem.getCapacity();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(cap);
     try (WritableByteChannel out = Channels.newChannel(baos)) {
       mem.writeTo(0, mem.getCapacity(), out);
     }
     byte[] result = baos.toByteArray();
-    Assert.assertTrue(mem.equals(Memory.wrap(result)));
+    assertTrue(mem.equalTo(Memory.wrap(result)));
+    //OR
+    byte[] barr = new byte[cap];
+    mem.getByteArray(0, barr, 0, cap);
+    assertEquals(barr, result);
   }
 }

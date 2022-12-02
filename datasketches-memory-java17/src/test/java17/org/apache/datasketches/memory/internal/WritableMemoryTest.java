@@ -78,7 +78,7 @@ public class WritableMemoryTest {
     //assertTrue(eq1);
 
     WritableMemory wmem2 = WritableMemory.allocate(len + 1);
-    assertFalse(wmem1.equals(wmem2));
+    assertFalse(wmem1.equalTo(wmem2));
 
     WritableMemory reg1 = wmem1.writableRegion(0, wmem1.getCapacity());
     assertTrue(wmem1.equalTo(0, reg1, 0, wmem1.getCapacity()));

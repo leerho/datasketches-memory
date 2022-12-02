@@ -22,6 +22,7 @@ package org.apache.datasketches.memory.internal;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.assertBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.checkBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
+import static org.apache.datasketches.memory.internal.Util.LS;
 import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 
@@ -124,19 +125,10 @@ public abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final boolean equals(final Object that) {
-    if (this == that) { return true; }
-    return that instanceof BaseStateImpl
-      ? CompareAndCopy.equals(this, (BaseStateImpl) that)
-      : false;
-  }
-
-  @Override
-  public final boolean equalTo(final long thisOffsetBytes, final Object that,
+  public final boolean equalTo(final long thisOffsetBytes, final BaseState that,
       final long thatOffsetBytes, final long lengthBytes) {
-    return that instanceof BaseStateImpl
-      ? CompareAndCopy.equals(this, thisOffsetBytes, (BaseStateImpl) that, thatOffsetBytes, lengthBytes)
-      : false;
+    if (that == null) { return false; }
+    return CompareAndCopy.equals(this, thisOffsetBytes, (BaseStateImpl) that, thatOffsetBytes, lengthBytes);
   }
 
   //Overridden by ByteBuffer Leafs

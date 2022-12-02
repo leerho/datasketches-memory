@@ -47,10 +47,6 @@ public final class Util {
   public static final ByteOrder NON_NATIVE_BYTE_ORDER = NATIVE_BYTE_ORDER == ByteOrder.LITTLE_ENDIAN
       ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 
-  public static ByteOrder otherByteOrder(final ByteOrder order) {
-    return (order == NATIVE_BYTE_ORDER) ? NON_NATIVE_BYTE_ORDER : ByteOrder.nativeOrder();
-  }
-
   /**
    * Don't use sun.misc.Unsafe#copyMemory to copy blocks of memory larger than this
    * threshold, because internally it doesn't have safepoint polls, that may cause long

@@ -91,7 +91,7 @@ public class MemoryWriteToTest {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(cap);
     mem.writeToByteStream(0, cap, baos);
     byte[] result = baos.toByteArray();
-    assertTrue(mem.equalTo(0, Memory.wrap(result), 0, cap));
+    assertTrue(mem.equalTo(Memory.wrap(result)));
     //OR
     byte[] barr = new byte[cap];
     mem.getByteArray(0, barr, 0, cap);

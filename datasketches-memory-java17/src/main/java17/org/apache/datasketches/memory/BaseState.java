@@ -33,10 +33,6 @@ import jdk.incubator.foreign.ResourceScope;
  */
 public interface BaseState {
 
-//  static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-//  static final ByteOrder NON_NATIVE_BYTE_ORDER =
-//      (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-
   /**
    * Currently used only for test, hold for possible future use
    */
@@ -70,7 +66,10 @@ public interface BaseState {
    * @param that the given BaseState object
    * @return true if the given object has equal contents to this object.
    */
-  boolean equalTo(BaseState that);
+  default boolean equalTo(BaseState that) {
+    if (that == null || this.getCapacity() != that.getCapacity()) return false;
+    return equalTo(0, that, 0, that.getCapacity());
+  }
 
   /**
    * Returns true if the given object is an instance of this class and has equal contents to
@@ -83,8 +82,7 @@ public interface BaseState {
    * @return true if the given object has equal contents to this object in the given range of
    * bytes.
    */
-  boolean equalTo(long thisOffsetBytes, BaseState that,
-      long thatOffsetBytes, long lengthBytes);
+  boolean equalTo(long thisOffsetBytes, BaseState that, long thatOffsetBytes, long lengthBytes);
 
   /**
    * Forces any changes made to the contents of this mapped segment to be written to the storage device described
@@ -92,6 +90,13 @@ public interface BaseState {
    * <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#force()">force()</a>
    */
   void force();
+
+  /**
+   * Gets the current Type ByteOrder.
+   * This may be different from the ByteOrder of the backing resource and of the Native Byte Order.
+   * @return the current Type ByteOrder.
+   */
+  ByteOrder getByteOrder();
 
   /**
    * Gets the capacity of this object in bytes
@@ -104,13 +109,6 @@ public interface BaseState {
    * @return the configured MemoryRequestSever or null, if it has not been configured.
    */
   MemoryRequestServer getMemoryRequestServer();
-
-  /**
-   * Gets the current Type ByteOrder.
-   * This may be different from the ByteOrder of the backing resource and of the Native Byte Order.
-   * @return the current Type ByteOrder.
-   */
-  ByteOrder getByteOrder();
 
   /**
    * Returns true if this Memory is backed by a ByteBuffer.
@@ -205,6 +203,14 @@ public interface BaseState {
   void load();
 
   /**
+   * See <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#mismatch(jdk.incubator.foreign.MemorySegment)>mismatch</a>
+   * @param that the other BaseState
+   * @return the relative offset, in bytes, of the first mismatch between this and the given other BaseState object,
+   * otherwise -1 if no mismatch
+   */
+  long mismatch(BaseState that);
+
+  /**
    * Returns a positive number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &le; <i>that</i>
    * base address.
    * Returns a negative number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &gt; <i>that</i>
@@ -214,14 +220,6 @@ public interface BaseState {
    * @return a long value representing the ordering and size of overlap between <i>this</i> and <i>that</i>.
    */
   long nativeOverlap(BaseState that);
-
-  /**
-   * See <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#mismatch(jdk.incubator.foreign.MemorySegment)>mismatch</a>
-   * @param that the other BaseState
-   * @return the relative offset, in bytes, of the first mismatch between this and the given other BaseState object,
-   * otherwise -1 if no mismatch
-   */
-  long mismatch(BaseState that);
 
   /**
    * Returns the resource scope associated with this memory segment.

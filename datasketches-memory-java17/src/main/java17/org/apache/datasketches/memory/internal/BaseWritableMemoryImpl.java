@@ -279,11 +279,11 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
     return MemoryAccess.getByteAtOffset(seg, offsetBytes);
   }
 
-  @Override
+  @Override //fundamental limitation of MemorySegment in Java17
   public final void getByteArray(final long offsetBytes, final byte[] dstArray,
       final int dstOffsetBytes, final int lengthBytes) {
     checkBounds(dstOffsetBytes, lengthBytes, dstArray.length);
-    final MemorySegment srcSlice = seg.asSlice(offsetBytes, lengthBytes);
+    final MemorySegment srcSlice = seg.asSlice(offsetBytes, lengthBytes); //view
     final MemorySegment dstSlice = MemorySegment.ofArray(dstArray).asSlice(dstOffsetBytes, lengthBytes);
     dstSlice.copyFrom(srcSlice);
   }
@@ -309,7 +309,7 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
       final ByteArrayOutputStream out) throws IOException {
     checkBounds(offsetBytes, lengthBytes, seg.byteSize());
     final byte[] bArr = new byte[lengthBytes];
-    getByteArray(offsetBytes,bArr, 0, lengthBytes); //fundamental limitation of MemorySegment
+    getByteArray(offsetBytes,bArr, 0, lengthBytes);
     out.writeBytes(bArr);
   }
 

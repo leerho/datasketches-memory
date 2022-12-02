@@ -284,16 +284,10 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final boolean equalTo(final BaseState that) {
-    Objects.requireNonNull(that);
-    return equalTo(0, that, 0, that.getCapacity());
-  }
-
-  @Override
   public final boolean equalTo(final long thisOffsetBytes, final BaseState that,
       final long thatOffsetBytes, final long lengthBytes) {
-    Objects.requireNonNull(that);
-   return CompareAndCopy.equals(seg, thisOffsetBytes, ((BaseStateImpl) that).seg, thatOffsetBytes, lengthBytes);
+    if (that == null) { return false; }
+    return CompareAndCopy.equals(seg, thisOffsetBytes, ((BaseStateImpl) that).seg, thatOffsetBytes, lengthBytes);
   }
 
   @Override

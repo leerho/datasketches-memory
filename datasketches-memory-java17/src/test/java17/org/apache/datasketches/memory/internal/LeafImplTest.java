@@ -52,7 +52,7 @@ public class LeafImplTest {
     public void requestClose(WritableMemory memToClose, WritableMemory newMemory) { }
   }
 
-  public static ByteOrder otherByteOrder(final ByteOrder order) {
+  private static ByteOrder otherByteOrder(final ByteOrder order) {
     return (order == ByteOrder.nativeOrder()) ? NNBO : ByteOrder.nativeOrder();
   }
 
