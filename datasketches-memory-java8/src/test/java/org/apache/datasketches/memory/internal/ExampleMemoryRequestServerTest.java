@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
  * Examples of how to use the MemoryRequestServer with a memory hungry client.
  * @author Lee Rhodes
  */
+@SuppressWarnings("deprecation")
 public class ExampleMemoryRequestServerTest {
 
   /**
@@ -132,7 +133,7 @@ public class ExampleMemoryRequestServerTest {
 
     @Override
     public WritableMemory request(WritableMemory currentWMem, long capacityBytes) {
-     ByteOrder order = currentWMem.getTypeByteOrder();
+     ByteOrder order = currentWMem.getByteOrder();
      WritableHandle handle = WritableMemory.allocateDirect(capacityBytes, order, this);
      WritableMemory wmem = handle.getWritable();
      map.put(wmem, handle); //We track the newly allocated memory and its handle.

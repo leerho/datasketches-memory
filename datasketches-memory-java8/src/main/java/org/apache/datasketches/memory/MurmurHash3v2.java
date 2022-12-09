@@ -40,6 +40,7 @@ import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
  *
  * @author Lee Rhodes
  */
+@SuppressWarnings("deprecation")
 public final class MurmurHash3v2 {
   private static final long C1 = 0x87c37b91114253d5L;
   private static final long C2 = 0x4cf5ad432745937fL;

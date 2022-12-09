@@ -48,6 +48,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.collections.Lists;
 
+@SuppressWarnings("deprecation")
 public class MemoryTest {
 
   @BeforeClass
@@ -212,8 +213,8 @@ public class MemoryTest {
     ByteBuffer bb = ByteBuffer.allocate(n * 8);
     bb.order(ByteOrder.BIG_ENDIAN);
     Memory mem = Memory.wrap(bb);
-    assertFalse(mem.getTypeByteOrder() == NATIVE_BYTE_ORDER);
-    assertEquals(mem.getTypeByteOrder(), ByteOrder.BIG_ENDIAN);
+    assertFalse(mem.getByteOrder() == NATIVE_BYTE_ORDER);
+    assertEquals(mem.getByteOrder(), ByteOrder.BIG_ENDIAN);
   }
 
   @Test

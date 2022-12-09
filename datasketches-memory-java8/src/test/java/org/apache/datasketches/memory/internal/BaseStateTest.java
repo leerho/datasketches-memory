@@ -32,6 +32,7 @@ import org.apache.datasketches.memory.WritableBuffer;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
+@SuppressWarnings("deprecation")
 public class BaseStateTest {
 
   @Test

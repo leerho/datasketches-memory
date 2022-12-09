@@ -99,10 +99,8 @@ public abstract class BaseStateImpl implements BaseState {
         : UnsafeUtil.getArrayBaseOffset(unsafeObj.getClass()));
   }
 
-  //Byte Order Related
-
   @Override
-  public final ByteOrder getTypeByteOrder() {
+  public final ByteOrder getByteOrder() {
     return isNonNativeType() ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
   }
 
@@ -120,7 +118,7 @@ public abstract class BaseStateImpl implements BaseState {
 
   @Override
   public final boolean isByteOrderCompatible(final ByteOrder byteOrder) {
-    final ByteOrder typeBO = getTypeByteOrder();
+    final ByteOrder typeBO = getByteOrder();
     return typeBO == NATIVE_BYTE_ORDER && typeBO == byteOrder;
   }
 
@@ -331,7 +329,6 @@ public abstract class BaseStateImpl implements BaseState {
     return (getTypeId() >>> 3 & 3) == 3;
   }
 
-  //TO STRING
   /**
    * Decodes the resource type. This is primarily for debugging.
    * @param typeId the given typeId
@@ -430,7 +427,7 @@ public abstract class BaseStateImpl implements BaseState {
     sb.append("MemReq, hashCode    : ").append(memReqStr).append(LS);
     sb.append("Valid               : ").append(state.isValid()).append(LS);
     sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
-    sb.append("Type Byte Order     : ").append(state.getTypeByteOrder().toString()).append(LS);
+    sb.append("Type Byte Order     : ").append(state.getByteOrder().toString()).append(LS);
     sb.append("Native Byte Order   : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
     sb.append("JDK Runtime Version : ").append(UnsafeUtil.JDK).append(LS);
     //Data detail

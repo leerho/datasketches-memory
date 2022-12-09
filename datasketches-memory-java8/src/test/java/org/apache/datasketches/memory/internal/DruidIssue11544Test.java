@@ -48,6 +48,7 @@ import org.testng.annotations.Test;
  * @author Lee Rhodes
  *
  */
+@SuppressWarnings("deprecation")
 public class DruidIssue11544Test {
 
   @Test

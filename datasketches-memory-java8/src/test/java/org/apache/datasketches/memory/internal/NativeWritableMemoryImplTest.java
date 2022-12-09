@@ -37,6 +37,7 @@ import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
+@SuppressWarnings("deprecation")
 public class NativeWritableMemoryImplTest {
 
   //Simple Native direct

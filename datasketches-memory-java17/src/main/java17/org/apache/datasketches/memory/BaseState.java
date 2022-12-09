@@ -39,28 +39,6 @@ public interface BaseState {
   static final MemoryRequestServer defaultMemReqSvr = new DefaultMemoryRequestServer();
 
   /**
-   * Returns a ByteBuffer view of this Memory object with the given ByteOrder.
-   * Some of the properties of the returned buffer are linked to the properties of this Memory object.
-   * For instance, if this Memory object is immutable (i.e., read-only, see isReadOnly()),
-   * then the resulting buffer is read-only (see Buffer.isReadOnly().
-   * Additionally, if this is a native memory segment, the resulting buffer is direct
-   * (see ByteBuffer.isDirect()). The endianness of the returned buffer will be set to
-   * the given ByteOrder.
-   * @param order the given ByteOrder.
-   * @return a ByteBuffer view of this Memory object with the given ByteOrder.
-   * @throws UnsupportedOperationException - if this segment cannot be mapped onto a ByteBuffer instance,
-   * e.g. because it models an heap-based segment that is not based on a byte[]),
-   * or if its size is greater than Integer.MAX_VALUE.
-   */
-  ByteBuffer asByteBufferView(ByteOrder order);
-
-  /**
-   * For off-heap segments, this closes the controlling ResourceScope. If the segment is
-   * not off-heap, this does nothing.
-   */
-  void close();
-
-  /**
    * Returns true if the given object is an instance of this class and has equal contents to
    * this object.
    * @param that the given BaseState object
@@ -85,13 +63,6 @@ public interface BaseState {
   boolean equalTo(long thisOffsetBytes, BaseState that, long thatOffsetBytes, long lengthBytes);
 
   /**
-   * Forces any changes made to the contents of this mapped segment to be written to the storage device described
-   * by the mapped segment's file descriptor. Please refer to
-   * <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#force()">force()</a>
-   */
-  void force();
-
-  /**
    * Gets the current Type ByteOrder.
    * This may be different from the ByteOrder of the backing resource and of the Native Byte Order.
    * @return the current Type ByteOrder.
@@ -104,17 +75,105 @@ public interface BaseState {
    */
   long getCapacity();
 
-  /**
-   * Returns the configured MemoryRequestSever or null, if it has not been configured.
-   * @return the configured MemoryRequestSever or null, if it has not been configured.
-   */
-  MemoryRequestServer getMemoryRequestServer();
 
   /**
    * Returns true if this Memory is backed by a ByteBuffer.
    * @return true if this Memory is backed by a ByteBuffer.
    */
   boolean hasByteBuffer();
+
+  /**
+   * Returns true if the Native ByteOrder is the same as the ByteOrder of the
+   * current Buffer or Memory and the same ByteOrder as the given byteOrder.
+   * @param byteOrder the given ByteOrder
+   * @return true if the Native ByteOrder is the same as the ByteOrder of the
+   * current Buffer or Memory and the same ByteOrder as the given byteOrder.
+   */
+  boolean isByteOrderCompatible(ByteOrder byteOrder);
+
+  /**
+   * Returns true if the backing resource is direct (off-heap) memory.
+   * This can be true for allocated direct memory, memory mapped files,
+   * or from a wrapped ByteBuffer that was allocated direct.
+   * @return true if the backing resource is direct (off-heap) memory.
+   */
+  boolean isDirect();
+
+  /**
+   * Returns true if this object or the backing resource is read-only.
+   * @return true if this object or the backing resource is read-only.
+   */
+  boolean isReadOnly();
+
+  /**
+   * Returns a description of this object with an optional formatted hex string of the data
+   * for the specified a range. Used primarily for testing.
+   * @param comment a description
+   * @param offsetBytes offset bytes relative to this object start
+   * @param lengthBytes number of bytes to convert to a hex string
+   * @param withData include output listing of byte data in the given range
+   * @return a description and hex output in a human readable format.
+   */
+  String toHexString(String comment, long offsetBytes, int lengthBytes, boolean withData);
+
+  /**
+   * Returns a 64-bit hash from a single long. This method has been optimized for speed when only
+   * a single hash of a long is required.
+   * @param in A long.
+   * @param seed A long valued seed.
+   * @return the hash.
+   */
+  long xxHash64(long in, long seed);
+
+  /**
+   * Returns the 64-bit hash of the sequence of bytes in this object specified by
+   * <i>offsetBytes</i>, <i>lengthBytes</i> and a <i>seed</i>.  Note that the sequence of bytes is
+   * always processed in the same order independent of endianness.
+   *
+   * @param offsetBytes the given offset in bytes to the first byte of the byte sequence.
+   * @param lengthBytes the given length in bytes of the byte sequence.
+   * @param seed the given long seed.
+   * @return the 64-bit hash of the sequence of bytes in this object specified by
+   * <i>offsetBytes</i> and <i>lengthBytes</i>.
+   */
+  long xxHash64(long offsetBytes, long lengthBytes, long seed);
+
+  //NEW HERE WITH JAVA 17
+
+  /**
+   * Returns a ByteBuffer view of this Memory object with the given ByteOrder.
+   * Some of the properties of the returned buffer are linked to the properties of this Memory object.
+   * For instance, if this Memory object is immutable (i.e., read-only, see isReadOnly()),
+   * then the resulting buffer is read-only (see Buffer.isReadOnly().
+   * Additionally, if this is a native memory segment, the resulting buffer is direct
+   * (see ByteBuffer.isDirect()). The endianness of the returned buffer will be set to
+   * the given ByteOrder.
+   * @param order the given ByteOrder.
+   * @return a ByteBuffer view of this Memory object with the given ByteOrder.
+   * @throws UnsupportedOperationException - if this segment cannot be mapped onto a ByteBuffer instance,
+   * e.g. because it models an heap-based segment that is not based on a byte[]),
+   * or if its size is greater than Integer.MAX_VALUE.
+   */
+  ByteBuffer asByteBufferView(ByteOrder order);
+
+  /**
+   * For off-heap segments, this closes the controlling ResourceScope. If the segment is
+   * not off-heap, this does nothing.
+   */
+  void close();
+
+  /**
+   * Forces any changes made to the contents of this mapped segment to be written to the storage device described
+   * by the mapped segment's file descriptor. Please refer to
+   * <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#force()">force()</a>
+   */
+  void force();
+
+  /**
+   * Returns the configured MemoryRequestSever or null, if it has not been configured.
+   * @return the configured MemoryRequestSever or null, if it has not been configured.
+   */
+  MemoryRequestServer getMemoryRequestServer();
 
   /**
    * Returns true if the MemoryRequestServer has been configured.
@@ -133,23 +192,6 @@ public interface BaseState {
    * @return true if this instance is a Buffer or WritableBuffer instance.
    */
   boolean isBuffer();
-
-  /**
-   * Returns true if the Native ByteOrder is the same as the ByteOrder of the
-   * current Buffer or Memory and the same ByteOrder as the given byteOrder.
-   * @param byteOrder the given ByteOrder
-   * @return true if the Native ByteOrder is the same as the ByteOrder of the
-   * current Buffer or Memory and the same ByteOrder as the given byteOrder.
-   */
-  boolean isByteOrderCompatible(ByteOrder byteOrder);
-
-  /**
-   * Returns true if the backing resource is direct (off-heap) memory.
-   * This can be true for allocated direct memory, memory mapped files,
-   * or from a wrapped ByteBuffer that was allocated direct.
-   * @return true if the backing resource is direct (off-heap) memory.
-   */
-  boolean isDirect();
 
   /**
    * Returns true if this instance is a duplicate of a Buffer instance.
@@ -183,12 +225,6 @@ public interface BaseState {
    * @return true if this instance is of a Memory or WritableMemory instance
    */
   boolean isMemory();
-
-  /**
-   * Returns true if this object or the backing resource is read-only.
-   * @return true if this object or the backing resource is read-only.
-   */
-  boolean isReadOnly();
 
   /**
    * Returns true if this instance is a region view of another Memory or Buffer
@@ -244,17 +280,6 @@ public interface BaseState {
   ByteBuffer toByteBuffer(ByteOrder order);
 
   /**
-   * Returns a description of this object with an optional formatted hex string of the data
-   * for the specified a range. Used primarily for testing.
-   * @param comment a description
-   * @param offsetBytes offset bytes relative to this object start
-   * @param lengthBytes number of bytes to convert to a hex string
-   * @param withData include output listing of byte data in the given range
-   * @return a description and hex output in a human readable format.
-   */
-  String toHexString(String comment, long offsetBytes, int lengthBytes, boolean withData);
-
-  /**
    * Returns a copy of the underlying MemorySegment.
    * The size is limited to <i>Integer.MAX_VALUE</i>.
    * @return a copy of the underlying MemorySegment
@@ -266,29 +291,5 @@ public interface BaseState {
    * <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#unload()">unload()</a>
    */
   void unload();
-
-  /**
-   * Returns a 64-bit hash from a single long. This method has been optimized for speed when only
-   * a single hash of a long is required.
-   * @param in A long.
-   * @param seed A long valued seed.
-   * @return the hash.
-   */
-  long xxHash64(long in, long seed);
-
-  //TO STRING
-
-  /**
-   * Returns the 64-bit hash of the sequence of bytes in this object specified by
-   * <i>offsetBytes</i>, <i>lengthBytes</i> and a <i>seed</i>.  Note that the sequence of bytes is
-   * always processed in the same order independent of endianness.
-   *
-   * @param offsetBytes the given offset in bytes to the first byte of the byte sequence.
-   * @param lengthBytes the given length in bytes of the byte sequence.
-   * @param seed the given long seed.
-   * @return the 64-bit hash of the sequence of bytes in this object specified by
-   * <i>offsetBytes</i> and <i>lengthBytes</i>.
-   */
-  long xxHash64(long offsetBytes, long lengthBytes, long seed);
 
 }

@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.internal.BaseStateImpl;
-// intentional blank
 
 /**
  * Keeps key configuration state for Memory and Buffer plus some common static variables
@@ -37,55 +36,6 @@ public interface BaseState {
    * Currently used only for test, hold for possible future use
    */
   static final MemoryRequestServer defaultMemReqSvr = null; //new DefaultMemoryRequestServer();
-
-  /**
-   * Gets the current size of active direct memory allocated.
-   * @return the current size of active direct memory allocated.
-   * @deprecated no longer supported
-   */
-  @Deprecated
-  static long getCurrentDirectMemoryAllocated() {
-    return BaseStateImpl.getCurrentDirectMemoryAllocated();
-  }
-
-  /**
-   * Gets the current number of active direct memory allocations.
-   * @return the current number of active direct memory allocations.
-   * @deprecated no longer supported
-   */
-  @Deprecated
-  static long getCurrentDirectMemoryAllocations() {
-    return BaseStateImpl.getCurrentDirectMemoryAllocations();
-  }
-
-  /**
-   * Gets the current size of active direct memory map allocated.
-   * @return the current size of active direct memory map allocated.
-   * @deprecated no longer supported
-   */
-  @Deprecated
-  static long getCurrentDirectMemoryMapAllocated() {
-    return BaseStateImpl.getCurrentDirectMemoryMapAllocated();
-  }
-
-  /**
-   * Gets the current number of active direct memory map allocations.
-   * @return the current number of active direct memory map allocations.
-   * @deprecated no longer supported
-   */
-  @Deprecated
-  static long getCurrentDirectMemoryMapAllocations() {
-    return BaseStateImpl.getCurrentDirectMemoryMapAllocations();
-  }
-
-  /**
-   * Checks that the specified range of bytes is within bounds of this object, throws
-   * {@link IllegalArgumentException} if it's not: i. e. if offsetBytes &lt; 0, or length &lt; 0,
-   * or offsetBytes + length &gt; {@link #getCapacity()}.
-   * @param offsetBytes the given offset in bytes of this object
-   * @param lengthBytes the given length in bytes of this object
-   */
-  void checkValidAndBounds(long offsetBytes, long lengthBytes);
 
   /**
    * Returns true if the given object is an instance of this class and has equal contents to
@@ -111,10 +61,11 @@ public interface BaseState {
   boolean equalTo(long thisOffsetBytes, BaseState that, long thatOffsetBytes, long lengthBytes);
 
   /**
-   * Gets the backing ByteBuffer if it exists, otherwise returns null.
-   * @return the backing ByteBuffer if it exists, otherwise returns null.
+   * Gets the current Type ByteOrder.
+   * This may be different from the ByteOrder of the backing resource and of the Native Byte Order.
+   * @return the current Type ByteOrder.
    */
-  ByteBuffer getByteBuffer();
+  ByteOrder getByteOrder();
 
   /**
    * Gets the capacity of this object in bytes
@@ -123,77 +74,10 @@ public interface BaseState {
   long getCapacity();
 
   /**
-   * Gets the cumulative offset in bytes of this object from the backing resource.
-   * This offset may also include other offset components such as the native off-heap
-   * memory address, DirectByteBuffer split offsets, region offsets, and unsafe arrayBaseOffsets.
-   *
-   * @return the cumulative offset in bytes of this object from the backing resource.
-   */
-  long getCumulativeOffset();
-
-  /**
-   * Gets the cumulative offset in bytes of this object from the backing resource including the given
-   * offsetBytes. This offset may also include other offset components such as the native off-heap
-   * memory address, DirectByteBuffer split offsets, region offsets, and unsafe arrayBaseOffsets.
-   *
-   * @param offsetBytes offset to be added to the cumulative offset.
-   * @return the cumulative offset in bytes of this object from the backing resource including the
-   * given offsetBytes.
-   */
-  long getCumulativeOffset(long offsetBytes);
-
-  /**
-   * Returns the offset of address zero of this object relative to the address zero of the
-   * backing resource but not including the size of any Java object header.
-   * @return the offset of address zero of this object relative to the address zero of the
-   * backing resource but not including the size of any Java object header.
-   */
-  long getRegionOffset();
-
-  /**
-   * Returns the offset of address zero of this object relative to the address zero of the
-   * backing resource plus the given offsetBytes but not including the size of any Java object
-   * header.
-   * @param offsetBytes the given offsetBytes
-   * @return the offset of address zero of this object relative to the address zero of the
-   * backing resource plus the given offsetBytes but not including the size of any Java object
-   * header.
-   */
-  long getRegionOffset(long offsetBytes);
-
-  /**
-   * Gets the current Type ByteOrder.
-   * This may be different from the ByteOrder of the backing resource and of the Native Byte Order.
-   * @return the current Type ByteOrder.
-   */
-  ByteOrder getTypeByteOrder();
-
-  /**
-   * Returns true if this object is backed by an on-heap primitive array
-   * @return true if this object is backed by an on-heap primitive array
-   */
-  boolean hasArray();
-
-  /**
    * Returns true if this Memory is backed by a ByteBuffer.
    * @return true if this Memory is backed by a ByteBuffer.
    */
   boolean hasByteBuffer();
-
-  /**
-   * Returns the hashCode of this object.
-   *
-   * <p>The hash code of this object depends upon all of its contents.
-   * Because of this, it is inadvisable to use these objects as keys in hash maps
-   * or similar data structures unless it is known that their contents will not change.</p>
-   *
-   * <p>If it is desirable to use these objects in a hash map depending only on object identity,
-   * than the {@link java.util.IdentityHashMap} can be used.</p>
-   *
-   * @return the hashCode of this object.
-   */
-  @Override
-  int hashCode();
 
   /**
    * Returns true if the Native ByteOrder is the same as the ByteOrder of the
@@ -217,25 +101,6 @@ public interface BaseState {
    */
   boolean isReadOnly();
 
-  //Monitoring
-
-  /**
-   * Returns true if the backing resource of <i>this</i> is identical with the backing resource
-   * of <i>that</i>. The capacities must be the same.  If <i>this</i> is a region,
-   * the region offset must also be the same.
-   * @param that A different non-null object
-   * @return true if the backing resource of <i>this</i> is the same as the backing resource
-   * of <i>that</i>.
-   */
-  boolean isSameResource(Object that);
-
-  /**
-   * Returns true if this object is valid and has not been closed.
-   * This is relevant only for direct (off-heap) memory and Mapped Files.
-   * @return true if this object is valid and has not been closed.
-   */
-  boolean isValid();
-
   /**
    * Returns a formatted hex string of a range of this object.
    * Used primarily for testing.
@@ -255,8 +120,6 @@ public interface BaseState {
    */
   long xxHash64(long in, long seed);
 
-  //TO STRING
-
   /**
    * Returns the 64-bit hash of the sequence of bytes in this object specified by
    * <i>offsetBytes</i>, <i>lengthBytes</i> and a <i>seed</i>.  Note that the sequence of bytes is
@@ -269,5 +132,168 @@ public interface BaseState {
    * <i>offsetBytes</i> and <i>lengthBytes</i>.
    */
   long xxHash64(long offsetBytes, long lengthBytes, long seed);
+
+  //DEPRECATED. DOES NOT EXIST FOR JAVA 17+ VERSIONS
+
+  /**
+   * Checks that the specified range of bytes is within bounds of this object, throws
+   * {@link IllegalArgumentException} if it's not: i. e. if offsetBytes &lt; 0, or length &lt; 0,
+   * or offsetBytes + length &gt; {@link #getCapacity()}.
+   * @param offsetBytes the given offset in bytes of this object
+   * @param lengthBytes the given length in bytes of this object
+   * @deprecated no longer supported for Java 17 versions.
+   */
+  @Deprecated
+  void checkValidAndBounds(long offsetBytes, long lengthBytes);
+
+  /**
+   * Gets the backing ByteBuffer if it exists, otherwise returns null.
+   * @return the backing ByteBuffer if it exists, otherwise returns null.
+   * @deprecated no longer supported for Java 17 versions.
+   * In Java 17 use toByteBuffer(ByteOrder) or asByteBufferView(ByteOrder) instead.
+   */
+  @Deprecated
+  ByteBuffer getByteBuffer();
+
+  /**
+   * Gets the cumulative offset in bytes of this object from the backing resource.
+   * This offset may also include other offset components such as the native off-heap
+   * memory address, DirectByteBuffer split offsets, region offsets, and unsafe arrayBaseOffsets.
+   *
+   * @return the cumulative offset in bytes of this object from the backing resource.
+   * @deprecated no longer supported for Java 17 versions. Use nativeOverlap(BaseState) instead.
+   */
+  @Deprecated
+  long getCumulativeOffset();
+
+  /**
+   * Gets the cumulative offset in bytes of this object from the backing resource including the given
+   * offsetBytes. This offset may also include other offset components such as the native off-heap
+   * memory address, DirectByteBuffer split offsets, region offsets, and unsafe arrayBaseOffsets.
+   *
+   * @param offsetBytes offset to be added to the cumulative offset.
+   * @return the cumulative offset in bytes of this object from the backing resource including the
+   * given offsetBytes.
+   * @deprecated no longer supported for Java 17 versions. Use nativeOverlap(BaseState) instead.
+   */
+  @Deprecated
+  long getCumulativeOffset(long offsetBytes);
+
+  /**
+   * Gets the current size of active direct memory allocated.
+   * @return the current size of active direct memory allocated.
+   * @deprecated no longer supported for Java 17 versions.
+   */
+  @Deprecated
+  static long getCurrentDirectMemoryAllocated() {
+    return BaseStateImpl.getCurrentDirectMemoryAllocated();
+  }
+
+  /**
+   * Gets the current number of active direct memory allocations.
+   * @return the current number of active direct memory allocations.
+   * @deprecated no longer supported for Java 17 versions.
+   */
+  @Deprecated
+  static long getCurrentDirectMemoryAllocations() {
+    return BaseStateImpl.getCurrentDirectMemoryAllocations();
+  }
+
+  /**
+   * Gets the current size of active direct memory map allocated.
+   * @return the current size of active direct memory map allocated.
+   * @deprecated no longer supported for Java 17 versions.
+   */
+  @Deprecated
+  static long getCurrentDirectMemoryMapAllocated() {
+    return BaseStateImpl.getCurrentDirectMemoryMapAllocated();
+  }
+
+  /**
+   * Gets the current number of active direct memory map allocations.
+   * @return the current number of active direct memory map allocations.
+   * @deprecated no longer supported for Java 17 versions.
+   */
+  @Deprecated
+  static long getCurrentDirectMemoryMapAllocations() {
+    return BaseStateImpl.getCurrentDirectMemoryMapAllocations();
+  }
+
+  /**
+   * Returns the offset of address zero of this object relative to the address zero of the
+   * backing resource but not including the size of any Java object header.
+   * @return the offset of address zero of this object relative to the address zero of the
+   * backing resource but not including the size of any Java object header.
+   * @deprecated no longer supported for Java17 versions use nativeOverlap(BaseState) instead.
+   */
+  @Deprecated
+  long getRegionOffset();
+
+  /**
+   * Returns the offset of address zero of this object relative to the address zero of the
+   * backing resource plus the given offsetBytes but not including the size of any Java object
+   * header.
+   * @param offsetBytes the given offsetBytes
+   * @return the offset of address zero of this object relative to the address zero of the
+   * backing resource plus the given offsetBytes but not including the size of any Java object
+   * header.
+   * @deprecated no longer supported for Java 17 versions. Use nativeOverlap(BaseState) instead.
+   */
+  @Deprecated
+  long getRegionOffset(long offsetBytes);
+
+  /**
+   * Gets the current Type ByteOrder.
+   * This may be different from the ByteOrder of the backing resource and of the Native Byte Order.
+   * @return the current Type ByteOrder.
+   * @deprecated use getByteOrder() instead.
+   */
+  @Deprecated
+  default ByteOrder getTypeByteOrder() { return getByteOrder(); }
+
+  /**
+   * Returns true if this object is backed by an on-heap primitive array
+   * @return true if this object is backed by an on-heap primitive array
+   * @deprecated no longer supported for Java 17 versions.
+   */
+  @Deprecated
+  boolean hasArray();
+
+  /**
+   * Returns the hashCode of this object.
+   *
+   * <p>The hash code of this object depends upon all of its contents.
+   * Because of this, it is inadvisable to use these objects as keys in hash maps
+   * or similar data structures unless it is known that their contents will not change.</p>
+   *
+   * <p>If it is desirable to use these objects in a hash map depending only on object identity,
+   * than the {@link java.util.IdentityHashMap} can be used.</p>
+   *
+   * @return the hashCode of this object.
+   * @apiNote This custom hashCode() will no longer be supported for Java 17 versions.
+   */
+  @Override
+  int hashCode();
+
+  /**
+   * Returns true if the backing resource of <i>this</i> is identical with the backing resource
+   * of <i>that</i>. The capacities must be the same.  If <i>this</i> is a region,
+   * the region offset must also be the same.
+   * @param that A different non-null object
+   * @return true if the backing resource of <i>this</i> is the same as the backing resource
+   * of <i>that</i>.
+   * @deprecated no longer required or supported for Java 17 versions. Use nativeOverlap(BaseState) instead.
+   */
+  @Deprecated
+  boolean isSameResource(Object that);
+
+  /**
+   * Returns true if this object is valid and has not been closed.
+   * This is relevant only for direct (off-heap) memory and Mapped Files.
+   * @return true if this object is valid and has not been closed.
+   * @deprecated no longer required or supported for Java 17 versions.
+   */
+  @Deprecated
+  boolean isValid();
 
 }
