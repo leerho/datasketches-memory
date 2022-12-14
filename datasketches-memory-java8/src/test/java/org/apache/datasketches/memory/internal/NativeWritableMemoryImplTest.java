@@ -19,15 +19,15 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
@@ -461,7 +461,7 @@ public class NativeWritableMemoryImplTest {
   public void checkWrapWithBBReadonly1() {
     int memCapacity = 64;
     ByteBuffer byteBuf = ByteBuffer.allocate(memCapacity);
-    byteBuf.order(ByteOrder.nativeOrder());
+    byteBuf.order(NATIVE_BYTE_ORDER);
 
     for (int i = 0; i < memCapacity; i++) {
       byteBuf.put(i, (byte) i);
@@ -565,7 +565,7 @@ public class NativeWritableMemoryImplTest {
 
   @Test
   public void checkGoodBounds() {
-    UnsafeUtil.checkBounds(50, 50, 100);
+    checkBounds(50, 50, 100);
   }
 
   @Test

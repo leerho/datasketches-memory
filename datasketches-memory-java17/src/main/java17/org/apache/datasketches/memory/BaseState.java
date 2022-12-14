@@ -55,10 +55,9 @@ public interface BaseState {
    * same object for equals.
    * @param thisOffsetBytes the starting offset in bytes for this object.
    * @param that the given BaseState object
-   * @param thatOffsetBytes the starting offset in bytes for the given object
+   * @param thatOffsetBytes the starting offset in bytes for the given BaseState object
    * @param lengthBytes the size of the range in bytes
-   * @return true if the given object has equal contents to this object in the given range of
-   * bytes.
+   * @return true if the given BaseState object has equal contents to this object in the given range of bytes.
    */
   boolean equalTo(long thisOffsetBytes, BaseState that, long thatOffsetBytes, long lengthBytes);
 
@@ -74,7 +73,6 @@ public interface BaseState {
    * @return the capacity of this object in bytes
    */
   long getCapacity();
-
 
   /**
    * Returns true if this Memory is backed by a ByteBuffer.
@@ -93,7 +91,7 @@ public interface BaseState {
 
   /**
    * Returns true if the backing resource is direct (off-heap) memory.
-   * This can be true for allocated direct memory, memory mapped files,
+   * This is the case for allocated direct memory, memory mapped files,
    * or from a wrapped ByteBuffer that was allocated direct.
    * @return true if the backing resource is direct (off-heap) memory.
    */

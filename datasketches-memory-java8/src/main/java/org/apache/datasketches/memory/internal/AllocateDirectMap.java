@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.BaseStateImpl.reachabilityFence;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
 
 import java.io.File;
@@ -170,7 +171,7 @@ class AllocateDirectMap implements Map {
     } catch (final Exception e) {
         throw new MemoryCloseException(resource);
     } finally {
-      BaseStateImpl.reachabilityFence(this);
+      reachabilityFence(this);
     }
   }
 
@@ -260,8 +261,6 @@ class AllocateDirectMap implements Map {
 
     Deallocator(final long nativeBaseOffset, final long capacityBytes,
         final RandomAccessFile raf) {
-      BaseStateImpl.currentDirectMemoryMapAllocations_.incrementAndGet();
-      BaseStateImpl.currentDirectMemoryMapAllocated_.addAndGet(capacityBytes);
       myRaf = raf;
       assert myRaf != null;
       myFc = myRaf.getChannel();
@@ -286,13 +285,7 @@ class AllocateDirectMap implements Map {
           // Warn about non-deterministic resource cleanup.
           LOG.warning("A WritableMapHandleImpl was not closed manually");
         }
-        try {
-          unmap();
-        }
-        finally {
-          BaseStateImpl.currentDirectMemoryMapAllocations_.decrementAndGet();
-          BaseStateImpl.currentDirectMemoryMapAllocated_.addAndGet(-myCapacity);
-        }
+        unmap();
         return true;
       }
       return false;

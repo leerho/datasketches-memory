@@ -19,16 +19,10 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.UnsafeUtil.assertBounds;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.checkBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
-import static org.apache.datasketches.memory.internal.Util.LS;
-import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.datasketches.memory.BaseState;
 import org.apache.datasketches.memory.MemoryRequestServer;
@@ -42,12 +36,18 @@ import org.apache.datasketches.memory.ReadOnlyException;
  */
 @SuppressWarnings("restriction")
 public abstract class BaseStateImpl implements BaseState {
+  static final String JDK; //must be at least "1.8"
+  static final int JDK_MAJOR; //8, 11, 17, etc
 
-  //Monitoring
-  static final AtomicLong currentDirectMemoryAllocations_ = new AtomicLong();
-  static final AtomicLong currentDirectMemoryAllocated_ = new AtomicLong();
-  static final AtomicLong currentDirectMemoryMapAllocations_ = new AtomicLong();
-  static final AtomicLong currentDirectMemoryMapAllocated_ = new AtomicLong();
+  //Used to convert "type" to bytes:  bytes = longs << LONG_SHIFT
+  static final int BOOLEAN_SHIFT    = 0;
+  static final int BYTE_SHIFT       = 0;
+  static final long SHORT_SHIFT     = 1;
+  static final long CHAR_SHIFT      = 1;
+  static final long INT_SHIFT       = 2;
+  static final long LONG_SHIFT      = 3;
+  static final long FLOAT_SHIFT     = 2;
+  static final long DOUBLE_SHIFT    = 3;
 
   //class type IDs. Do not change the bit orders
   //The first 3 bits are set dynamically
@@ -56,12 +56,12 @@ public abstract class BaseStateImpl implements BaseState {
   static final int REGION = 2;
   static final int DUPLICATE = 4;
 
-  //The following 4 bits are set by the 16 leaf nodes
+  //The following 5 bits are set by the 16 leaf nodes
   // 000X X000
   static final int HEAP = 0;
   static final int DIRECT = 1 << 3;
   static final int MAP = 2 << 3;
-  static final int BYTEBUF = 3 << 3;
+
 
   // 00X0 0000
   static final int NATIVE = 0;
@@ -70,6 +70,26 @@ public abstract class BaseStateImpl implements BaseState {
   // 0X00 0000
   static final int MEMORY = 0;
   static final int BUFFER = 1 << 6;
+
+  // X000 0000
+  static final int BYTEBUF = 1 << 7;
+
+  /**
+   * The java line separator character as a String.
+   */
+  static final String LS = System.getProperty("line.separator");
+
+  public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
+
+  static final ByteOrder NON_NATIVE_BYTE_ORDER =
+      (NATIVE_BYTE_ORDER == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+
+  static {
+    final String jdkVer = System.getProperty("java.version");
+    final int[] p = parseJavaVersion(jdkVer);
+    JDK = p[0] + "." + p[1];
+    JDK_MAJOR = (p[0] == 1) ? p[1] : p[0];
+  }
 
   private final long capacityBytes_;
 
@@ -81,7 +101,7 @@ public abstract class BaseStateImpl implements BaseState {
   private final long cumBaseOffset_;
 
   /**
-   *
+   * Constructor
    * @param unsafeObj The primitive backing array. It may be null. Used by Unsafe calls.
    * @param nativeBaseOffset The off-heap memory address including DirectByteBuffer split offsets.
    * @param regionOffset This offset defines address zero of this object (usually a region)
@@ -99,9 +119,44 @@ public abstract class BaseStateImpl implements BaseState {
         : UnsafeUtil.getArrayBaseOffset(unsafeObj.getClass()));
   }
 
-  @Override
-  public final ByteOrder getByteOrder() {
-    return isNonNativeType() ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
+  //**STATIC METHODS*****************************************
+
+  /**
+   * Assert the requested offset and length against the allocated size.
+   * The invariants equation is: {@code 0 <= reqOff <= reqLen <= reqOff + reqLen <= allocSize}.
+   * If this equation is violated and assertions are enabled, an {@link AssertionError} will
+   * be thrown.
+   * @param reqOff the requested offset
+   * @param reqLen the requested length
+   * @param allocSize the allocated size.
+   */
+  public static void assertBounds(final long reqOff, final long reqLen, final long allocSize) {
+    assert ((reqOff | reqLen | (reqOff + reqLen) | (allocSize - (reqOff + reqLen))) >= 0) :
+      "reqOffset: " + reqOff + ", reqLength: " + reqLen
+      + ", (reqOff + reqLen): " + (reqOff + reqLen) + ", allocSize: " + allocSize;
+  }
+
+  /**
+   * Check the requested offset and length against the allocated size.
+   * The invariants equation is: {@code 0 <= reqOff <= reqLen <= reqOff + reqLen <= allocSize}.
+   * If this equation is violated an {@link IllegalArgumentException} will be thrown.
+   * @param reqOff the requested offset
+   * @param reqLen the requested length
+   * @param allocSize the allocated size.
+   */
+  public static void checkBounds(final long reqOff, final long reqLen, final long allocSize) {
+    if ((reqOff | reqLen | (reqOff + reqLen) | (allocSize - (reqOff + reqLen))) < 0) {
+      throw new IllegalArgumentException(
+          "reqOffset: " + reqOff + ", reqLength: " + reqLen
+              + ", (reqOff + reqLen): " + (reqOff + reqLen) + ", allocSize: " + allocSize);
+    }
+  }
+
+  static void checkJavaVersion(final String jdkVer, final int p0, final int p1 ) {
+    boolean ok = ((p0 == 1) && (p1 == 8)) || (p0 == 8) || (p0 == 11);
+    if (!ok) { throw new IllegalArgumentException(
+        "Unsupported JDK Major Version. It must be one of 1.8, 8, 11: " + jdkVer);
+    }
   }
 
   /**
@@ -109,17 +164,191 @@ public abstract class BaseStateImpl implements BaseState {
    * @param byteOrder the given byte order
    * @return true if the given byteOrder is the same as the native byte order.
    */
-  public static boolean isNativeByteOrder(final ByteOrder byteOrder) {
+  static boolean isNativeByteOrder(final ByteOrder byteOrder) {
     if (byteOrder == null) {
       throw new IllegalArgumentException("ByteOrder parameter cannot be null.");
     }
     return NATIVE_BYTE_ORDER == byteOrder;
   }
 
+  /**
+   * Returns first two number groups of the java version string.
+   * @param jdkVer the java version string from System.getProperty("java.version").
+   * @return first two number groups of the java version string.
+   * @throws IllegalArgumentException for an improper Java version string.
+   */
+  static int[] parseJavaVersion(final String jdkVer) {
+    final int p0, p1;
+    try {
+      String[] parts = jdkVer.trim().split("^0-9\\.");//grab only number groups and "."
+      parts = parts[0].split("\\."); //split out the number groups
+      p0 = Integer.parseInt(parts[0]); //the first number group
+      p1 = (parts.length > 1) ? Integer.parseInt(parts[1]) : 0; //2nd number group, or 0
+    } catch (final NumberFormatException | ArrayIndexOutOfBoundsException  e) {
+      throw new IllegalArgumentException("Improper Java -version string: " + jdkVer + "\n" + e);
+    }
+    checkJavaVersion(jdkVer, p0, p1);
+    return new int[] {p0, p1};
+  }
+
+  //REACHABILITY FENCE
+  static void reachabilityFence(final Object obj) { }
+
+  final static byte setReadOnlyType(final byte type, final boolean readOnly) {
+    return (byte)((type & ~1) | (readOnly ? READONLY : 0));
+  }
+
+  /**
+   * Returns a formatted hex string of an area of this object.
+   * Used primarily for testing.
+   * @param state the BaseStateImpl
+   * @param preamble a descriptive header
+   * @param offsetBytes offset bytes relative to the MemoryImpl start
+   * @param lengthBytes number of bytes to convert to a hex string
+   * @return a formatted hex string in a human readable array
+   */
+  static final String toHex(final BaseStateImpl state, final String preamble, final long offsetBytes,
+      final int lengthBytes) {
+    final long capacity = state.getCapacity();
+    checkBounds(offsetBytes, lengthBytes, capacity);
+    final StringBuilder sb = new StringBuilder();
+    final Object uObj = state.getUnsafeObject();
+    final String uObjStr;
+    final long uObjHeader;
+    if (uObj == null) {
+      uObjStr = "null";
+      uObjHeader = 0;
+    } else {
+      uObjStr =  uObj.getClass().getSimpleName() + ", " + (uObj.hashCode() & 0XFFFFFFFFL);
+      uObjHeader = UnsafeUtil.getArrayBaseOffset(uObj.getClass());
+    }
+    final ByteBuffer bb = state.getByteBuffer();
+    final String bbStr = bb == null ? "null"
+            : bb.getClass().getSimpleName() + ", " + (bb.hashCode() & 0XFFFFFFFFL);
+    final MemoryRequestServer memReqSvr = state.getMemoryRequestServer();
+    final String memReqStr = memReqSvr != null
+        ? memReqSvr.getClass().getSimpleName() + ", " + (memReqSvr.hashCode() & 0XFFFFFFFFL)
+        : "null";
+    final long cumBaseOffset = state.getCumulativeOffset();
+    sb.append(preamble).append(LS);
+    sb.append("UnsafeObj, hashCode : ").append(uObjStr).append(LS);
+    sb.append("UnsafeObjHeader     : ").append(uObjHeader).append(LS);
+    sb.append("ByteBuf, hashCode   : ").append(bbStr).append(LS);
+    sb.append("RegionOffset        : ").append(state.getRegionOffset()).append(LS);
+    sb.append("Capacity            : ").append(capacity).append(LS);
+    sb.append("CumBaseOffset       : ").append(cumBaseOffset).append(LS);
+    sb.append("MemReq, hashCode    : ").append(memReqStr).append(LS);
+    sb.append("Valid               : ").append(state.isValid()).append(LS);
+    sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
+    sb.append("Type Byte Order     : ").append(state.getByteOrder().toString()).append(LS);
+    sb.append("Native Byte Order   : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
+    sb.append("JDK Runtime Version : ").append(JDK).append(LS);
+    //Data detail
+    sb.append("Data, littleEndian  :  0  1  2  3  4  5  6  7");
+
+    for (long i = 0; i < lengthBytes; i++) {
+      final int b = unsafe.getByte(uObj, cumBaseOffset + offsetBytes + i) & 0XFF;
+      if (i % 8 == 0) { //row header
+        sb.append(String.format("%n%20s: ", offsetBytes + i));
+      }
+      sb.append(String.format("%02x ", b));
+    }
+    sb.append(LS);
+
+    return sb.toString();
+  }
+
+  /**
+   * Decodes the resource type. This is primarily for debugging.
+   * @param typeId the given typeId
+   * @return a human readable string.
+   */
+  public static final String typeDecode(final int typeId) {
+    final StringBuilder sb = new StringBuilder();
+    final int group1 = typeId & 0x7;
+    switch (group1) { // 0000 0XXX
+      case 0 : sb.append("Writable:\t"); break;
+      case 1 : sb.append("ReadOnly:\t"); break;
+      case 2 : sb.append("Writable:\tRegion:\t"); break;
+      case 3 : sb.append("ReadOnly:\tRegion:\t"); break;
+      case 4 : sb.append("Writable:\tDuplicate:\t"); break;
+      case 5 : sb.append("ReadOnly:\tDuplicate:\t"); break;
+      case 6 : sb.append("Writable:\tRegion:\tDuplicate:\t"); break;
+      case 7 : sb.append("ReadOnly:\tRegion:\tDuplicate:\t"); break;
+      default: break;
+    }
+    final int group2 = (typeId >>> 3) & 0x3;
+    switch (group2) { // 000X X000
+      case 0 : sb.append("Heap:\t"); break;
+      case 1 : sb.append("Direct:\t"); break;
+      case 2 : sb.append("Map:\t"); break;
+      case 3 : sb.append("Direct:\tMap:\t"); break;
+      default: break;
+    }
+    final int group3 = (typeId >>> 5) & 0x1;
+    switch (group3) { // 00X0 0000
+      case 0 : sb.append("NativeOrder:\t"); break;
+      case 1 : sb.append("NonNativeOrder:\t"); break;
+      default: break;
+    }
+    final int group4 = (typeId >>> 6) & 0x1;
+    switch (group4) { // 0X00 0000
+      case 0 : sb.append("Memory:\t"); break;
+      case 1 : sb.append("Buffer:\t"); break;
+      default: break;
+    }
+    final int group5 = (typeId >>> 7) & 0x1;
+    switch (group5) { // X000 0000
+      case 0 : sb.append(""); break;
+      case 1 : sb.append("ByteBuffer"); break;
+      default: break;
+    }
+    return sb.toString();
+  }
+
+  //**NON STATIC METHODS*****************************************
+
+  final void assertValid() {
+    assert isValid() : "MemoryImpl not valid.";
+  }
+
+  final void assertValidAndBoundsForRead(final long offsetBytes, final long lengthBytes) {
+    assertValid();
+    // capacityBytes_ is intentionally read directly instead of calling getCapacity()
+    // because the later can make JVM to not inline the assert code path (and entirely remove it)
+    // even though it does nothing in production code path.
+    assertBounds(offsetBytes, lengthBytes, capacityBytes_);
+  }
+
+  final void assertValidAndBoundsForWrite(final long offsetBytes, final long lengthBytes) {
+    assertValid();
+    // capacityBytes_ is intentionally read directly instead of calling getCapacity()
+    // because the later can make JVM to not inline the assert code path (and entirely remove it)
+    // even though it does nothing in production code path.
+    assertBounds(offsetBytes, lengthBytes, capacityBytes_);
+    assert !isReadOnly() : "MemoryImpl is read-only.";
+  }
+
+  void checkValid() {
+    if (!isValid()) {
+      throw new IllegalStateException("MemoryImpl not valid.");
+    }
+  }
+
   @Override
-  public final boolean isByteOrderCompatible(final ByteOrder byteOrder) {
-    final ByteOrder typeBO = getByteOrder();
-    return typeBO == NATIVE_BYTE_ORDER && typeBO == byteOrder;
+  public final void checkValidAndBounds(final long offsetBytes, final long lengthBytes) {
+    checkValid();
+    //read capacityBytes_ directly to eliminate extra checkValid() call
+    checkBounds(offsetBytes, lengthBytes, capacityBytes_);
+  }
+
+  final void checkValidAndBoundsForWrite(final long offsetBytes, final long lengthBytes) {
+    checkValid();
+    //read capacityBytes_ directly to eliminate extra checkValid() call
+    checkBounds(offsetBytes, lengthBytes, capacityBytes_);
+    if (isReadOnly()) {
+      throw new ReadOnlyException("MemoryImpl is read-only.");
+    }
   }
 
   @Override
@@ -127,6 +356,11 @@ public abstract class BaseStateImpl implements BaseState {
       final long thatOffsetBytes, final long lengthBytes) {
     if (that == null) { return false; }
     return CompareAndCopy.equals(this, thisOffsetBytes, (BaseStateImpl) that, thatOffsetBytes, lengthBytes);
+  }
+
+  @Override
+  public final ByteOrder getByteOrder() {
+    return isNonNativeType() ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
   }
 
   //Overridden by ByteBuffer Leafs
@@ -191,25 +425,28 @@ public abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
+  public final boolean hasByteBuffer() {
+    assertValid();
+    return (getTypeId() & BYTEBUF) > 0;
+  }
+
+  @Override
   public final int hashCode() {
     return (int) xxHash64(0, capacityBytes_, 0); //xxHash64() calls checkValid()
   }
 
-  @Override
-  public final long xxHash64(final long offsetBytes, final long lengthBytes, final long seed) {
-    checkValid();
-    return XxHash64.hash(getUnsafeObject(), cumBaseOffset_ + offsetBytes, lengthBytes, seed);
+  final boolean isBBType() {
+    return (getTypeId() & BYTEBUF) > 0;
+  }
+
+  final boolean isBufferType() {
+    return (getTypeId() & BUFFER) > 0;
   }
 
   @Override
-  public final long xxHash64(final long in, final long seed) {
-    return XxHash64.hash(in, seed);
-  }
-
-  @Override
-  public final boolean hasByteBuffer() {
-    assertValid();
-    return getByteBuffer() != null;
+  public final boolean isByteOrderCompatible(final ByteOrder byteOrder) {
+    final ByteOrder typeBO = getByteOrder();
+    return typeBO == NATIVE_BYTE_ORDER && typeBO == byteOrder;
   }
 
   @Override
@@ -217,10 +454,42 @@ public abstract class BaseStateImpl implements BaseState {
     return getUnsafeObject() == null;
   }
 
+  final boolean isDirectType() {
+    return (getTypeId() >>> 3 & 3) == 1;
+  }
+
+  final boolean isDuplicateType() {
+    return (getTypeId() & DUPLICATE) > 0;
+  }
+
+  final boolean isHeapType() {
+    return (getTypeId() >>> 3 & 3) == 0;
+  }
+
+  final boolean isMapType() {
+    return (getTypeId() >>> 3 & 3) == 2;
+  }
+
+  final boolean isMemoryType() {
+    return (getTypeId() & BUFFER) == 0;
+  }
+
+  final boolean isNonNativeType() {
+    return (getTypeId() & NONNATIVE) > 0;
+  }
+
   @Override
   public final boolean isReadOnly() {
     assertValid();
     return isReadOnlyType();
+  }
+
+  final boolean isReadOnlyType() {
+    return (getTypeId() & READONLY) > 0;
+  }
+
+  final boolean isRegionType() {
+    return (getTypeId() & REGION) > 0;
   }
 
   @Override
@@ -243,133 +512,6 @@ public abstract class BaseStateImpl implements BaseState {
     return true;
   }
 
-  //ASSERTS AND CHECKS
-  final void assertValid() {
-    assert isValid() : "MemoryImpl not valid.";
-  }
-
-  void checkValid() {
-    if (!isValid()) {
-      throw new IllegalStateException("MemoryImpl not valid.");
-    }
-  }
-
-  final void assertValidAndBoundsForRead(final long offsetBytes, final long lengthBytes) {
-    assertValid();
-    // capacityBytes_ is intentionally read directly instead of calling getCapacity()
-    // because the later can make JVM to not inline the assert code path (and entirely remove it)
-    // even though it does nothing in production code path.
-    assertBounds(offsetBytes, lengthBytes, capacityBytes_);
-  }
-
-  final void assertValidAndBoundsForWrite(final long offsetBytes, final long lengthBytes) {
-    assertValid();
-    // capacityBytes_ is intentionally read directly instead of calling getCapacity()
-    // because the later can make JVM to not inline the assert code path (and entirely remove it)
-    // even though it does nothing in production code path.
-    assertBounds(offsetBytes, lengthBytes, capacityBytes_);
-    assert !isReadOnly() : "MemoryImpl is read-only.";
-  }
-
-  @Override
-  public final void checkValidAndBounds(final long offsetBytes, final long lengthBytes) {
-    checkValid();
-    //read capacityBytes_ directly to eliminate extra checkValid() call
-    checkBounds(offsetBytes, lengthBytes, capacityBytes_);
-  }
-
-  final void checkValidAndBoundsForWrite(final long offsetBytes, final long lengthBytes) {
-    checkValid();
-    //read capacityBytes_ directly to eliminate extra checkValid() call
-    checkBounds(offsetBytes, lengthBytes, capacityBytes_);
-    if (isReadOnly()) {
-      throw new ReadOnlyException("MemoryImpl is read-only.");
-    }
-  }
-
-  //TYPE ID Management
-  final boolean isReadOnlyType() {
-    return (getTypeId() & READONLY) > 0;
-  }
-
-  final static byte setReadOnlyType(final byte type, final boolean readOnly) {
-    return (byte)((type & ~1) | (readOnly ? READONLY : 0));
-  }
-
-  final boolean isRegionType() {
-    return (getTypeId() & REGION) > 0;
-  }
-
-  final boolean isDuplicateType() {
-    return (getTypeId() & DUPLICATE) > 0;
-  }
-
-  //The following are set by the leaf nodes
-  final boolean isBufferType() {
-    return (getTypeId() & BUFFER) > 0;
-  }
-
-  final boolean isNonNativeType() {
-    return (getTypeId() & NONNATIVE) > 0;
-  }
-
-  final boolean isHeapType() {
-    return (getTypeId() >>> 3 & 3) == 0;
-  }
-
-  final boolean isDirectType() {
-    return (getTypeId() >>> 3 & 3) == 1;
-  }
-
-  final boolean isMapType() {
-    return (getTypeId() >>> 3 & 3) == 2;
-  }
-
-  final boolean isBBType() {
-    return (getTypeId() >>> 3 & 3) == 3;
-  }
-
-  /**
-   * Decodes the resource type. This is primarily for debugging.
-   * @param typeId the given typeId
-   * @return a human readable string.
-   */
-  public static final String typeDecode(final int typeId) {
-    final StringBuilder sb = new StringBuilder();
-    final int group1 = typeId & 0x7;
-    switch (group1) {
-      case 1 : sb.append("ReadOnly, "); break;
-      case 2 : sb.append("Region, "); break;
-      case 3 : sb.append("ReadOnly Region, "); break;
-      case 4 : sb.append("Duplicate, "); break;
-      case 5 : sb.append("ReadOnly Duplicate, "); break;
-      case 6 : sb.append("Region Duplicate, "); break;
-      case 7 : sb.append("ReadOnly Region Duplicate, "); break;
-      default: break;
-    }
-    final int group2 = (typeId >>> 3) & 0x3;
-    switch (group2) {
-      case 0 : sb.append("Heap, "); break;
-      case 1 : sb.append("Direct, "); break;
-      case 2 : sb.append("Map, "); break;
-      case 3 : sb.append("ByteBuffer, "); break;
-      default: break;
-    }
-    final int group3 = (typeId >>> 5) & 0x1;
-    switch (group3) {
-      case 0 : sb.append("Native, "); break;
-      case 1 : sb.append("NonNative, "); break;
-      default: break;
-    }
-    final int group4 = (typeId >>> 6) & 0x1;
-    switch (group4) {
-      case 0 : sb.append("Memory"); break;
-      case 1 : sb.append("Buffer"); break;
-      default: break;
-    }
-    return sb.toString();
-  }
-
   @Override
   public final String toHexString(final String header, final long offsetBytes,
       final int lengthBytes) {
@@ -385,101 +527,15 @@ public abstract class BaseStateImpl implements BaseState {
     return toHex(this, sb.toString(), offsetBytes, lengthBytes);
   }
 
-  /**
-   * Returns a formatted hex string of an area of this object.
-   * Used primarily for testing.
-   * @param state the BaseStateImpl
-   * @param preamble a descriptive header
-   * @param offsetBytes offset bytes relative to the MemoryImpl start
-   * @param lengthBytes number of bytes to convert to a hex string
-   * @return a formatted hex string in a human readable array
-   */
-  static final String toHex(final BaseStateImpl state, final String preamble, final long offsetBytes,
-      final int lengthBytes) {
-    final long capacity = state.getCapacity();
-    UnsafeUtil.checkBounds(offsetBytes, lengthBytes, capacity);
-    final StringBuilder sb = new StringBuilder();
-    final Object uObj = state.getUnsafeObject();
-    final String uObjStr;
-    final long uObjHeader;
-    if (uObj == null) {
-      uObjStr = "null";
-      uObjHeader = 0;
-    } else {
-      uObjStr =  uObj.getClass().getSimpleName() + ", " + (uObj.hashCode() & 0XFFFFFFFFL);
-      uObjHeader = UnsafeUtil.getArrayBaseOffset(uObj.getClass());
-    }
-    final ByteBuffer bb = state.getByteBuffer();
-    final String bbStr = bb == null ? "null"
-            : bb.getClass().getSimpleName() + ", " + (bb.hashCode() & 0XFFFFFFFFL);
-    final MemoryRequestServer memReqSvr = state.getMemoryRequestServer();
-    final String memReqStr = memReqSvr != null
-        ? memReqSvr.getClass().getSimpleName() + ", " + (memReqSvr.hashCode() & 0XFFFFFFFFL)
-        : "null";
-    final long cumBaseOffset = state.getCumulativeOffset();
-    sb.append(preamble).append(LS);
-    sb.append("UnsafeObj, hashCode : ").append(uObjStr).append(LS);
-    sb.append("UnsafeObjHeader     : ").append(uObjHeader).append(LS);
-    sb.append("ByteBuf, hashCode   : ").append(bbStr).append(LS);
-    sb.append("RegionOffset        : ").append(state.getRegionOffset()).append(LS);
-    sb.append("Capacity            : ").append(capacity).append(LS);
-    sb.append("CumBaseOffset       : ").append(cumBaseOffset).append(LS);
-    sb.append("MemReq, hashCode    : ").append(memReqStr).append(LS);
-    sb.append("Valid               : ").append(state.isValid()).append(LS);
-    sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
-    sb.append("Type Byte Order     : ").append(state.getByteOrder().toString()).append(LS);
-    sb.append("Native Byte Order   : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
-    sb.append("JDK Runtime Version : ").append(UnsafeUtil.JDK).append(LS);
-    //Data detail
-    sb.append("Data, littleEndian  :  0  1  2  3  4  5  6  7");
-
-    for (long i = 0; i < lengthBytes; i++) {
-      final int b = unsafe.getByte(uObj, cumBaseOffset + offsetBytes + i) & 0XFF;
-      if (i % 8 == 0) { //row header
-        sb.append(String.format("%n%20s: ", offsetBytes + i));
-      }
-      sb.append(String.format("%02x ", b));
-    }
-    sb.append(LS);
-
-    return sb.toString();
+  @Override
+  public final long xxHash64(final long offsetBytes, final long lengthBytes, final long seed) {
+    checkValid();
+    return XxHash64.hash(getUnsafeObject(), cumBaseOffset_ + offsetBytes, lengthBytes, seed);
   }
 
-  //MONITORING
-
-  /**
-   * Gets the current number of active direct memory allocations.
-   * @return the current number of active direct memory allocations.
-   */
-  public static final long getCurrentDirectMemoryAllocations() {
-    return BaseStateImpl.currentDirectMemoryAllocations_.get();
+  @Override
+  public final long xxHash64(final long in, final long seed) {
+    return XxHash64.hash(in, seed);
   }
-
-  /**
-   * Gets the current size of active direct memory allocated.
-   * @return the current size of active direct memory allocated.
-   */
-  public static final long getCurrentDirectMemoryAllocated() {
-    return BaseStateImpl.currentDirectMemoryAllocated_.get();
-  }
-
-  /**
-   * Gets the current number of active direct memory map allocations.
-   * @return the current number of active direct memory map allocations.
-   */
-  public static final long getCurrentDirectMemoryMapAllocations() {
-    return BaseStateImpl.currentDirectMemoryMapAllocations_.get();
-  }
-
-  /**
-   * Gets the current size of active direct memory map allocated.
-   * @return the current size of active direct memory map allocated.
-   */
-  public static final long getCurrentDirectMemoryMapAllocated() {
-    return BaseStateImpl.currentDirectMemoryMapAllocated_.get();
-  }
-
-  //REACHABILITY FENCE
-  static void reachabilityFence(final Object obj) { }
 
 }

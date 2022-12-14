@@ -19,6 +19,12 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.BaseStateImpl.CHAR_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.DOUBLE_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.FLOAT_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.INT_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.LONG_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.SHORT_SHIFT;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_BOOLEAN_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_BYTE_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_CHAR_BASE_OFFSET;
@@ -27,12 +33,6 @@ import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_FLOAT_BAS
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_INT_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_LONG_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_SHORT_BASE_OFFSET;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.CHAR_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.DOUBLE_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.FLOAT_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.INT_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.LONG_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.SHORT_SHIFT;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
 
 /**

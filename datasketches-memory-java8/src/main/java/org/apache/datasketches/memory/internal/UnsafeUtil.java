@@ -32,8 +32,6 @@ import sun.misc.Unsafe;
 @SuppressWarnings({"restriction"})
 public final class UnsafeUtil {
   public static final Unsafe unsafe;
-  public static final String JDK; //must be at least "1.8"
-  public static final int JDK_MAJOR; //8, 9, 10, 11, 12, etc
 
   //not an indicator of whether compressed references are used.
   public static final int ADDRESS_SIZE;
@@ -50,7 +48,6 @@ public final class UnsafeUtil {
   public static final long ARRAY_LONG_BASE_OFFSET;
   public static final long ARRAY_FLOAT_BASE_OFFSET;
   public static final long ARRAY_DOUBLE_BASE_OFFSET;
-  public static final long ARRAY_OBJECT_BASE_OFFSET;
 
   //@formatter:off
 
@@ -65,18 +62,6 @@ public final class UnsafeUtil {
   public static final long ARRAY_LONG_INDEX_SCALE   = 8;
   public static final long ARRAY_FLOAT_INDEX_SCALE  = 4;
   public static final long ARRAY_DOUBLE_INDEX_SCALE = 8;
-  public static final long ARRAY_OBJECT_INDEX_SCALE;  // varies, 4 or 8 depending on coop
-
-  //Used to convert "type" to bytes:  bytes = longs << LONG_SHIFT
-  public static final int BOOLEAN_SHIFT    = 0;
-  public static final int BYTE_SHIFT       = 0;
-  public static final long SHORT_SHIFT     = 1;
-  public static final long CHAR_SHIFT      = 1;
-  public static final long INT_SHIFT       = 2;
-  public static final long LONG_SHIFT      = 3;
-  public static final long FLOAT_SHIFT     = 2;
-  public static final long DOUBLE_SHIFT    = 3;
-  public static final long OBJECT_SHIFT;     // varies, 2 or 3 depending on coop
 
   //@formatter:on
 
@@ -109,44 +94,9 @@ public final class UnsafeUtil {
     ARRAY_LONG_BASE_OFFSET = unsafe.arrayBaseOffset(long[].class);
     ARRAY_FLOAT_BASE_OFFSET = unsafe.arrayBaseOffset(float[].class);
     ARRAY_DOUBLE_BASE_OFFSET = unsafe.arrayBaseOffset(double[].class);
-    ARRAY_OBJECT_BASE_OFFSET = unsafe.arrayBaseOffset(Object[].class);
-
-    ARRAY_OBJECT_INDEX_SCALE = unsafe.arrayIndexScale(Object[].class);
-    OBJECT_SHIFT = ARRAY_OBJECT_INDEX_SCALE == 4 ? 2 : 3;
-
-    final String jdkVer = System.getProperty("java.version");
-    final int[] p = parseJavaVersion(jdkVer);
-    JDK = p[0] + "." + p[1];
-    JDK_MAJOR = (p[0] == 1) ? p[1] : p[0];
   }
 
   private UnsafeUtil() {}
-
-  /**
-   * Returns first two number groups of the java version string.
-   * @param jdkVer the java version string from System.getProperty("java.version").
-   * @return first two number groups of the java version string.
-   */
-  public static int[] parseJavaVersion(final String jdkVer) {
-    final int p0, p1;
-    try {
-      String[] parts = jdkVer.trim().split("[^0-9\\.]");//grab only number groups and "."
-      parts = parts[0].split("\\."); //split out the number groups
-      p0 = Integer.parseInt(parts[0]); //the first number group
-      p1 = (parts.length > 1) ? Integer.parseInt(parts[1]) : 0; //2nd number group, or 0
-    } catch (final NumberFormatException | ArrayIndexOutOfBoundsException  e) {
-      throw new IllegalArgumentException("Improper Java -version string: " + jdkVer + "\n" + e);
-    }
-    //checkJavaVersion(jdkVer, p0, p1); //TODO Optional to omit this.
-    return new int[] {p0, p1};
-  }
-
-  public static void checkJavaVersion(final String jdkVer, final int p0, final int p1) {
-    if ( (p0 < 1) || ((p0 == 1) && (p1 < 8)) || (p0 > 13)  ) {
-      throw new IllegalArgumentException(
-          "Unsupported JDK Major Version, must be one of 1.8, 8, 9, 10, 11, 12, 13: " + jdkVer);
-    }
-  }
 
   public static long getFieldOffset(final Class<?> c, final String fieldName) {
     try {
@@ -180,41 +130,8 @@ public final class UnsafeUtil {
       return ARRAY_SHORT_BASE_OFFSET;
     } else if (c == char[].class) {
       return ARRAY_CHAR_BASE_OFFSET;
-    } else if (c == Object[].class) {
-      return ARRAY_OBJECT_BASE_OFFSET;
     } else {
       return unsafe.arrayBaseOffset(c);
-    }
-  }
-
-  /**
-   * Assert the requested offset and length against the allocated size.
-   * The invariants equation is: {@code 0 <= reqOff <= reqLen <= reqOff + reqLen <= allocSize}.
-   * If this equation is violated and assertions are enabled, an {@link AssertionError} will
-   * be thrown.
-   * @param reqOff the requested offset
-   * @param reqLen the requested length
-   * @param allocSize the allocated size.
-   */
-  public static void assertBounds(final long reqOff, final long reqLen, final long allocSize) {
-    assert ((reqOff | reqLen | (reqOff + reqLen) | (allocSize - (reqOff + reqLen))) >= 0) :
-      "reqOffset: " + reqOff + ", reqLength: " + reqLen
-      + ", (reqOff + reqLen): " + (reqOff + reqLen) + ", allocSize: " + allocSize;
-  }
-
-  /**
-   * Check the requested offset and length against the allocated size.
-   * The invariants equation is: {@code 0 <= reqOff <= reqLen <= reqOff + reqLen <= allocSize}.
-   * If this equation is violated an {@link IllegalArgumentException} will be thrown.
-   * @param reqOff the requested offset
-   * @param reqLen the requested length
-   * @param allocSize the allocated size.
-   */
-  public static void checkBounds(final long reqOff, final long reqLen, final long allocSize) {
-    if ((reqOff | reqLen | (reqOff + reqLen) | (allocSize - (reqOff + reqLen))) < 0) {
-      throw new IllegalArgumentException(
-          "reqOffset: " + reqOff + ", reqLength: " + reqLen
-              + ", (reqOff + reqLen): " + (reqOff + reqLen) + ", allocSize: " + allocSize);
     }
   }
 }

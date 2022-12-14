@@ -19,13 +19,13 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.UnsafeUtil.CHAR_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.DOUBLE_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.FLOAT_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.INT_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.LONG_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.SHORT_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.checkBounds;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.CHAR_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.DOUBLE_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.FLOAT_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.INT_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.LONG_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.SHORT_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
 import static org.apache.datasketches.memory.internal.Util.UNSAFE_COPY_THRESHOLD_BYTES;
 

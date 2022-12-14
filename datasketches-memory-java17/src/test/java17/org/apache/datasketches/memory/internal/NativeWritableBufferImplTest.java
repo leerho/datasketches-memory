@@ -19,7 +19,8 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -354,7 +355,7 @@ public class NativeWritableBufferImplTest {
 
   @Test
   public void checkGoodBounds() {
-   BaseStateImpl.checkBounds(50, 50, 100);
+   checkBounds(50, 50, 100);
   }
 
   @Test

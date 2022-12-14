@@ -19,7 +19,8 @@
 
 package org.apache.datasketches.memory;
 
-import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
 import static org.apache.datasketches.memory.internal.Util.negativeCheck;
 
 import java.io.File;
@@ -29,7 +30,6 @@ import java.util.Objects;
 
 import org.apache.datasketches.memory.internal.BaseWritableMemoryImpl;
 import org.apache.datasketches.memory.internal.Prim;
-import org.apache.datasketches.memory.internal.UnsafeUtil;
 
 /**
  * Defines the writable API for offset access to a resource.
@@ -318,7 +318,7 @@ public interface WritableMemory extends Memory {
     Objects.requireNonNull(byteOrder, "byteOrder must be non-null");
     negativeCheck(offsetBytes, "offsetBytes");
     negativeCheck(lengthBytes, "lengthBytes");
-    UnsafeUtil.checkBounds(offsetBytes, lengthBytes, array.length);
+    checkBounds(offsetBytes, lengthBytes, array.length);
     return BaseWritableMemoryImpl.wrapHeapArray(array, offsetBytes, lengthBytes, false, byteOrder, memReqSvr);
   }
 

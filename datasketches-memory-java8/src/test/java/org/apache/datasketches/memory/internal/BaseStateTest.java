@@ -19,8 +19,12 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.checkJavaVersion;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.isNativeByteOrder;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.parseJavaVersion;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.typeDecode;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_DOUBLE_INDEX_SCALE;
-import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -34,6 +38,63 @@ import org.testng.annotations.Test;
 
 @SuppressWarnings("deprecation")
 public class BaseStateTest {
+
+  @Test
+  public void checkJdkString() {
+    String jdkVer;
+    int[] p = new int[2];
+    String[] good1_Strings = {"1.8.0_121", "8", "11"};
+    int len = good1_Strings.length;
+    for (int i = 0; i < len; i++) {
+      jdkVer = good1_Strings[i];
+      p = parseJavaVersion(jdkVer);
+      checkJavaVersion(jdkVer, p[0], p[1]);
+      int jdkMajor = (p[0] == 1) ? p[1] : p[0]; //model the actual JDK_MAJOR
+      if (p[0] == 1) { assertTrue(jdkMajor == p[1]); }
+      if (p[0] > 1 ) { assertTrue(jdkMajor == p[0]); }
+    }
+    try {
+      jdkVer = "14.0.4"; //ver 14 string
+      p = parseJavaVersion(jdkVer);
+      checkJavaVersion(jdkVer, p[0], p[1]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      println("" + e);
+    }
+
+    try {
+      jdkVer = "1.7.0_80"; //1.7 string
+      p = parseJavaVersion(jdkVer);
+      checkJavaVersion(jdkVer, p[0], p[1]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      println("" + e);
+    }
+    try {
+      jdkVer = "1.6.0_65"; //valid string but < 1.7
+      p = parseJavaVersion(jdkVer);
+      checkJavaVersion(jdkVer, p[0], p[1]); //throws
+      fail();
+    } catch (IllegalArgumentException e) {
+      println("" + e);
+    }
+    try {
+      jdkVer = "b"; //invalid string
+      p = parseJavaVersion(jdkVer);
+      checkJavaVersion(jdkVer, p[0], p[1]); //throws
+      fail();
+    } catch (IllegalArgumentException e) {
+      println("" + e);
+    }
+    try {
+      jdkVer = ""; //invalid string
+      p = parseJavaVersion(jdkVer);
+      checkJavaVersion(jdkVer, p[0], p[1]); //throws
+      fail();
+    } catch (IllegalArgumentException e) {
+      println("" + e);
+    }
+  }
 
   @Test
   public void checkPrimOffset() {
@@ -98,9 +159,9 @@ public class BaseStateTest {
 
   @Test
   public void checkIsNativeByteOrder() {
-    assertTrue(BaseStateImpl.isNativeByteOrder(NATIVE_BYTE_ORDER));
+    assertTrue(isNativeByteOrder(NATIVE_BYTE_ORDER));
     try {
-      BaseStateImpl.isNativeByteOrder(null);
+      isNativeByteOrder(null);
       fail();
     } catch (final IllegalArgumentException e) {}
   }
@@ -115,7 +176,7 @@ public class BaseStateTest {
   @Test
   public void checkTypeDecode() {
     for (int i = 0; i < 128; i++) {
-      BaseStateImpl.typeDecode(i);
+      typeDecode(i);
     }
   }
 

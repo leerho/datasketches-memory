@@ -19,6 +19,10 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.BaseStateImpl.LS;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -38,16 +42,6 @@ import org.apache.datasketches.memory.Memory;
 public final class Util {
 
   /**
-   * The java line separator character as a String.
-   */
-  public static final String LS = System.getProperty("line.separator");
-
-  //Byte Order related
-  public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-  public static final ByteOrder NON_NATIVE_BYTE_ORDER = NATIVE_BYTE_ORDER == ByteOrder.LITTLE_ENDIAN
-      ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-
-  /**
    * Don't use sun.misc.Unsafe#copyMemory to copy blocks of memory larger than this
    * threshold, because internally it doesn't have safepoint polls, that may cause long
    * "Time To Safe Point" pauses in the application. This has been fixed in JDK 9 (see
@@ -61,8 +55,6 @@ public final class Util {
 
   private Util() { }
 
-  //Byte Order Related
-
   /**
    * Returns true if the given byteOrder is the same as the native byte order.
    * @param byteOrder the given byte order
@@ -72,7 +64,7 @@ public final class Util {
     if (byteOrder == null) {
       throw new IllegalArgumentException("ByteOrder parameter cannot be null.");
     }
-    return ByteOrder.nativeOrder() == byteOrder;
+    return NATIVE_BYTE_ORDER == byteOrder;
   }
 
   /**
@@ -92,7 +84,7 @@ public final class Util {
    */
   public static long binarySearchLongs(final Memory mem, final long fromLongIndex,
       final long toLongIndex, final long key) {
-    UnsafeUtil.checkBounds(fromLongIndex << 3, (toLongIndex - fromLongIndex) << 3, mem.getCapacity());
+    checkBounds(fromLongIndex << 3, (toLongIndex - fromLongIndex) << 3, mem.getCapacity());
     long low = fromLongIndex;
     long high = toLongIndex - 1L;
 

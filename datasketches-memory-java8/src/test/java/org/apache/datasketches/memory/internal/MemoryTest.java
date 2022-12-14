@@ -23,23 +23,20 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.Util.LS;
-import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.Util.getResourceFile;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.LS;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
 import org.apache.datasketches.memory.BaseState;
-import org.apache.datasketches.memory.MapHandle;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.WritableBuffer;
 import org.apache.datasketches.memory.WritableHandle;
@@ -48,7 +45,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.collections.Lists;
 
-@SuppressWarnings("deprecation")
 public class MemoryTest {
 
   @BeforeClass
@@ -343,50 +339,6 @@ public class MemoryTest {
     //with -ea assert: Memory not valid.
     //with -da sometimes segfaults, sometimes passes!
     region.getByte(0);
-  }
-
-  @Test
-  public void checkMonitorDirectStats() throws Exception {
-    int bytes = 1024;
-    long curAllocations = BaseState.getCurrentDirectMemoryAllocations();
-    long curAllocated   = BaseState.getCurrentDirectMemoryAllocated();
-    if (curAllocations != 0) { System.err.println(curAllocations + " should be zero!"); }
-    WritableHandle wh1 = WritableMemory.allocateDirect(bytes);
-    WritableHandle wh2 = WritableMemory.allocateDirect(bytes);
-    assertEquals(BaseState.getCurrentDirectMemoryAllocations(), 2L + curAllocations);
-    assertEquals(BaseState.getCurrentDirectMemoryAllocated(), 2 * bytes + curAllocated);
-
-    wh1.close();
-    assertEquals(BaseState.getCurrentDirectMemoryAllocations(), 1L + curAllocations);
-    assertEquals(BaseState.getCurrentDirectMemoryAllocated(), bytes + curAllocated);
-
-    wh2.close();
-    wh2.close(); //check that it doesn't go negative.
-    //even though the handles are closed, these methods are static access
-    assertEquals(BaseState.getCurrentDirectMemoryAllocations(), 0L + curAllocations);
-    assertEquals(BaseState.getCurrentDirectMemoryAllocated(), 0L + curAllocated);
-  }
-
-  @Test
-  public void checkMonitorDirectMapStats() throws Exception {
-    File file = getResourceFile("GettysburgAddress.txt");
-    long bytes = file.length();
-
-    MapHandle mmh1 = Memory.map(file);
-    MapHandle mmh2 = Memory.map(file);
-
-    assertEquals(BaseState.getCurrentDirectMemoryMapAllocations(), 2L);
-    assertEquals(BaseState.getCurrentDirectMemoryMapAllocated(), 2 * bytes);
-
-    mmh1.close();
-    assertEquals(BaseState.getCurrentDirectMemoryMapAllocations(), 1L);
-    assertEquals(BaseState.getCurrentDirectMemoryMapAllocated(), bytes);
-
-    mmh2.close();
-    mmh2.close(); //check that it doesn't go negative.
-    //even though the handles are closed, these methods are static access
-    assertEquals(BaseState.getCurrentDirectMemoryMapAllocations(), 0L);
-    assertEquals(BaseState.getCurrentDirectMemoryMapAllocated(), 0L);
   }
 
   @Test

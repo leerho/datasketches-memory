@@ -20,8 +20,6 @@
 package org.apache.datasketches.memory.internal;
 
 import static jdk.incubator.foreign.MemoryAccess.getByteAtOffset;
-import static org.apache.datasketches.memory.internal.Util.LS;
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -43,7 +41,7 @@ import jdk.incubator.foreign.ResourceScope;
  */
 abstract class BaseStateImpl implements BaseState {
   static final String JDK; //must be at least "1.8"
-  static final int JDK_MAJOR; //8, 11, 12, etc
+  static final int JDK_MAJOR; //8, 11, 17, etc
 
   static final int BOOLEAN_SHIFT    = 0;
   static final int BYTE_SHIFT       = 0;
@@ -55,26 +53,36 @@ abstract class BaseStateImpl implements BaseState {
   static final long DOUBLE_SHIFT    = 3;
 
   //class type IDs.
-  // 0000 0XXX
+  // 0000 0XXX Group 1
   static final int READONLY  = 1;
   static final int REGION    = 1 << 1;
   static final int DUPLICATE = 1 << 2; //for Buffer only
 
-  // 000X X000
+  // 000X X000 Group 2
   static final int HEAP   = 0;
   static final int DIRECT = 1 << 3;
   static final int MAP    = 1 << 4; //Map is always Direct also
 
-  // 00X0 0000
+  // 00X0 0000 Group 3
   static final int NATIVE    = 0;
   static final int NONNATIVE = 1 << 5;
 
-  // 0X00 0000
+  // 0X00 0000 Group 4
   static final int MEMORY = 0;
-   static final int BUFFER = 1 << 6;
+  static final int BUFFER = 1 << 6;
 
-  // X000 0000
+  // X000 0000 Group 5
   static final int BYTEBUF = 1 << 7;
+
+  /**
+   * The java line separator character as a String.
+   */
+  static final String LS = System.getProperty("line.separator");
+
+  static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
+
+  static final ByteOrder NON_NATIVE_BYTE_ORDER =
+      (NATIVE_BYTE_ORDER == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 
   static {
     final String jdkVer = System.getProperty("java.version");
@@ -94,6 +102,8 @@ abstract class BaseStateImpl implements BaseState {
     this.memReqSvr = memReqSvr;
   }
 
+  //**STATIC METHODS*****************************************
+
   /**
    * Check the requested offset and length against the allocated size.
    * The invariants equation is: {@code 0 <= reqOff <= reqLen <= reqOff + reqLen <= allocSize}.
@@ -112,9 +122,9 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   static void checkJavaVersion(final String jdkVer, final int p0) {
-    if ( p0 != 17 ) {
-      throw new IllegalArgumentException(
-          "Unsupported JDK Major Version, must be 17; " + jdkVer);
+    boolean ok = p0 == 17;
+    if (!ok) { throw new IllegalArgumentException(
+        "Unsupported JDK Major Version, must be 17; " + jdkVer);
     }
   }
 
@@ -127,7 +137,7 @@ abstract class BaseStateImpl implements BaseState {
   static int[] parseJavaVersion(final String jdkVer) {
     final int p0, p1;
     try {
-      String[] parts = jdkVer.trim().split("\\.");//grab only number groups and "."
+      String[] parts = jdkVer.trim().split("^0-9\\.");//grab only number groups and "."
       parts = parts[0].split("\\."); //split out the number groups
       p0 = Integer.parseInt(parts[0]); //the first number group
       p1 = (parts.length > 1) ? Integer.parseInt(parts[1]) : 0; //2nd number group, or 0
@@ -136,50 +146,6 @@ abstract class BaseStateImpl implements BaseState {
     }
     checkJavaVersion(jdkVer, p0);
     return new int[] {p0, p1};
-  }
-
-  /**
-   * Decodes the resource type. This is primarily for debugging.
-   * @param typeId the given typeId
-   * @return a human readable string.
-   */
-  static final String typeDecode(final int typeId) {
-    final StringBuilder sb = new StringBuilder();
-    final int group1 = typeId & 0x7;
-    switch (group1) {
-      case 0 : sb.append("Writable:\t"); break;
-      case 1 : sb.append("ReadOnly:\t"); break;
-      case 2 : sb.append("Writable:\tRegion:\t"); break;
-      case 3 : sb.append("ReadOnly:\tRegion:\t"); break;
-      case 4 : sb.append("Writable:\tDuplicate:\t"); break;
-      case 5 : sb.append("ReadOnly:\tDuplicate:\t"); break;
-      case 6 : sb.append("Writable:\tRegion:\tDuplicate:\t"); break;
-      case 7 : sb.append("ReadOnly:\tRegion:\tDuplicate:\t"); break;
-      default: break;
-    }
-    final int group2 = (typeId >>> 3) & 0x3;
-    switch (group2) {
-      case 0 : sb.append("Heap:\t"); break;
-      case 1 : sb.append("Direct:\t"); break;
-      case 2 : sb.append("Map:\t"); break;
-      case 3 : sb.append("Direct:\tMap:\t"); break;
-      default: break;
-    }
-    if ((typeId & BYTEBUF) > 0) { sb.append("ByteBuffer:\t"); }
-
-    final int group3 = (typeId >>> 5) & 0x1;
-    switch (group3) {
-      case 0 : sb.append("NativeOrder:\t"); break;
-      case 1 : sb.append("NonNativeOrder:\t"); break;
-      default: break;
-    }
-    final int group4 = (typeId >>> 6) & 0x1;
-    switch (group4) {
-      case 0 : sb.append("Memory"); break;
-      case 1 : sb.append("Buffer"); break;
-      default: break;
-    }
-    return sb.toString();
   }
 
   static final WritableBuffer selectBuffer(
@@ -267,13 +233,65 @@ abstract class BaseStateImpl implements BaseState {
     return sb.toString();
   }
 
+  /**
+   * Decodes the resource type. This is primarily for debugging.
+   * @param typeId the given typeId
+   * @return a human readable string.
+   */
+  static final String typeDecode(final int typeId) {
+    final StringBuilder sb = new StringBuilder();
+    final int group1 = typeId & 0x7;
+    switch (group1) { // 0000 0XXX
+      case 0 : sb.append("Writable:\t"); break;
+      case 1 : sb.append("ReadOnly:\t"); break;
+      case 2 : sb.append("Writable:\tRegion:\t"); break;
+      case 3 : sb.append("ReadOnly:\tRegion:\t"); break;
+      case 4 : sb.append("Writable:\tDuplicate:\t"); break;
+      case 5 : sb.append("ReadOnly:\tDuplicate:\t"); break;
+      case 6 : sb.append("Writable:\tRegion:\tDuplicate:\t"); break;
+      case 7 : sb.append("ReadOnly:\tRegion:\tDuplicate:\t"); break;
+      default: break;
+    }
+    final int group2 = (typeId >>> 3) & 0x3;
+    switch (group2) { // 000X X000
+      case 0 : sb.append("Heap:\t"); break;
+      case 1 : sb.append("Direct:\t"); break;
+      case 2 : sb.append("Map:\t"); break;
+      case 3 : sb.append("Direct:\tMap:\t"); break;
+      default: break;
+    }
+    if ((typeId & BYTEBUF) > 0) { sb.append("ByteBuffer:\t"); }
+
+    final int group3 = (typeId >>> 5) & 0x1;
+    switch (group3) { // 00X0 0000
+      case 0 : sb.append("NativeOrder:\t"); break;
+      case 1 : sb.append("NonNativeOrder:\t"); break;
+      default: break;
+    }
+    final int group4 = (typeId >>> 6) & 0x1;
+    switch (group4) { // 0X00 0000
+      case 0 : sb.append("Memory:\t"); break;
+      case 1 : sb.append("Buffer:\t"); break;
+      default: break;
+    }
+    final int group5 = (typeId >>> 7) & 0x1;
+    switch (group5) { // X000 0000
+      case 0 : sb.append(""); break;
+      case 1 : sb.append("ByteBuffer"); break;
+      default: break;
+    }
+    return sb.toString();
+  }
+
+  //**NON STATIC METHODS*****************************************
+
   @Override
   public final ByteBuffer asByteBufferView(final ByteOrder order) {
     final ByteBuffer byteBuf = seg.asByteBuffer().order(order);
     return byteBuf;
   }
 
-  @SuppressWarnings("resource")
+  //@SuppressWarnings("resource")
   @Override
   public void close() {
     if (seg != null && seg.scope().isAlive() && !seg.scope().isImplicit()) {
@@ -299,13 +317,13 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public MemoryRequestServer getMemoryRequestServer() {
-    return memReqSvr;
+  public final ByteOrder getByteOrder() {
+    return (typeId & NONNATIVE) > 0 ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
   }
 
   @Override
-  public final ByteOrder getByteOrder() {
-    return (typeId & NONNATIVE) > 0 ? NON_NATIVE_BYTE_ORDER : ByteOrder.nativeOrder();
+  public MemoryRequestServer getMemoryRequestServer() {
+    return memReqSvr;
   }
 
   @Override
@@ -318,19 +336,19 @@ abstract class BaseStateImpl implements BaseState {
     return memReqSvr != null;
   }
 
-  @SuppressWarnings("resource")
+  //@SuppressWarnings("resource")
   @Override
   public boolean isAlive() { return seg.scope().isAlive(); }
+
+  @Override
+  public final boolean isBuffer() {
+    return (typeId & BUFFER) > 0;
+  }
 
   @Override
   public final boolean isByteOrderCompatible(final ByteOrder byteOrder) {
     final ByteOrder typeBO = getByteOrder();
     return typeBO == ByteOrder.nativeOrder() && typeBO == byteOrder;
-  }
-
-  @Override
-  public final boolean isBuffer() {
-    return (typeId & BUFFER) > 0;
   }
 
   @Override

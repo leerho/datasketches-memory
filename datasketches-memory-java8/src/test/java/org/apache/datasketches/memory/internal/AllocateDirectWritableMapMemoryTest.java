@@ -24,9 +24,9 @@
 package org.apache.datasketches.memory.internal;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.datasketches.memory.internal.Util.LS;
-import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.LS;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -37,20 +37,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteOrder;
 
-import org.apache.datasketches.memory.BaseState;
 import org.apache.datasketches.memory.MapHandle;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.ReadOnlyException;
 import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMapHandle;
 import org.apache.datasketches.memory.WritableMemory;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-@SuppressWarnings("deprecation")
 public class AllocateDirectWritableMapMemoryTest {
 
   @BeforeClass
@@ -187,8 +183,7 @@ public class AllocateDirectWritableMapMemoryTest {
       assertEquals(bufStr, origStr);
     }
 
-    try (WritableMapHandle wrh = WritableMemory.writableMap(origFile, 0, corrBytes,
-        ByteOrder.nativeOrder())) {
+    try (WritableMapHandle wrh = WritableMemory.writableMap(origFile, 0, corrBytes, NATIVE_BYTE_ORDER)) {
       WritableMemory wMap = wrh.getWritable();
       wrh.load();
       assertTrue(wrh.isLoaded());
@@ -225,14 +220,14 @@ public class AllocateDirectWritableMapMemoryTest {
     } //end of scope call to Cleaner/Deallocator also will be redundant
   }
 
-  @AfterClass
-  public void checkDirectCounter() {
-    long count =  BaseState.getCurrentDirectMemoryMapAllocations();
-      if (count != 0) {
-        println(""+count);
-        fail();
-      }
-    }
+//  @AfterClass
+//  public void checkDirectCounter() {
+//    long count =  BaseState.getCurrentDirectMemoryMapAllocations();
+//      if (count != 0) {
+//        println(""+count);
+//        fail();
+//      }
+//    }
 
   @Test
   public void printlnTest() {

@@ -19,8 +19,9 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
@@ -49,8 +50,12 @@ public class SpecificLeafTest {
     Memory mem = Memory.wrap(bb).region(0, bytes, NATIVE_BYTE_ORDER);
     assertTrue(((BaseStateImpl)mem).isBBType());
     assertTrue(mem.isReadOnly());
+    assertTrue(((BaseStateImpl)mem).isMemoryType());
+    assertFalse(((BaseStateImpl)mem).isDirectType());
+    assertFalse(((BaseStateImpl)mem).isMapType());
     checkCrossLeafTypeIds(mem);
     Buffer buf = mem.asBuffer().region(0, bytes, NATIVE_BYTE_ORDER);
+    assertEquals(buf.getByteOrder(), NATIVE_BYTE_ORDER);
 
     bb.order(NON_NATIVE_BYTE_ORDER);
     Memory mem2 = Memory.wrap(bb).region(0, bytes, NON_NATIVE_BYTE_ORDER);
@@ -87,6 +92,7 @@ public class SpecificLeafTest {
       assertTrue(((BaseStateImpl)buf).isRegionType());
       assertTrue(((BaseStateImpl)buf2).isRegionType());
       assertTrue(((BaseStateImpl)buf3).isDuplicateType());
+      assertTrue(((BaseStateImpl)mem).isMemoryType());
     }
   }
 

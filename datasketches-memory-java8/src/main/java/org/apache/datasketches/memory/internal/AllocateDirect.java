@@ -19,6 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.BaseStateImpl.reachabilityFence;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
 
 import java.util.logging.Logger;
@@ -79,7 +80,7 @@ final class AllocateDirect {
       }
       return false;
     } finally {
-      BaseStateImpl.reachabilityFence(this);
+      reachabilityFence(this);
     }
   }
 
@@ -99,8 +100,6 @@ final class AllocateDirect {
     private final StepBoolean valid = new StepBoolean(true); //only place for this
 
     Deallocator(final long nativeAddress, final long allocationSize, final long capacity) {
-      BaseStateImpl.currentDirectMemoryAllocations_.incrementAndGet();
-      BaseStateImpl.currentDirectMemoryAllocated_.addAndGet(capacity);
       this.nativeAddress = nativeAddress;
       this.allocationSize = allocationSize;
       this.capacity = capacity;
@@ -124,8 +123,6 @@ final class AllocateDirect {
         }
         unsafe.freeMemory(nativeAddress);
         NioBits.unreserveMemory(allocationSize, capacity);
-        BaseStateImpl.currentDirectMemoryAllocations_.decrementAndGet();
-        BaseStateImpl.currentDirectMemoryAllocated_.addAndGet(-capacity);
         return true;
       }
       return false;

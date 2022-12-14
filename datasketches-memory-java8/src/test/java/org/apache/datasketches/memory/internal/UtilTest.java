@@ -23,7 +23,8 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.Util.LS;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.LS;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
 import static org.apache.datasketches.memory.internal.Util.characterPad;
 import static org.apache.datasketches.memory.internal.Util.getResourceBytes;
 import static org.apache.datasketches.memory.internal.Util.getResourceFile;
@@ -65,7 +66,7 @@ public class UtilTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void checkBoundsTest() {
-    UnsafeUtil.checkBounds(999, 2, 1000);
+    checkBounds(999, 2, 1000);
   }
 
   @Test

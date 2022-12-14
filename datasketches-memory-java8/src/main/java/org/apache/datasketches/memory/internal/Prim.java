@@ -19,6 +19,14 @@
 
 package org.apache.datasketches.memory.internal;
 
+import static org.apache.datasketches.memory.internal.BaseStateImpl.BOOLEAN_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.BYTE_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.CHAR_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.DOUBLE_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.FLOAT_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.INT_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.LONG_SHIFT;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.SHORT_SHIFT;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_BOOLEAN_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_BOOLEAN_INDEX_SCALE;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_BYTE_BASE_OFFSET;
@@ -33,19 +41,9 @@ import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_INT_BASE_
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_INT_INDEX_SCALE;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_LONG_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_LONG_INDEX_SCALE;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_OBJECT_BASE_OFFSET;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_OBJECT_INDEX_SCALE;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_SHORT_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_SHORT_INDEX_SCALE;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.BOOLEAN_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.BYTE_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.CHAR_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.DOUBLE_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.FLOAT_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.INT_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.LONG_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.OBJECT_SHIFT;
-import static org.apache.datasketches.memory.internal.UnsafeUtil.SHORT_SHIFT;
+
 
 /**
  * Creates easy to access association between the major Unsafe constants.
@@ -60,8 +58,7 @@ public enum Prim {
   INT(ARRAY_INT_BASE_OFFSET, ARRAY_INT_INDEX_SCALE, INT_SHIFT),
   LONG(ARRAY_LONG_BASE_OFFSET, ARRAY_LONG_INDEX_SCALE, LONG_SHIFT),
   FLOAT(ARRAY_FLOAT_BASE_OFFSET, ARRAY_FLOAT_INDEX_SCALE, FLOAT_SHIFT),
-  DOUBLE(ARRAY_DOUBLE_BASE_OFFSET, ARRAY_DOUBLE_INDEX_SCALE, DOUBLE_SHIFT),
-  OBJECT(ARRAY_OBJECT_BASE_OFFSET, ARRAY_OBJECT_INDEX_SCALE, OBJECT_SHIFT);
+  DOUBLE(ARRAY_DOUBLE_BASE_OFFSET, ARRAY_DOUBLE_INDEX_SCALE, DOUBLE_SHIFT);
 
   private final long arrBaseOff_;
   private final long arrIdxScale_;

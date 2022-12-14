@@ -19,7 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.fail;
@@ -29,10 +29,8 @@ import org.apache.datasketches.memory.DefaultMemoryRequestServer;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-@SuppressWarnings("deprecation")
 public class AllocateDirectMemoryTest {
 
   @Test
@@ -105,17 +103,6 @@ public class AllocateDirectMemoryTest {
     try (WritableHandle wdh = WritableMemory.allocateDirect(cap)) {
       wdh.close(); //explicit close. Does the work of closing
     } //end of scope call to Cleaner/Deallocator also will be redundant
-  }
-
-
-  @AfterClass
-  public void checkDirectCounter() {
-    WritableMemory.writableWrap(new byte[8]);
-    long count = BaseState.getCurrentDirectMemoryAllocations();
-    if (count != 0) {
-      println(""+count);
-      fail();
-    }
   }
 
   @Test

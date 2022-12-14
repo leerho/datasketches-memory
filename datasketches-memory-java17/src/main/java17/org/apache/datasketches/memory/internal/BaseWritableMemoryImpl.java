@@ -21,7 +21,6 @@ package org.apache.datasketches.memory.internal;
 
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -123,7 +122,7 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
 
   //MAP FILE RESOURCE
 
-  @SuppressWarnings("resource")
+  //@SuppressWarnings("resource")
   public static WritableMemory wrapMap(
       final File file,
       final long fileOffsetBytes,
@@ -162,7 +161,7 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
    * This is a callback mechanism for a user client of direct memory to request more memory.
    * @return WritableMemory
    */
-  @SuppressWarnings("resource")
+  //@SuppressWarnings("resource")
   public static WritableMemory wrapDirect(
       final long capacityBytes,
       final long alignmentBytes,
@@ -279,7 +278,7 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
     return MemoryAccess.getByteAtOffset(seg, offsetBytes);
   }
 
-  @Override //fundamental limitation of MemorySegment in Java17
+  @Override //Efficient handling of arrays is fundamental limitation of MemorySegment in Java17
   public final void getByteArray(final long offsetBytes, final byte[] dstArray,
       final int dstOffsetBytes, final int lengthBytes) {
     checkBounds(dstOffsetBytes, lengthBytes, dstArray.length);

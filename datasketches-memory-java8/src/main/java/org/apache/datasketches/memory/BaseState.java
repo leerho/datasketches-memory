@@ -22,8 +22,6 @@ package org.apache.datasketches.memory;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.datasketches.memory.internal.BaseStateImpl;
-
 /**
  * Keeps key configuration state for Memory and Buffer plus some common static variables
  * and check methods.
@@ -91,6 +89,7 @@ public interface BaseState {
   /**
    * Returns true if the backing resource is direct (off-heap) memory.
    * This is the case for allocated direct memory, memory mapped files,
+   * or from a wrapped ByteBuffer that was allocated direct.
    * @return true if the backing resource is direct (off-heap) memory.
    */
   boolean isDirect();
@@ -178,46 +177,6 @@ public interface BaseState {
    */
   @Deprecated
   long getCumulativeOffset(long offsetBytes);
-
-  /**
-   * Gets the current size of active direct memory allocated.
-   * @return the current size of active direct memory allocated.
-   * @deprecated no longer supported for Java 17 versions.
-   */
-  @Deprecated
-  static long getCurrentDirectMemoryAllocated() {
-    return BaseStateImpl.getCurrentDirectMemoryAllocated();
-  }
-
-  /**
-   * Gets the current number of active direct memory allocations.
-   * @return the current number of active direct memory allocations.
-   * @deprecated no longer supported for Java 17 versions.
-   */
-  @Deprecated
-  static long getCurrentDirectMemoryAllocations() {
-    return BaseStateImpl.getCurrentDirectMemoryAllocations();
-  }
-
-  /**
-   * Gets the current size of active direct memory map allocated.
-   * @return the current size of active direct memory map allocated.
-   * @deprecated no longer supported for Java 17 versions.
-   */
-  @Deprecated
-  static long getCurrentDirectMemoryMapAllocated() {
-    return BaseStateImpl.getCurrentDirectMemoryMapAllocated();
-  }
-
-  /**
-   * Gets the current number of active direct memory map allocations.
-   * @return the current number of active direct memory map allocations.
-   * @deprecated no longer supported for Java 17 versions.
-   */
-  @Deprecated
-  static long getCurrentDirectMemoryMapAllocations() {
-    return BaseStateImpl.getCurrentDirectMemoryMapAllocations();
-  }
 
   /**
    * Returns the offset of address zero of this object relative to the address zero of the

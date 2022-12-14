@@ -19,8 +19,8 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.Util.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.Util.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -49,16 +49,16 @@ public class SpecificLeafTest {
   public void checkByteBufferLeafs() {
     int bytes = 128;
     ByteBuffer bb = ByteBuffer.allocate(bytes);
-    bb.order(ByteOrder.nativeOrder());
+    bb.order(NATIVE_BYTE_ORDER);
 
-    Memory mem = Memory.wrap(bb).region(0, bytes, ByteOrder.nativeOrder());
+    Memory mem = Memory.wrap(bb).region(0, bytes, NATIVE_BYTE_ORDER);
     assertTrue(mem.hasByteBuffer());
     assertTrue(mem.isReadOnly());
     assertTrue(mem.isMemory());
     assertFalse(mem.isDirect());
     assertFalse(mem.isMapped());
     checkCrossLeafTypeIds(mem);
-    Buffer buf = mem.asBuffer().region(0, bytes, ByteOrder.nativeOrder());
+    Buffer buf = mem.asBuffer().region(0, bytes, NATIVE_BYTE_ORDER);
     assertEquals(buf.getByteOrder(), NATIVE_BYTE_ORDER);
 
     bb.order(NON_NATIVE_BYTE_ORDER);
