@@ -29,6 +29,15 @@ public class MemoryException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
+   * Constructs a new runtime exception. The cause is not
+   * initialized, and may subsequently be initialized by a call to
+   * Throwable.initCause(java.lang.Throwable).
+   */
+  public MemoryException() {
+    super();
+  }
+
+  /**
    * Constructs a new runtime exception with the specified detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to
    * Throwable.initCause(java.lang.Throwable).

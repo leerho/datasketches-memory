@@ -31,19 +31,6 @@ import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
 
 import org.apache.datasketches.memory.WritableBuffer;
 
-/*
- * Developer notes: The heavier methods, such as put/get arrays, duplicate, region, clear, fill,
- * compareTo, etc., use hard checks (check*() and incrementAndCheck*() methods), which execute at
- * runtime and throw exceptions if violated. The cost of the runtime checks are minor compared to
- * the rest of the work these methods are doing.
- *
- * <p>The light weight methods, such as put/get primitives, use asserts (assert*() and
- * incrementAndAssert*() methods), which only execute when asserts are enabled and JIT will remove
- * them entirely from production runtime code. The offset versions of the light weight methods will
- * simplify to a single unsafe call, which is further simplified by JIT to an intrinsic that is
- * often a single CPU instruction.
- */
-
 /**
  * Implementation of {@link WritableBuffer} for native endian byte order.
  * @author Roman Leventov
@@ -52,7 +39,7 @@ import org.apache.datasketches.memory.WritableBuffer;
 @SuppressWarnings("restriction")
 abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
 
-  //Pass-through ctor
+  //Pass-through constructor
   NativeWritableBufferImpl(final Object unsafeObj, final long nativeBaseOffset, final long regionOffset,
       final long capacityBytes) {
     super(unsafeObj, nativeBaseOffset, regionOffset, capacityBytes);
@@ -73,7 +60,7 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
   public void getCharArray(final char[] dstArray, final int dstOffsetChars, final int lengthChars) {
     final long pos = getPosition();
     final long copyBytes = ((long) lengthChars) << CHAR_SHIFT;
-    incrementAndCheckPositionForRead(pos, copyBytes);
+    incrementAndCheckPosition(pos, copyBytes);
     checkBounds(dstOffsetChars, lengthChars, dstArray.length);
     CompareAndCopy.copyMemoryCheckingDifferentObject(
             getUnsafeObject(),
@@ -86,13 +73,13 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
   @Override
   public double getDouble() {
     final long pos = getPosition();
-    incrementAndAssertPositionForRead(pos, ARRAY_DOUBLE_INDEX_SCALE);
+    incrementAndCheckPosition(pos, ARRAY_DOUBLE_INDEX_SCALE);
     return unsafe.getDouble(getUnsafeObject(), getCumulativeOffset(pos));
   }
 
   @Override
   public double getDouble(final long offsetBytes) {
-    assertValidAndBoundsForRead(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE);
+    checkValidAndBounds(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE);
     return unsafe.getDouble(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
 
@@ -101,7 +88,7 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
       final int lengthDoubles) {
     final long pos = getPosition();
     final long copyBytes = ((long) lengthDoubles) << DOUBLE_SHIFT;
-    incrementAndCheckPositionForRead(pos, copyBytes);
+    incrementAndCheckPosition(pos, copyBytes);
     checkBounds(dstOffsetDoubles, lengthDoubles, dstArray.length);
     CompareAndCopy.copyMemoryCheckingDifferentObject(
             getUnsafeObject(),
@@ -114,13 +101,13 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
   @Override
   public float getFloat() {
     final long pos = getPosition();
-    incrementAndAssertPositionForRead(pos, ARRAY_FLOAT_INDEX_SCALE);
+    incrementAndCheckPosition(pos, ARRAY_FLOAT_INDEX_SCALE);
     return unsafe.getFloat(getUnsafeObject(), getCumulativeOffset(pos));
   }
 
   @Override
   public float getFloat(final long offsetBytes) {
-    assertValidAndBoundsForRead(offsetBytes, ARRAY_FLOAT_INDEX_SCALE);
+    checkValidAndBounds(offsetBytes, ARRAY_FLOAT_INDEX_SCALE);
     return unsafe.getFloat(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
 
@@ -129,7 +116,7 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
       final int lengthFloats) {
     final long pos = getPosition();
     final long copyBytes = ((long) lengthFloats) << FLOAT_SHIFT;
-    incrementAndCheckPositionForRead(pos, copyBytes);
+    incrementAndCheckPosition(pos, copyBytes);
     checkBounds(dstOffsetFloats, lengthFloats, dstArray.length);
     CompareAndCopy.copyMemoryCheckingDifferentObject(
             getUnsafeObject(),
@@ -153,7 +140,7 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
   public void getIntArray(final int[] dstArray, final int dstOffsetInts, final int lengthInts) {
     final long pos = getPosition();
     final long copyBytes = ((long) lengthInts) << INT_SHIFT;
-    incrementAndCheckPositionForRead(pos, copyBytes);
+    incrementAndCheckPosition(pos, copyBytes);
     checkBounds(dstOffsetInts, lengthInts, dstArray.length);
     CompareAndCopy.copyMemoryCheckingDifferentObject(
             getUnsafeObject(),
@@ -177,7 +164,7 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
   public void getLongArray(final long[] dstArray, final int dstOffsetLongs, final int lengthLongs) {
     final long pos = getPosition();
     final long copyBytes = ((long) lengthLongs) << LONG_SHIFT;
-    incrementAndCheckPositionForRead(pos, copyBytes);
+    incrementAndCheckPosition(pos, copyBytes);
     checkBounds(dstOffsetLongs, lengthLongs, dstArray.length);
     CompareAndCopy.copyMemoryCheckingDifferentObject(
             getUnsafeObject(),
@@ -202,7 +189,7 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
       final int lengthShorts) {
     final long pos = getPosition();
     final long copyBytes = ((long) lengthShorts) << SHORT_SHIFT;
-    incrementAndCheckPositionForRead(pos, copyBytes);
+    incrementAndCheckPosition(pos, copyBytes);
     checkBounds(dstOffsetShorts, lengthShorts, dstArray.length);
     CompareAndCopy.copyMemoryCheckingDifferentObject(
             getUnsafeObject(),
@@ -240,13 +227,13 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
   @Override
   public void putDouble(final double value) {
     final long pos = getPosition();
-    incrementAndAssertPositionForWrite(pos, ARRAY_DOUBLE_INDEX_SCALE);
+    incrementAndCheckPositionForWrite(pos, ARRAY_DOUBLE_INDEX_SCALE);
     unsafe.putDouble(getUnsafeObject(), getCumulativeOffset(pos), value);
   }
 
   @Override
   public void putDouble(final long offsetBytes, final double value) {
-    assertValidAndBoundsForWrite(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE);
+    checkValidBoundsWritable(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE);
     unsafe.putDouble(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
   }
 
@@ -268,13 +255,13 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
   @Override
   public void putFloat(final float value) {
     final long pos = getPosition();
-    incrementAndAssertPositionForWrite(pos, ARRAY_FLOAT_INDEX_SCALE);
+    incrementAndCheckPositionForWrite(pos, ARRAY_FLOAT_INDEX_SCALE);
     unsafe.putFloat(getUnsafeObject(), getCumulativeOffset(pos), value);
   }
 
   @Override
   public void putFloat(final long offsetBytes, final float value) {
-    assertValidAndBoundsForWrite(offsetBytes, ARRAY_FLOAT_INDEX_SCALE);
+    checkValidBoundsWritable(offsetBytes, ARRAY_FLOAT_INDEX_SCALE);
     unsafe.putFloat(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
   }
 

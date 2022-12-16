@@ -29,6 +29,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
 
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.ReadOnlyException;
@@ -210,8 +211,8 @@ public class NativeWritableBufferImplTest {
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
       WritableMemory wmem = wrh.getWritable();
       WritableBuffer wbuf = wmem.asWritableBuffer();
-      wbuf.toHexString("Force Assertion Error", memCapacity, 8);
-    } catch (IllegalArgumentException e) {
+      wbuf.toHexString("Force BoundsException", memCapacity, 8);
+    } catch (BoundsException e) {
       //ok
     }
   }
@@ -224,13 +225,13 @@ public class NativeWritableBufferImplTest {
       WritableBuffer wbuf = wmem.asWritableBuffer();
       byte[] srcArray = { 1, -2, 3, -4 };
       wbuf.putByteArray(srcArray, 0, 5); //wrong!
-    } catch (IllegalArgumentException e) {
+    } catch (BoundsException e) {
       //pass
     }
   }
 
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = BoundsException.class)
   public void checkRegionBounds() throws Exception {
     int memCapacity = 64;
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
@@ -440,12 +441,12 @@ public class NativeWritableBufferImplTest {
   public void checkAsBuffer() {
     WritableMemory wmem = WritableMemory.allocate(64);
     WritableBuffer wbuf = wmem.asWritableBuffer();
-    wbuf.setPosition(32);
+    wbuf.setAndCheckPosition(32);
     for (int i = 32; i < 64; i++) { wbuf.putByte((byte)i); }
     //println(wbuf.toHexString("Buf", 0, (int)wbuf.getCapacity()));
 
     Buffer buf = wmem.asBuffer();
-    buf.setPosition(32);
+    buf.setAndCheckPosition(32);
     for (int i = 32; i < 64; i++) {
       assertEquals(buf.getByte(), i);
     }

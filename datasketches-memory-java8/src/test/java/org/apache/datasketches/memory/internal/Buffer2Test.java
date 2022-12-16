@@ -92,7 +92,7 @@ public class Buffer2Test {
       assertEquals(byteArray[i++], buffer.getByte());
     }
 
-    buffer.setPosition(0);
+    buffer.setAndCheckPosition(0);
     byte[] copyByteArray = new byte[64];
     buffer.getByteArray(copyByteArray, 0, 64);
     assertEquals(byteArray, copyByteArray);
@@ -115,7 +115,7 @@ public class Buffer2Test {
       assertEquals(charArray[i++], buffer.getChar());
     }
 
-    buffer.setPosition(0);
+    buffer.setAndCheckPosition(0);
     char[] copyCharArray = new char[64];
     buffer.getCharArray(copyCharArray, 0, 64);
     assertEquals(charArray, copyCharArray);
@@ -135,7 +135,7 @@ public class Buffer2Test {
       assertEquals(shortArray[i++], buffer.getShort());
     }
 
-    buffer.setPosition(0);
+    buffer.setAndCheckPosition(0);
     short[] copyShortArray = new short[64];
     buffer.getShortArray(copyShortArray, 0, 64);
     assertEquals(shortArray, copyShortArray);
@@ -155,7 +155,7 @@ public class Buffer2Test {
       assertEquals(intArray[i++], buffer.getInt());
     }
 
-    buffer.setPosition(0);
+    buffer.setAndCheckPosition(0);
     int[] copyIntArray = new int[64];
     buffer.getIntArray(copyIntArray, 0, 64);
     assertEquals(intArray, copyIntArray);
@@ -175,7 +175,7 @@ public class Buffer2Test {
       assertEquals(longArray[i++], buffer.getLong());
     }
 
-    buffer.setPosition(0);
+    buffer.setAndCheckPosition(0);
     long[] copyLongArray = new long[64];
     buffer.getLongArray(copyLongArray, 0, 64);
     assertEquals(longArray, copyLongArray);
@@ -195,7 +195,7 @@ public class Buffer2Test {
       assertEquals(floatArray[i++], buffer.getFloat());
     }
 
-    buffer.setPosition(0);
+    buffer.setAndCheckPosition(0);
     float[] copyFloatArray = new float[64];
     buffer.getFloatArray(copyFloatArray, 0, 64);
     assertEquals(floatArray, copyFloatArray);
@@ -215,7 +215,7 @@ public class Buffer2Test {
       assertEquals(doubleArray[i++], buffer.getDouble());
     }
 
-    buffer.setPosition(0);
+    buffer.setAndCheckPosition(0);
     double[] copyDoubleArray = new double[64];
     buffer.getDoubleArray(copyDoubleArray, 0, 64);
     assertEquals(doubleArray, copyDoubleArray);
@@ -237,7 +237,7 @@ public class Buffer2Test {
       assertEquals(booleanArray[i++], buffer.getBoolean());
     }
 
-    buffer.setPosition(0);
+    buffer.setAndCheckPosition(0);
     boolean[] copyBooleanArray = new boolean[64];
     buffer.getBooleanArray(copyBooleanArray, 0, 64);
     for (int j = 0; j < copyBooleanArray.length; j++) {
@@ -291,8 +291,8 @@ public class Buffer2Test {
 
     Buffer buffer = Buffer.wrap(bb);
     assertEquals(bb.position(), buffer.getPosition());
-    assertEquals(30, buffer.setPosition(30).getPosition());
-    assertEquals(40, buffer.incrementPosition(10).getPosition());
+    assertEquals(30, buffer.setAndCheckPosition(30).getPosition());
+    assertEquals(40, buffer.incrementAndCheckPosition(10).getPosition());
     assertEquals(0, buffer.resetPosition().getPosition());
   }
 
@@ -313,8 +313,8 @@ public class Buffer2Test {
     }
 
     assertEquals(bb.position(), buffer.getPosition() + 10);
-    assertEquals(30, buffer.setPosition(30).getPosition());
-    assertEquals(40, buffer.incrementPosition(10).getPosition());
+    assertEquals(30, buffer.setAndCheckPosition(30).getPosition());
+    assertEquals(40, buffer.incrementAndCheckPosition(10).getPosition());
     assertEquals(0, buffer.resetPosition().getPosition());
   }
 
@@ -330,7 +330,7 @@ public class Buffer2Test {
     bb.position(10);
 
     Buffer buffer = Buffer.wrap(bb.slice().order(NATIVE_BYTE_ORDER)); //slice = 54
-    buffer.setPosition(30);//remaining = 24
+    buffer.setAndCheckPosition(30);//remaining = 24
     Buffer dupBuffer = buffer.duplicate(); //all 54
     Buffer regionBuffer = buffer.region(); //24
 
@@ -381,7 +381,7 @@ public class Buffer2Test {
     }
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testROByteBuffer() {
     byte[] arr = new byte[64];
     ByteBuffer roBB = ByteBuffer.wrap(arr).asReadOnlyBuffer();

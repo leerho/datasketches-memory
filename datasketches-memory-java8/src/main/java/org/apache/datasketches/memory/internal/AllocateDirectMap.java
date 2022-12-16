@@ -32,6 +32,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.logging.Logger;
 
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.Map;
 import org.apache.datasketches.memory.MemoryCloseException;
 
@@ -110,7 +111,7 @@ class AllocateDirectMap implements Map {
     resourceReadOnly = isFileReadOnly(file);
     final long fileLength = file.length();
     if ((localReadOnly || resourceReadOnly) && fileOffsetBytes + capacityBytes > fileLength) {
-      throw new IllegalArgumentException(
+      throw new BoundsException(
           "Read-only mode and requested map length is greater than current file length: "
           + "Requested Length = " + (fileOffsetBytes + capacityBytes)
           + ", Current File Length = " + fileLength);
@@ -262,12 +263,12 @@ class AllocateDirectMap implements Map {
     Deallocator(final long nativeBaseOffset, final long capacityBytes,
         final RandomAccessFile raf) {
       myRaf = raf;
-      assert myRaf != null;
+      if (myRaf == null) { throw new IllegalStateException("RandomAccessFile must not be null."); }
       myFc = myRaf.getChannel();
       actualNativeBaseOffset = nativeBaseOffset;
-      assert actualNativeBaseOffset != 0;
+      if (actualNativeBaseOffset == 0) { throw new IllegalStateException(" Native Base Offset must not be zero."); }
       myCapacity = capacityBytes;
-      assert myCapacity != 0;
+      if (myCapacity == 0) { throw new IllegalStateException("The capacity of this map must not be zero."); }
     }
 
     StepBoolean getValid() {

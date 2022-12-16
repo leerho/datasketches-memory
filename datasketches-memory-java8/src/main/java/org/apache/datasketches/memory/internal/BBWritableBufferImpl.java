@@ -88,13 +88,13 @@ final class BBWritableBufferImpl extends NativeWritableBufferImpl {
 
   @Override
   public ByteBuffer getByteBuffer() {
-    assertValid();
+    checkValid();
     return byteBuf;
   }
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
-    assertValid();
+    checkValid();
     return memReqSvr;
   }
 
@@ -110,7 +110,7 @@ final class BBWritableBufferImpl extends NativeWritableBufferImpl {
 
   @Override
   Object getUnsafeObject() {
-    assertValid();
+    checkValid();
     return unsafeObj;
   }
 

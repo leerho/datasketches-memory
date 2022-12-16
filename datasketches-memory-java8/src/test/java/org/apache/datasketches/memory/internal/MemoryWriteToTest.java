@@ -30,6 +30,7 @@ import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.datasketches.memory.Memory;
+import org.apache.datasketches.memory.ReadOnlyException;
 import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
@@ -57,7 +58,7 @@ public class MemoryWriteToTest {
   }
 
   @Test
-  public void testOffHeap() throws Exception {
+  public void testOffHeap() throws Exception, ReadOnlyException {
     try (WritableHandle handle =
         WritableMemory.allocateDirect((UNSAFE_COPY_THRESHOLD_BYTES * 5) + 10)) {
       WritableMemory mem = handle.getWritable();
@@ -86,12 +87,13 @@ public class MemoryWriteToTest {
     return Memory.wrap(ints);
   }
 
-  private static void testWriteTo(Memory mem) throws IOException {
+  private static void testWriteTo(Memory mem) throws ReadOnlyException, IOException {
     int cap = (int)mem.getCapacity();
     ByteArrayOutputStream baos = new ByteArrayOutputStream(cap);
     try (WritableByteChannel out = Channels.newChannel(baos)) {
       mem.writeTo(0, mem.getCapacity(), out);
-    }
+    } catch (final ReadOnlyException expected) { }
+
     byte[] result = baos.toByteArray();
     assertTrue(mem.equalTo(Memory.wrap(result)));
     //OR

@@ -29,6 +29,7 @@ import static org.testng.Assert.fail;
 
 import java.nio.ByteBuffer;
 
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.ReadOnlyException;
@@ -207,8 +208,8 @@ public class NativeWritableMemoryImplTest {
     int memCapacity = 64;
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
       WritableMemory mem = wrh.getWritable();
-      mem.toHexString("Force Assertion Error", memCapacity, 8);
-    } catch (IllegalArgumentException e) {
+      mem.toHexString("Force Bounds Error", memCapacity, 8);
+    } catch (BoundsException e) {
       //ok
     }
   }
@@ -220,7 +221,7 @@ public class NativeWritableMemoryImplTest {
       WritableMemory mem = wrh.getWritable();
       byte[] srcArray = { 1, -2, 3, -4 };
       mem.putByteArray(0L, srcArray, 0, 5);
-    } catch (IllegalArgumentException e) {
+    } catch (BoundsException e) {
       //pass
     }
   }
@@ -281,9 +282,9 @@ public class NativeWritableMemoryImplTest {
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
       WritableMemory mem = wrh.getWritable();
       mem.copyTo(32, mem, 32, 33);  //hit source bound check
-      fail("Did Not Catch Assertion Error: source bound");
+      fail("Did Not Catch bounds error");
     }
-    catch (IllegalArgumentException e) {
+    catch (BoundsException e) {
       //pass
     }
   }
@@ -294,9 +295,9 @@ public class NativeWritableMemoryImplTest {
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
       WritableMemory mem = wrh.getWritable();
       mem.copyTo(0, mem, 32, 33);  //hit dst bound check
-      fail("Did Not Catch Assertion Error: dst bound");
+      fail("Did Not Catch Bounds Error: dst bound");
     }
-    catch (IllegalArgumentException e) {
+    catch (BoundsException e) {
       //pass
     }
   }
@@ -426,7 +427,7 @@ public class NativeWritableMemoryImplTest {
 
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = BoundsException.class)
   public void checkRegionBounds() throws Exception {
     int memCapacity = 64;
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
@@ -642,12 +643,12 @@ public class NativeWritableMemoryImplTest {
   public void checkAsBuffer() {
     WritableMemory wmem = WritableMemory.allocate(64);
     WritableBuffer wbuf = wmem.asWritableBuffer();
-    wbuf.setPosition(32);
+    wbuf.setAndCheckPosition(32);
     for (int i = 32; i < 64; i++) { wbuf.putByte((byte)i); }
     //println(wbuf.toHexString("Buf", 0, (int)wbuf.getCapacity()));
 
     Buffer buf = wmem.asBuffer();
-    buf.setPosition(32);
+    buf.setAndCheckPosition(32);
     for (int i = 32; i < 64; i++) {
       assertEquals(buf.getByte(), i);
     }

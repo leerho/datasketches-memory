@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.MapHandle;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.ReadOnlyException;
@@ -37,42 +38,42 @@ public class MemoryReadWriteSafetyTest {
 
   final WritableMemory mem = (WritableMemory) Memory.wrap(new byte[8]);
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testPutByte() {
     mem.putByte(0, (byte) 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testPutBoolean() {
     mem.putBoolean(0, true);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testPutShort() {
     mem.putShort(0, (short) 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testPutChar() {
     mem.putChar(0, (char) 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testPutInt() {
     mem.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testPutLong() {
     mem.putLong(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testPutFloat() {
     mem.putFloat(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testPutDouble() {
     mem.putDouble(0, 1);
   }
@@ -119,80 +120,80 @@ public class MemoryReadWriteSafetyTest {
 
   // Now, test that various ways to obtain a read-only memory produce a read-only memory indeed
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testWritableMemoryRegion() {
     WritableMemory mem1 = (WritableMemory) WritableMemory.allocate(8).region(0, 8);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testByteArrayWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new byte[8]);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testByteArrayWrapWithBO() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new byte[8], NATIVE_BYTE_ORDER);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testByteArrayWrapWithOffsetsAndBO() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new byte[8], 0, 4, NATIVE_BYTE_ORDER);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testBooleanArrayWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new boolean[8]);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testShortArrayWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new short[8]);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testCharArrayWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new char[8]);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testIntArrayWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new int[8]);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testLongArrayWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new long[8]);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testFloatArrayWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new float[8]);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testDoubleArrayWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(new double[8]);
     mem1.putInt(0, 1);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testByteBufferWrap() {
     WritableMemory mem1 = (WritableMemory) Memory.wrap(ByteBuffer.allocate(8));
     mem1.putInt(0, 1);
   }
 
   //@SuppressWarnings("resource")
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testMapFile() throws Exception {
     File tempFile = File.createTempFile("test", null);
     tempFile.deleteOnExit();
@@ -206,18 +207,18 @@ public class MemoryReadWriteSafetyTest {
   }
 
   @SuppressWarnings("resource")
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = ReadOnlyException.class)
   public void testMapFileWithOffsetsAndBO() throws Exception {
     File tempFile = File.createTempFile("test", "test");
     tempFile.deleteOnExit();
     new RandomAccessFile(tempFile, "rw").setLength(8);
-    try (MapHandle h = Memory.map(tempFile, 0, 4, NATIVE_BYTE_ORDER)) {
-      ((WritableMemory) h.get()).putInt(0, 1);
+    try (MapHandle h = Memory.map(tempFile, 0, 4, NATIVE_BYTE_ORDER)) { //Memory.map forced ReadOnly
+      ((WritableMemory) h.get()).putInt(0, 1); //this is a write
     }
   }
 
   @SuppressWarnings("resource")
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = BoundsException.class)
   public void testMapFileBeyondTheFileSize() throws Exception {
     File tempFile = File.createTempFile("test", "test");
     tempFile.deleteOnExit();

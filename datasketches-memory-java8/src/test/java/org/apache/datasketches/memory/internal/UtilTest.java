@@ -44,6 +44,7 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermissions;
 
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
@@ -64,7 +65,7 @@ public class UtilTest {
     assertEquals(idx, -1024);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = BoundsException.class)
   public void checkBoundsTest() {
     checkBounds(999, 2, 1000);
   }

@@ -20,11 +20,13 @@
 package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
+import static org.apache.datasketches.memory.internal.Util.characterPad;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.ReadOnlyException;
 
@@ -91,14 +93,14 @@ public abstract class BaseStateImpl implements BaseState {
     JDK_MAJOR = (p[0] == 1) ? p[1] : p[0];
   }
 
-  private final long capacityBytes_;
+  private final long capacityBytes_; //NOT USED in JDK 17
 
   /**
    * This becomes the base offset used by all Unsafe calls. It is cumulative in that in includes
    * all offsets from regions, user-defined offsets when creating MemoryImpl, and the array object
    * header offset when creating MemoryImpl from primitive arrays.
    */
-  private final long cumBaseOffset_;
+  private final long cumBaseOffset_; //NOT USED in JDK 17
 
   /**
    * Constructor
@@ -122,21 +124,6 @@ public abstract class BaseStateImpl implements BaseState {
   //**STATIC METHODS*****************************************
 
   /**
-   * Assert the requested offset and length against the allocated size.
-   * The invariants equation is: {@code 0 <= reqOff <= reqLen <= reqOff + reqLen <= allocSize}.
-   * If this equation is violated and assertions are enabled, an {@link AssertionError} will
-   * be thrown.
-   * @param reqOff the requested offset
-   * @param reqLen the requested length
-   * @param allocSize the allocated size.
-   */
-  public static void assertBounds(final long reqOff, final long reqLen, final long allocSize) {
-    assert ((reqOff | reqLen | (reqOff + reqLen) | (allocSize - (reqOff + reqLen))) >= 0) :
-      "reqOffset: " + reqOff + ", reqLength: " + reqLen
-      + ", (reqOff + reqLen): " + (reqOff + reqLen) + ", allocSize: " + allocSize;
-  }
-
-  /**
    * Check the requested offset and length against the allocated size.
    * The invariants equation is: {@code 0 <= reqOff <= reqLen <= reqOff + reqLen <= allocSize}.
    * If this equation is violated an {@link IllegalArgumentException} will be thrown.
@@ -146,7 +133,7 @@ public abstract class BaseStateImpl implements BaseState {
    */
   public static void checkBounds(final long reqOff, final long reqLen, final long allocSize) {
     if ((reqOff | reqLen | (reqOff + reqLen) | (allocSize - (reqOff + reqLen))) < 0) {
-      throw new IllegalArgumentException(
+      throw new BoundsException(
           "reqOffset: " + reqOff + ", reqLength: " + reqLen
               + ", (reqOff + reqLen): " + (reqOff + reqLen) + ", allocSize: " + allocSize);
     }
@@ -169,6 +156,10 @@ public abstract class BaseStateImpl implements BaseState {
       throw new IllegalArgumentException("ByteOrder parameter cannot be null.");
     }
     return NATIVE_BYTE_ORDER == byteOrder;
+  }
+
+  static String pad(final String s, final int fieldLen) {
+    return characterPad(s, fieldLen, ' ' , true);
   }
 
   /**
@@ -263,44 +254,44 @@ public abstract class BaseStateImpl implements BaseState {
    * @param typeId the given typeId
    * @return a human readable string.
    */
-  public static final String typeDecode(final int typeId) {
+  static final String typeDecode(final int typeId) {
     final StringBuilder sb = new StringBuilder();
     final int group1 = typeId & 0x7;
     switch (group1) { // 0000 0XXX
-      case 0 : sb.append("Writable:\t"); break;
-      case 1 : sb.append("ReadOnly:\t"); break;
-      case 2 : sb.append("Writable:\tRegion:\t"); break;
-      case 3 : sb.append("ReadOnly:\tRegion:\t"); break;
-      case 4 : sb.append("Writable:\tDuplicate:\t"); break;
-      case 5 : sb.append("ReadOnly:\tDuplicate:\t"); break;
-      case 6 : sb.append("Writable:\tRegion:\tDuplicate:\t"); break;
-      case 7 : sb.append("ReadOnly:\tRegion:\tDuplicate:\t"); break;
+      case 0 : sb.append(pad("Writable + ",32)); break;
+      case 1 : sb.append(pad("ReadOnly + ",32)); break;
+      case 2 : sb.append(pad("Writable + Region + ",32)); break;
+      case 3 : sb.append(pad("ReadOnly + Region + ",32)); break;
+      case 4 : sb.append(pad("Writable + Duplicate + ",32)); break;
+      case 5 : sb.append(pad("ReadOnly + Duplicate + ",32)); break;
+      case 6 : sb.append(pad("Writable + Region + Duplicate + ",32)); break;
+      case 7 : sb.append(pad("ReadOnly + Region + Duplicate + ",32)); break;
       default: break;
     }
     final int group2 = (typeId >>> 3) & 0x3;
     switch (group2) { // 000X X000
-      case 0 : sb.append("Heap:\t"); break;
-      case 1 : sb.append("Direct:\t"); break;
-      case 2 : sb.append("Map:\t"); break;
-      case 3 : sb.append("Direct:\tMap:\t"); break;
+      case 0 : sb.append(pad("Heap + ",15)); break;
+      case 1 : sb.append(pad("Direct + ",15)); break;
+      case 2 : sb.append(pad("Map + Direct + ",15)); break;
+      case 3 : sb.append(pad("Map + Direct + ",15)); break;
       default: break;
     }
     final int group3 = (typeId >>> 5) & 0x1;
     switch (group3) { // 00X0 0000
-      case 0 : sb.append("NativeOrder:\t"); break;
-      case 1 : sb.append("NonNativeOrder:\t"); break;
+      case 0 : sb.append(pad("NativeOrder + ",17)); break;
+      case 1 : sb.append(pad("NonNativeOrder + ",17)); break;
       default: break;
     }
     final int group4 = (typeId >>> 6) & 0x1;
     switch (group4) { // 0X00 0000
-      case 0 : sb.append("Memory:\t"); break;
-      case 1 : sb.append("Buffer:\t"); break;
+      case 0 : sb.append(pad("Memory + ",9)); break;
+      case 1 : sb.append(pad("Buffer + ",9)); break;
       default: break;
     }
     final int group5 = (typeId >>> 7) & 0x1;
     switch (group5) { // X000 0000
-      case 0 : sb.append(""); break;
-      case 1 : sb.append("ByteBuffer"); break;
+      case 0 : sb.append(pad("",10)); break;
+      case 1 : sb.append(pad("ByteBuffer",10)); break;
       default: break;
     }
     return sb.toString();
@@ -308,30 +299,9 @@ public abstract class BaseStateImpl implements BaseState {
 
   //**NON STATIC METHODS*****************************************
 
-  final void assertValid() {
-    assert isValid() : "MemoryImpl not valid.";
-  }
-
-  final void assertValidAndBoundsForRead(final long offsetBytes, final long lengthBytes) {
-    assertValid();
-    // capacityBytes_ is intentionally read directly instead of calling getCapacity()
-    // because the later can make JVM to not inline the assert code path (and entirely remove it)
-    // even though it does nothing in production code path.
-    assertBounds(offsetBytes, lengthBytes, capacityBytes_);
-  }
-
-  final void assertValidAndBoundsForWrite(final long offsetBytes, final long lengthBytes) {
-    assertValid();
-    // capacityBytes_ is intentionally read directly instead of calling getCapacity()
-    // because the later can make JVM to not inline the assert code path (and entirely remove it)
-    // even though it does nothing in production code path.
-    assertBounds(offsetBytes, lengthBytes, capacityBytes_);
-    assert !isReadOnly() : "MemoryImpl is read-only.";
-  }
-
   void checkValid() {
     if (!isValid()) {
-      throw new IllegalStateException("MemoryImpl not valid.");
+      throw new IllegalStateException("Memory not valid.");
     }
   }
 
@@ -342,12 +312,12 @@ public abstract class BaseStateImpl implements BaseState {
     checkBounds(offsetBytes, lengthBytes, capacityBytes_);
   }
 
-  final void checkValidAndBoundsForWrite(final long offsetBytes, final long lengthBytes) {
+  final void checkValidBoundsWritable(final long offsetBytes, final long lengthBytes) {
     checkValid();
     //read capacityBytes_ directly to eliminate extra checkValid() call
     checkBounds(offsetBytes, lengthBytes, capacityBytes_);
     if (isReadOnly()) {
-      throw new ReadOnlyException("MemoryImpl is read-only.");
+      throw new ReadOnlyException("Memory is read-only.");
     }
   }
 
@@ -371,19 +341,19 @@ public abstract class BaseStateImpl implements BaseState {
 
   @Override
   public final long getCapacity() {
-    assertValid();
+    checkValid();
     return capacityBytes_;
   }
 
   @Override
   public final long getCumulativeOffset() {
-    assertValid();
+    checkValid();
     return cumBaseOffset_;
   }
 
   @Override
   public final long getCumulativeOffset(final long offsetBytes) {
-    assertValid();
+    checkValid();
     return cumBaseOffset_ + offsetBytes;
   }
 
@@ -420,14 +390,14 @@ public abstract class BaseStateImpl implements BaseState {
 
   @Override
   public final boolean hasArray() {
-    assertValid();
+    checkValid();
     return getUnsafeObject() != null;
   }
 
   @Override
   public final boolean hasByteBuffer() {
-    assertValid();
-    return (getTypeId() & BYTEBUF) > 0;
+    checkValid();
+    return isByteBufferType();
   }
 
   @Override
@@ -435,7 +405,7 @@ public abstract class BaseStateImpl implements BaseState {
     return (int) xxHash64(0, capacityBytes_, 0); //xxHash64() calls checkValid()
   }
 
-  final boolean isBBType() {
+  final boolean isByteBufferType() {
     return (getTypeId() & BYTEBUF) > 0;
   }
 
@@ -480,7 +450,7 @@ public abstract class BaseStateImpl implements BaseState {
 
   @Override
   public final boolean isReadOnly() {
-    assertValid();
+    checkValid();
     return isReadOnlyType();
   }
 

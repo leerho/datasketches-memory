@@ -48,7 +48,7 @@ public class SpecificLeafTest {
     bb.order(NATIVE_BYTE_ORDER);
 
     Memory mem = Memory.wrap(bb).region(0, bytes, NATIVE_BYTE_ORDER);
-    assertTrue(((BaseStateImpl)mem).isBBType());
+    assertTrue(((BaseStateImpl)mem).isByteBufferType());
     assertTrue(mem.isReadOnly());
     assertTrue(((BaseStateImpl)mem).isMemoryType());
     assertFalse(((BaseStateImpl)mem).isDirectType());

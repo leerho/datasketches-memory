@@ -266,7 +266,7 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
     return wbuf;
   }
 
-  //PRIMITIVE getX() and getXArray()
+  //PRIMITIVE getX() and getXArray() that are Byte Order insensitive
 
   @Override
   public final boolean getBoolean(final long offsetBytes) {
@@ -278,10 +278,9 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
     return MemoryAccess.getByteAtOffset(seg, offsetBytes);
   }
 
-  @Override //Efficient handling of arrays is fundamental limitation of MemorySegment in Java17
+  @Override
   public final void getByteArray(final long offsetBytes, final byte[] dstArray,
       final int dstOffsetBytes, final int lengthBytes) {
-    checkBounds(dstOffsetBytes, lengthBytes, dstArray.length);
     final MemorySegment srcSlice = seg.asSlice(offsetBytes, lengthBytes); //view
     final MemorySegment dstSlice = MemorySegment.ofArray(dstArray).asSlice(dstOffsetBytes, lengthBytes);
     dstSlice.copyFrom(srcSlice);
@@ -297,8 +296,8 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
   }
 
   @Override
-  public final void copyTo(final long srcOffsetBytes,
-      final WritableMemory destination, final long dstOffsetBytes, final long lengthBytes) {
+  public final void copyTo(final long srcOffsetBytes, final WritableMemory destination,
+      final long dstOffsetBytes, final long lengthBytes) {
     CompareAndCopy.copy(seg, srcOffsetBytes,
         ((BaseStateImpl)destination).seg, dstOffsetBytes, lengthBytes);
   }
@@ -312,7 +311,7 @@ public abstract class BaseWritableMemoryImpl extends BaseStateImpl implements Wr
     out.writeBytes(bArr);
   }
 
-  //  //PRIMITIVE putX() and putXArray() implementations
+  //PRIMITIVE putX() and putXArray() that are Byte Order insensitive
 
   @Override
   public final void putBoolean(final long offsetBytes, final boolean value) {

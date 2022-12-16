@@ -28,6 +28,7 @@ import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.Utf8CodingException;
 import org.apache.datasketches.memory.WritableMemory;
@@ -61,12 +62,12 @@ public class Utf8Test {
     WritableMemory mem = WritableMemory.allocate(10);
     WritableMemory emptyMem = WritableMemory.allocate(0);
     for (int c = Character.MIN_SURROGATE; c <= Character.MAX_SURROGATE; c++) {
-      assertSurrogate(mem, (char) c);
-      assertSurrogate(emptyMem, (char) c);
+      confirmSurrogate(mem, (char) c);
+      confirmSurrogate(emptyMem, (char) c);
     }
   }
 
-  private static void assertSurrogate(WritableMemory mem, char c) {
+  private static void confirmSurrogate(WritableMemory mem, char c) {
     try {
       mem.putCharsToUtf8(0, new String(new char[] {c}));
       fail();
@@ -407,7 +408,7 @@ public class Utf8Test {
       Memory mem = Memory.wrap(bytes);
       mem.getCharsFromUtf8(index, size, new StringBuilder());
       fail();
-    } catch (IllegalArgumentException e) { //Pure bounds violation
+    } catch (BoundsException e) { //Pure bounds violation
       // Expected.
     }
   }

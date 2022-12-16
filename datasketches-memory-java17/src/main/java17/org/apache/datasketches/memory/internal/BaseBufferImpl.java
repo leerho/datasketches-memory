@@ -48,7 +48,7 @@ abstract class BaseBufferImpl extends BaseStateImpl implements BaseBuffer {
   private long pos = 0;
   private long end;
 
-  //Pass-through ctor
+  //Pass-through constructor
   BaseBufferImpl(
       final MemorySegment seg,
       final int typeId,

@@ -44,7 +44,7 @@ import jdk.incubator.foreign.MemorySegment;
  */
 final class NativeWritableMemoryImpl extends BaseWritableMemoryImpl {
 
-  //Pass-through ctor
+  //Leaf constructor
   NativeWritableMemoryImpl(
       final MemorySegment seg,
       final int typeId,
@@ -52,7 +52,8 @@ final class NativeWritableMemoryImpl extends BaseWritableMemoryImpl {
     super(seg, typeId, memReqSvr);
   }
 
-  ///PRIMITIVE getX() and getXArray()
+  //PRIMITIVE getX() and getXArray() that are Byte Order sensitive
+
   @Override
   public char getChar(final long offsetBytes) {
     return MemoryAccess.getCharAtOffset(seg, offsetBytes);
@@ -137,7 +138,8 @@ final class NativeWritableMemoryImpl extends BaseWritableMemoryImpl {
     dstSlice.copyFrom(srcSlice);
   }
 
-  //PRIMITIVE putX() and putXArray() implementations
+  //PRIMITIVE putX() and putXArray() that are Byte Order sensitive.
+
   @Override
   public void putChar(final long offsetBytes, final char value) {
     MemoryAccess.setCharAtOffset(seg, offsetBytes, value);

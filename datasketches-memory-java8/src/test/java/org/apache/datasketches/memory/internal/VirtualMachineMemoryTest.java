@@ -19,21 +19,18 @@
 
 package org.apache.datasketches.memory.internal;
 
-import org.apache.datasketches.memory.internal.VirtualMachineMemory;
 import org.testng.annotations.Test;
 
-@SuppressWarnings({"unused"})
 public class VirtualMachineMemoryTest {
 
-    @Test
-    public void maxDirectBufferMemory() {
-       assert(VirtualMachineMemory.getMaxDBBMemory() >= 0);
-    }
+  @Test
+  public void maxDirectByteBufferMemory() {
+    final long max = VirtualMachineMemory.getMaxDBBMemory();
+    //System.out.println("Max DBB Memory = " + max);
 
-    @Test
-    public void inertPageAlignment() {
-      boolean result = VirtualMachineMemory.getIsPageAligned();
-      //System.out.println("VM page alignment:" + result);
-      assert(true); //no exception was thrown
+    if (max == 0) {
+      throw new IllegalStateException("VM MaxDBBMemory must not be zero.");
     }
+  }
+
 }

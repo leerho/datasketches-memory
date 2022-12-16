@@ -21,6 +21,7 @@ package org.apache.datasketches.memory.internal;
 
 import static org.testng.Assert.fail;
 
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.WritableHandle;
@@ -35,12 +36,12 @@ public class BaseBufferTest {
   @Test
   public void checkLimits() {
     Buffer buf = Memory.wrap(new byte[100]).asBuffer();
-    buf.setStartPositionEnd(40, 45, 50);
-    buf.setStartPositionEnd(0, 0, 100);
+    buf.setAndCheckStartPositionEnd(40, 45, 50);
+    buf.setAndCheckStartPositionEnd(0, 0, 100);
     try {
-      buf.setStartPositionEnd(0, 0, 101);
+      buf.setAndCheckStartPositionEnd(0, 0, 101);
       fail();
-    } catch (AssertionError e) {
+    } catch (BoundsException e) {
       //ok
     }
   }
@@ -53,22 +54,22 @@ public class BaseBufferTest {
     try {
       buf.setAndCheckStartPositionEnd(0, 0, 101);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BoundsException e) {
       //ok
     }
     buf.setAndCheckPosition(100);
     try {
       buf.setAndCheckPosition(101);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BoundsException e) {
       //ok
     }
-    buf.setPosition(99);
+    buf.setAndCheckPosition(99);
     buf.incrementAndCheckPosition(1L);
     try {
       buf.incrementAndCheckPosition(1L);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BoundsException e) {
       //ok
     }
   }
@@ -84,6 +85,6 @@ public class BaseBufferTest {
     try {
       @SuppressWarnings("unused")
       Memory mem = buf.asMemory();
-    } catch (AssertionError ae) { }
+    } catch (IllegalStateException e) { }
   }
 }

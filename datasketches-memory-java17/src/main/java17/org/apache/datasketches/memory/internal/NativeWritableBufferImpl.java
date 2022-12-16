@@ -45,6 +45,7 @@ import jdk.incubator.foreign.MemorySegment;
  */
 final class NativeWritableBufferImpl extends BaseWritableBufferImpl {
 
+  //Leaf constructor
   NativeWritableBufferImpl(
       final MemorySegment seg,
       final int typeId,
@@ -52,7 +53,8 @@ final class NativeWritableBufferImpl extends BaseWritableBufferImpl {
     super(seg, typeId, memReqSvr);
   }
 
-  //PRIMITIVE getX() and getXArray()
+  //PRIMITIVE getX() and getXArray() that are Byte Order sensitive
+
   @Override
   public char getChar() {
     final long pos = getPosition();
@@ -185,7 +187,8 @@ final class NativeWritableBufferImpl extends BaseWritableBufferImpl {
     setPosition(pos + copyBytes);
   }
 
-  //PRIMITIVE putX() and putXArray()
+  //PRIMITIVE putX() and putXArray() that are Byte Order sensitive
+
   @Override
   public void putChar(final char value) {
     final long pos = getPosition();

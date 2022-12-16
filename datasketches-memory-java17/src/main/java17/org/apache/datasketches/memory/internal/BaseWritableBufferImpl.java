@@ -74,7 +74,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     if (localReadOnly) {
       if (byteBuffer.isReadOnly()) {
         byteBuf = byteBuffer.duplicate();
-      } else { //bb writable
+      } else { //ByteBuffer writable
         byteBuf = byteBuffer.asReadOnlyBuffer();
       }
     } else { //want writable
@@ -236,7 +236,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     return wmem;
   }
 
-  //PRIMITIVE getX() and getXArray()
+  //PRIMITIVE getX() and getXArray() that are Byte Order insensitive
 
   @Override
   public final boolean getBoolean() {
@@ -285,7 +285,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
    * the positional values. Switch to asMemory view to do copyTo.
    */
 
-  //PRIMITIVE putX() and putXArray() implementations
+  //PRIMITIVE putX() and putXArray() that are Byte Order insensitive
 
   @Override
   public final void putBoolean(final boolean value) {

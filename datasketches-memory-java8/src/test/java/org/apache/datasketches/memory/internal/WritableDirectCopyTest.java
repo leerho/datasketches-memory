@@ -22,8 +22,9 @@ package org.apache.datasketches.memory.internal;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
-import org.apache.datasketches.memory.WritableHandle;
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.Memory;
+import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
@@ -98,8 +99,8 @@ public class WritableDirectCopyTest {
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
       WritableMemory mem = wrh.getWritable();
       mem.copyTo(32, mem, 32, 33);  //hit source bound check
-      fail("Did Not Catch Assertion Error: source bound");
-    } catch (IllegalArgumentException e) {
+      fail("Did Not Catch bounds error");
+    } catch (BoundsException e) {
       //pass
     }
   }
@@ -110,8 +111,8 @@ public class WritableDirectCopyTest {
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
       WritableMemory mem = wrh.getWritable();
       mem.copyTo(0, mem, 32, 33);  //hit dst bound check
-      fail("Did Not Catch Assertion Error: dst bound");
-    } catch (IllegalArgumentException e) {
+      fail("Did Not Catch bounds error");
+    } catch (BoundsException e) {
       //pass
     }
   }

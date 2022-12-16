@@ -40,15 +40,6 @@ public interface BaseBuffer extends BaseState {
 
   /**
    * Increments the current position by the given increment.
-   * Asserts that the resource is valid and that the positional invariants are not violated,
-   * otherwise, if asserts are enabled throws an {@link AssertionError}.
-   * @param increment the given increment
-   * @return BaseBuffer
-   */
-  BaseBuffer incrementPosition(long increment);
-
-  /**
-   * Increments the current position by the given increment.
    * Checks that the resource is valid and that the positional invariants are not violated,
    * otherwise throws an {@link IllegalArgumentException}.
    * @param increment the given increment
@@ -95,32 +86,12 @@ public interface BaseBuffer extends BaseState {
 
   /**
    * Sets the current position.
-   * Asserts that the positional invariants are not violated,
-   * otherwise, if asserts are enabled throws an {@link AssertionError}.
-   * @param position the given current position.
-   * @return BaseBuffer
-   */
-  BaseBuffer setPosition(long position);
-
-  /**
-   * Sets the current position.
    * Checks that the positional invariants are not violated,
    * otherwise, throws an {@link IllegalArgumentException}.
    * @param position the given current position.
    * @return BaseBuffer
    */
   BaseBuffer setAndCheckPosition(long position);
-
-  /**
-   * Sets start position, current position, and end position.
-   * Asserts that the positional invariants are not violated,
-   * otherwise, if asserts are enabled throws an {@link AssertionError}.
-   * @param start the start position in the buffer
-   * @param position the current position between the start and end
-   * @param end the end position in the buffer
-   * @return BaseBuffer
-   */
-  BaseBuffer setStartPositionEnd(long start, long position, long end);
 
   /**
    * Sets start position, current position, and end position.

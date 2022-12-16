@@ -21,8 +21,8 @@ package org.apache.datasketches.memory.internal;
 
 import static org.testng.Assert.assertEquals;
 
-import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableBuffer;
+import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
@@ -349,7 +349,7 @@ public class CommonBufferTest {
 
     //set region 1
     byte b1 = 5;
-    buf.setStartPositionEnd(reg1Start, reg1Start, reg1Len);
+    buf.setAndCheckStartPositionEnd(reg1Start, reg1Start, reg1Len);
     buf.fill(b1);
     buf.resetPosition();
     for (int i=reg1Start; i<(reg1Len+reg1Start); i++) {
@@ -359,7 +359,7 @@ public class CommonBufferTest {
 
     //set region 2
     byte b2 = 7;
-    buf.setStartPositionEnd(reg2Start, reg2Start, reg2Start + reg2Len);
+    buf.setAndCheckStartPositionEnd(reg2Start, reg2Start, reg2Start + reg2Len);
     buf.fill(b2);
     //println(mem.toHexString("Fill", 0, (int)mem.getCapacity()));
     buf.resetPosition();
@@ -370,7 +370,7 @@ public class CommonBufferTest {
 
     //clear region 1
     byte zeroByte = 0;
-    buf.setStartPositionEnd(reg1Start, reg1Start, reg2Len);
+    buf.setAndCheckStartPositionEnd(reg1Start, reg1Start, reg2Len);
     buf.resetPosition();
     buf.clear();
     buf.resetPosition();
@@ -380,7 +380,7 @@ public class CommonBufferTest {
     //println(buf.toHexString("Region1 cleared", reg1Start, reg1Len));
 
     //clear region 2
-    buf.setStartPositionEnd(reg2Start, reg2Start, reg2Start + reg2Len);
+    buf.setAndCheckStartPositionEnd(reg2Start, reg2Start, reg2Start + reg2Len);
     buf.resetPosition();
     buf.clear();
     buf.resetPosition();
@@ -390,7 +390,7 @@ public class CommonBufferTest {
     //println(buf.toHexString("Region2 cleared", reg2Start, reg2Len));
 
     //set all to ones
-    buf.setStartPositionEnd(reg1Start, reg1Start, accessCapacity);
+    buf.setAndCheckStartPositionEnd(reg1Start, reg1Start, accessCapacity);
     byte b4 = 127;
     buf.resetPosition();
     buf.fill(b4);

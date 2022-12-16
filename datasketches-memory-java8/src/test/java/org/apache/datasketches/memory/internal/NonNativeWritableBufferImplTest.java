@@ -49,16 +49,16 @@ public class NonNativeWritableBufferImplTest {
       assertEquals(wbuf.getChar(i * m), ch++);
     }
     ch = 'a';
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) { wbuf.putChar(ch++); }
     ch = 'a';
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) {
       assertEquals(wbuf.getChar(), ch++);
     }
     //getArr & putArr
     char[] cArr = new char[n]; //native
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     wbuf.getCharArray(cArr, 0, n); //wmem is non-native
     byte[] arr2 = new byte[n * m];
     WritableMemory wmem2 = WritableMemory.writableWrap(arr2, ByteOrder.BIG_ENDIAN);
@@ -82,16 +82,16 @@ public class NonNativeWritableBufferImplTest {
       assertEquals(wbuf.getDouble(i * m), dbl++);
     }
     dbl = 1.0;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) { wbuf.putDouble(dbl++); }
     dbl = 1.0;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) {
       assertEquals(wbuf.getDouble(), dbl++);
     }
     //getArr & putArr
     double[] dblArr = new double[n]; //native
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     wbuf.getDoubleArray(dblArr, 0, n); //wmem is non-native
     byte[] arr2 = new byte[n * m];
     WritableMemory wmem2 = WritableMemory.writableWrap(arr2, ByteOrder.BIG_ENDIAN);
@@ -115,16 +115,16 @@ public class NonNativeWritableBufferImplTest {
       assertEquals(wbuf.getFloat(i * m), flt++);
     }
     flt = 1.0F;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) { wbuf.putFloat(flt++); }
     flt = 1.0F;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) {
       assertEquals(wbuf.getFloat(), flt++);
     }
     //getArr & putArr
     float[] fltArr = new float[n]; //native
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     wbuf.getFloatArray(fltArr, 0, n); //wmem is non-native
     byte[] arr2 = new byte[n * m];
     WritableMemory wmem2 = WritableMemory.writableWrap(arr2, ByteOrder.BIG_ENDIAN);
@@ -148,16 +148,16 @@ public class NonNativeWritableBufferImplTest {
       assertEquals(wbuf.getInt(i * m), intg++);
     }
     intg = 1;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) { wbuf.putInt(intg++); }
     intg = 1;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) {
       assertEquals(wbuf.getInt(), intg++);
     }
     //getArr & putArr
     int[] intArr = new int[n]; //native
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     wbuf.getIntArray(intArr, 0, n); //wmem is non-native
     byte[] arr2 = new byte[n * m];
     WritableMemory wmem2 = WritableMemory.writableWrap(arr2, ByteOrder.BIG_ENDIAN);
@@ -181,16 +181,16 @@ public class NonNativeWritableBufferImplTest {
       assertEquals(wbuf.getLong(i * m), lng++);
     }
     lng = 1;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) { wbuf.putLong(lng++); }
     lng = 1;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) {
       assertEquals(wbuf.getLong(), lng++);
     }
     //getArr & putArr
     long[] longArr = new long[n]; //native
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     wbuf.getLongArray(longArr, 0, n); //wmem is non-native
     byte[] arr2 = new byte[n * m];
     WritableMemory wmem2 = WritableMemory.writableWrap(arr2, ByteOrder.BIG_ENDIAN);
@@ -214,16 +214,16 @@ public class NonNativeWritableBufferImplTest {
       assertEquals(wbuf.getShort(i * m), sht++);
     }
     sht = 1;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) { wbuf.putShort(sht++); }
     sht = 1;
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     for (int i = 0; i < n; i++) {
       assertEquals(wbuf.getShort(), sht++);
     }
     //getArr & putArr
     short[] shortArr = new short[n]; //native
-    wbuf.setPosition(0);
+    wbuf.setAndCheckPosition(0);
     wbuf.getShortArray(shortArr, 0, n); //wmem is non-native
     byte[] arr2 = new byte[n * m];
     WritableMemory wmem2 = WritableMemory.writableWrap(arr2, ByteOrder.BIG_ENDIAN);

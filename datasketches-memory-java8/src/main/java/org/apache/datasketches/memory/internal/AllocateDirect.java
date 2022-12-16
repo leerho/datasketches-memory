@@ -103,7 +103,7 @@ final class AllocateDirect {
       this.nativeAddress = nativeAddress;
       this.allocationSize = allocationSize;
       this.capacity = capacity;
-      assert (nativeAddress != 0);
+      if (nativeAddress == 0) { throw new IllegalStateException("Native address must not be zero."); }
     }
 
     StepBoolean getValid() {

@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
+import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.WritableBuffer;
@@ -249,7 +250,7 @@ public class BufferTest {
     for (int i = 0; i < n; i++) { arr[i] = i; }
 
     Buffer buf = Memory.wrap(arr).asBuffer();
-    buf.setPosition(n2 * 8);
+    buf.setAndCheckPosition(n2 * 8);
     Buffer reg = buf.region();
     for (int i = 0; i < n2; i++) {
       long v = reg.getLong();
@@ -270,7 +271,7 @@ public class BufferTest {
       //println("" + wmem.getLong(i * 8));
     }
     //println("");
-    wbuf.setPosition(n2 * 8);
+    wbuf.setAndCheckPosition(n2 * 8);
     WritableBuffer reg = wbuf.writableRegion();
     for (int i = 0; i < n2; i++) { reg.putLong(i); } //rewrite top half
     wbuf.resetPosition();
@@ -280,35 +281,30 @@ public class BufferTest {
     }
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test//(expectedExceptions = IllegalStateException.class)
   public void checkParentUseAfterFree() throws Exception {
     int bytes = 64 * 8;
     WritableHandle wh = WritableMemory.allocateDirect(bytes);
     WritableMemory wmem = wh.getWritable();
     WritableBuffer wbuf = wmem.asWritableBuffer();
     wh.close();
-    //with -ea assert: Memory not valid.
-    //with -da sometimes segfaults, sometimes passes!
-    wbuf.getLong();
+    wbuf.getLong(); //Memory not valid
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = IllegalStateException.class)
   public void checkRegionUseAfterFree() throws Exception {
     int bytes = 64;
     WritableHandle wh = WritableMemory.allocateDirect(bytes);
     Memory wmem = wh.get();
-
     Buffer reg = wmem.asBuffer().region();
     wh.close();
-    //with -ea assert: Memory not valid.
-    //with -da sometimes segfaults, sometimes passes!
-    reg.getByte();
+    reg.getByte(); //Memory not valid
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = BoundsException.class)
   public void checkBaseBufferInvariants() {
     WritableBuffer wbuf = WritableMemory.allocate(64).asWritableBuffer();
-    wbuf.setStartPositionEnd(1, 0, 2); //out of order
+    wbuf.setAndCheckStartPositionEnd(1, 0, 2); //out of order
   }
 
 

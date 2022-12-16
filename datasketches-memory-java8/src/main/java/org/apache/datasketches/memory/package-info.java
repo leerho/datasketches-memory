@@ -165,8 +165,7 @@
  *     Memory reg = wMem.region(offset, length);
  * </pre></blockquote>
  *
- * <p>With asserts enabled in the JVM, all methods are checked for bounds and
- * use-after-close violations.</p>
+ * <p>All methods are checked for bounds and use-after-close violations.</p>
  *
  * @author Lee Rhodes
  */

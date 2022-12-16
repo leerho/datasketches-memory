@@ -74,7 +74,7 @@ public class AllocateDirectMapMemoryTest {
   }
 
   @Test
-  public void testMapAndMultipleClose() throws Exception {
+  public void testMapAndMultipleClose() throws IllegalStateException {
     File file = getResourceFile("GettysburgAddress.txt");
     long memCapacity = file.length();
     try (MapHandle rh = Memory.map(file, 0, memCapacity, NATIVE_BYTE_ORDER)) {
@@ -82,21 +82,21 @@ public class AllocateDirectMapMemoryTest {
       assertEquals(memCapacity, map.getCapacity());
       rh.close();
       rh.close();
-      map.getCapacity(); //throws assertion error
-    } catch (AssertionError e) {
+      map.getCapacity();
+    } catch (Exception e) {
       //OK
     }
   }
 
   @Test
-  public void testReadFailAfterClose() throws Exception {
+  public void testReadFailAfterClose() throws IllegalStateException {
     File file = getResourceFile("GettysburgAddress.txt");
     long memCapacity = file.length();
     try (MapHandle rh = Memory.map(file, 0, memCapacity, NATIVE_BYTE_ORDER)) {
       Memory mmf = rh.get();
       rh.close();
       mmf.getByte(0);
-    } catch (AssertionError e) {
+    } catch (Exception e) {
       //OK
     }
   }

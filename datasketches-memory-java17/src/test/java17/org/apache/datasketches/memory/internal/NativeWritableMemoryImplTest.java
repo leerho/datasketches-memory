@@ -44,7 +44,7 @@ public class NativeWritableMemoryImplTest {
 
   //Simple Native direct
 
-  @SuppressWarnings("resource")
+  //@SuppressWarnings("resource")
   @Test
   public void checkNativeCapacityAndClose() throws Exception {
     int memCapacity = 64;

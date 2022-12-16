@@ -74,7 +74,7 @@ final class DirectNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImp
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
-    assertValid();
+    checkValid();
     return memReqSvr;
   }
 

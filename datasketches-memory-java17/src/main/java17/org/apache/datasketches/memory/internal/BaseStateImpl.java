@@ -20,6 +20,7 @@
 package org.apache.datasketches.memory.internal;
 
 import static jdk.incubator.foreign.MemoryAccess.getByteAtOffset;
+import static org.apache.datasketches.memory.internal.Util.characterPad;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -94,8 +95,14 @@ abstract class BaseStateImpl implements BaseState {
   final MemorySegment seg;
   final int typeId;
 
-  MemoryRequestServer memReqSvr;
+  MemoryRequestServer memReqSvr; //selected by the user
 
+  /**
+   * Constructor
+   * @param seg the MemorySegment
+   * @param typeId identifies the type parameters for this Memory
+   * @param memReqSvr the MemoryRequestServer
+   */
   BaseStateImpl(final MemorySegment seg, final int typeId, final MemoryRequestServer memReqSvr) {
     this.seg = seg;
     this.typeId = typeId;
@@ -126,6 +133,10 @@ abstract class BaseStateImpl implements BaseState {
     if (!ok) { throw new IllegalArgumentException(
         "Unsupported JDK Major Version, must be 17; " + jdkVer);
     }
+  }
+
+  static String pad(final String s, final int fieldLen) {
+    return characterPad(s, fieldLen, ' ' , true);
   }
 
   /**
@@ -242,42 +253,40 @@ abstract class BaseStateImpl implements BaseState {
     final StringBuilder sb = new StringBuilder();
     final int group1 = typeId & 0x7;
     switch (group1) { // 0000 0XXX
-      case 0 : sb.append("Writable:\t"); break;
-      case 1 : sb.append("ReadOnly:\t"); break;
-      case 2 : sb.append("Writable:\tRegion:\t"); break;
-      case 3 : sb.append("ReadOnly:\tRegion:\t"); break;
-      case 4 : sb.append("Writable:\tDuplicate:\t"); break;
-      case 5 : sb.append("ReadOnly:\tDuplicate:\t"); break;
-      case 6 : sb.append("Writable:\tRegion:\tDuplicate:\t"); break;
-      case 7 : sb.append("ReadOnly:\tRegion:\tDuplicate:\t"); break;
+      case 0 : sb.append(pad("Writable + ",32)); break;
+      case 1 : sb.append(pad("ReadOnly + ",32)); break;
+      case 2 : sb.append(pad("Writable + Region + ",32)); break;
+      case 3 : sb.append(pad("ReadOnly + Region + ",32)); break;
+      case 4 : sb.append(pad("Writable + Duplicate + ",32)); break;
+      case 5 : sb.append(pad("ReadOnly + Duplicate + ",32)); break;
+      case 6 : sb.append(pad("Writable + Region + Duplicate + ",32)); break;
+      case 7 : sb.append(pad("ReadOnly + Region + Duplicate + ",32)); break;
       default: break;
     }
     final int group2 = (typeId >>> 3) & 0x3;
     switch (group2) { // 000X X000
-      case 0 : sb.append("Heap:\t"); break;
-      case 1 : sb.append("Direct:\t"); break;
-      case 2 : sb.append("Map:\t"); break;
-      case 3 : sb.append("Direct:\tMap:\t"); break;
+      case 0 : sb.append(pad("Heap + ",15)); break;
+      case 1 : sb.append(pad("Direct + ",15)); break;
+      case 2 : sb.append(pad("Map + Direct + ",15)); break;
+      case 3 : sb.append(pad("Map + Direct + ",15)); break;
       default: break;
     }
-    if ((typeId & BYTEBUF) > 0) { sb.append("ByteBuffer:\t"); }
-
     final int group3 = (typeId >>> 5) & 0x1;
     switch (group3) { // 00X0 0000
-      case 0 : sb.append("NativeOrder:\t"); break;
-      case 1 : sb.append("NonNativeOrder:\t"); break;
+      case 0 : sb.append(pad("NativeOrder + ",17)); break;
+      case 1 : sb.append(pad("NonNativeOrder + ",17)); break;
       default: break;
     }
     final int group4 = (typeId >>> 6) & 0x1;
     switch (group4) { // 0X00 0000
-      case 0 : sb.append("Memory:\t"); break;
-      case 1 : sb.append("Buffer:\t"); break;
+      case 0 : sb.append(pad("Memory + ",9)); break;
+      case 1 : sb.append(pad("Buffer + ",9)); break;
       default: break;
     }
     final int group5 = (typeId >>> 7) & 0x1;
     switch (group5) { // X000 0000
-      case 0 : sb.append(""); break;
-      case 1 : sb.append("ByteBuffer"); break;
+      case 0 : sb.append(pad("",10)); break;
+      case 1 : sb.append(pad("ByteBuffer",10)); break;
       default: break;
     }
     return sb.toString();

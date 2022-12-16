@@ -175,8 +175,9 @@ public class BaseStateTest {
 
   @Test
   public void checkTypeDecode() {
-    for (int i = 0; i < 128; i++) {
-      typeDecode(i);
+    for (int i = 0; i < 256; i++) {
+      String str = typeDecode(i);
+      println(i + "\t" + str);
     }
   }
 

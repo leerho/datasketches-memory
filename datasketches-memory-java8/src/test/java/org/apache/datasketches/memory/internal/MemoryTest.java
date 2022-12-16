@@ -318,7 +318,7 @@ public class MemoryTest {
     }
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = IllegalStateException.class)
   public void checkParentUseAfterFree() throws Exception {
     int bytes = 64 * 8;
     WritableHandle wh = WritableMemory.allocateDirect(bytes);
@@ -329,7 +329,7 @@ public class MemoryTest {
     wmem.getLong(0);
   }
 
-  @Test(expectedExceptions = AssertionError.class)
+  @Test(expectedExceptions = IllegalStateException.class)
   public void checkRegionUseAfterFree() throws Exception {
     int bytes = 64;
     WritableHandle wh = WritableMemory.allocateDirect(bytes);
