@@ -71,9 +71,9 @@ final class BBNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImpl {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
         ? new BBWritableBufferImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(), getCapacity(), type, byteBuf, memReqSvr)
+            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr)
         : new BBNonNativeWritableBufferImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(), getCapacity(), type, byteBuf, memReqSvr);
+            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr);
   }
 
   @Override

@@ -74,7 +74,7 @@ public class NativeWritableMemoryImplTest {
     for (int i=0; i<8; i++) {
       assertEquals(dstArray[i], srcArray[i]);
     }
-    assertTrue(mem.hasArray());
+    assertFalse(mem.isDirect());
   }
 
   @Test
@@ -453,7 +453,7 @@ public class NativeWritableMemoryImplTest {
     }
 
     assertTrue(wmem.hasByteBuffer());
-    ByteBuffer byteBuf2 = wmem.getByteBuffer();
+    ByteBuffer byteBuf2 = ((BaseStateImpl)wmem).getByteBuffer();
     assertEquals(byteBuf2, byteBuf);
     //println( mem.toHexString("HeapBB", 0, memCapacity));
   }
@@ -595,7 +595,7 @@ public class NativeWritableMemoryImplTest {
     assertEquals(comp, 0);
     comp = mem3.compareTo(0, 4, mem4, 1, 4);
     assertEquals(comp, -1);
-    mem3.checkValidAndBounds(0, 5);
+    BaseStateImpl.checkBounds(0, 5, mem3. getCapacity());
   }
 
   @Test
@@ -658,10 +658,8 @@ public class NativeWritableMemoryImplTest {
   public void checkCumAndRegionOffset() {
     WritableMemory wmem = WritableMemory.allocate(64);
     WritableMemory reg = wmem.writableRegion(32, 32);
-    assertEquals(reg.getRegionOffset(), 32);
-    assertEquals(reg.getRegionOffset(0), 32);
-    assertEquals(reg.getCumulativeOffset(), 32 + 16);
-    assertEquals(reg.getCumulativeOffset(0), 32 + 16);
+    assertEquals(((BaseStateImpl)reg).getRegionOffset(0), 32);
+    assertEquals(((BaseStateImpl)reg).getCumulativeOffset(0), 32 + 16);
   }
 
   @Test

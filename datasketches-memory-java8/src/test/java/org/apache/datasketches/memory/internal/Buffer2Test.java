@@ -54,7 +54,6 @@ public class Buffer2Test {
       assertEquals(bb.get(), buffer.getByte());
     }
 
-    assertEquals(true, buffer.hasArray());
     assertEquals(true, buffer.hasByteBuffer());
   }
 
@@ -73,8 +72,6 @@ public class Buffer2Test {
     while (buffer.hasRemaining()) {
       assertEquals(bb.get(), buffer.getByte());
     }
-
-    assertEquals(false, buffer.hasArray());
     assertEquals(true, buffer.hasByteBuffer());
   }
 
@@ -97,7 +94,6 @@ public class Buffer2Test {
     buffer.getByteArray(copyByteArray, 0, 64);
     assertEquals(byteArray, copyByteArray);
 
-    assertEquals(true, buffer.hasArray());
     assertEquals(false, buffer.hasByteBuffer());
   }
 

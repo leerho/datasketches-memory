@@ -79,7 +79,8 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
 
   @Override
   public double getDouble(final long offsetBytes) {
-    checkValidAndBounds(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE);
+    checkValid();
+    checkBounds(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE, capacityBytes_);
     return unsafe.getDouble(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
 
@@ -107,7 +108,8 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
 
   @Override
   public float getFloat(final long offsetBytes) {
-    checkValidAndBounds(offsetBytes, ARRAY_FLOAT_INDEX_SCALE);
+    checkValid();
+    checkBounds(offsetBytes, ARRAY_FLOAT_INDEX_SCALE, capacityBytes_);
     return unsafe.getFloat(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
 
@@ -233,7 +235,9 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
 
   @Override
   public void putDouble(final long offsetBytes, final double value) {
-    checkValidBoundsWritable(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE);
+    checkValid();
+    checkBounds(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE, capacityBytes_);
+    checkWritable();
     unsafe.putDouble(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
   }
 
@@ -261,7 +265,9 @@ abstract class NativeWritableBufferImpl extends BaseWritableBufferImpl {
 
   @Override
   public void putFloat(final long offsetBytes, final float value) {
-    checkValidBoundsWritable(offsetBytes, ARRAY_FLOAT_INDEX_SCALE);
+    checkValid();
+    checkBounds(offsetBytes, ARRAY_FLOAT_INDEX_SCALE, capacityBytes_);
+    checkWritable();
     unsafe.putFloat(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
   }
 

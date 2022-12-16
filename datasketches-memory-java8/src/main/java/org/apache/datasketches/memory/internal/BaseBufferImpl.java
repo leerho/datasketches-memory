@@ -127,7 +127,7 @@ public abstract class BaseBufferImpl extends BaseStateImpl implements BaseBuffer
   final void checkValidForWrite() {
     checkValid();
     if (isReadOnly()) {
-      throw new ReadOnlyException("BufferImpl is read-only.");
+      throw new ReadOnlyException("Buffer is read-only.");
     }
   }
 

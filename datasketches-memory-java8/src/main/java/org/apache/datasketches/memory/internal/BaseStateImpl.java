@@ -93,14 +93,14 @@ public abstract class BaseStateImpl implements BaseState {
     JDK_MAJOR = (p[0] == 1) ? p[1] : p[0];
   }
 
-  private final long capacityBytes_; //NOT USED in JDK 17
+  final long capacityBytes_; //NOT USED in JDK 17
 
   /**
    * This becomes the base offset used by all Unsafe calls. It is cumulative in that in includes
    * all offsets from regions, user-defined offsets when creating MemoryImpl, and the array object
    * header offset when creating MemoryImpl from primitive arrays.
    */
-  private final long cumBaseOffset_; //NOT USED in JDK 17
+  final long cumBaseOffset_; //NOT USED in JDK 17
 
   /**
    * Constructor
@@ -146,19 +146,7 @@ public abstract class BaseStateImpl implements BaseState {
     }
   }
 
-  /**
-   * Returns true if the given byteOrder is the same as the native byte order.
-   * @param byteOrder the given byte order
-   * @return true if the given byteOrder is the same as the native byte order.
-   */
-  static boolean isNativeByteOrder(final ByteOrder byteOrder) {
-    if (byteOrder == null) {
-      throw new IllegalArgumentException("ByteOrder parameter cannot be null.");
-    }
-    return NATIVE_BYTE_ORDER == byteOrder;
-  }
-
-  static String pad(final String s, final int fieldLen) {
+  private static String pad(final String s, final int fieldLen) {
     return characterPad(s, fieldLen, ' ' , true);
   }
 
@@ -183,7 +171,7 @@ public abstract class BaseStateImpl implements BaseState {
   }
 
   //REACHABILITY FENCE
-  static void reachabilityFence(final Object obj) { }
+  static void reachabilityFence(final Object obj) { } //Java 8 & 11 only
 
   final static byte setReadOnlyType(final byte type, final boolean readOnly) {
     return (byte)((type & ~1) | (readOnly ? READONLY : 0));
@@ -220,15 +208,15 @@ public abstract class BaseStateImpl implements BaseState {
     final String memReqStr = memReqSvr != null
         ? memReqSvr.getClass().getSimpleName() + ", " + (memReqSvr.hashCode() & 0XFFFFFFFFL)
         : "null";
-    final long cumBaseOffset = state.getCumulativeOffset();
+    final long cumBaseOffset = state.getCumulativeOffset(0);
     sb.append(preamble).append(LS);
     sb.append("UnsafeObj, hashCode : ").append(uObjStr).append(LS);
     sb.append("UnsafeObjHeader     : ").append(uObjHeader).append(LS);
     sb.append("ByteBuf, hashCode   : ").append(bbStr).append(LS);
-    sb.append("RegionOffset        : ").append(state.getRegionOffset()).append(LS);
+    sb.append("RegionOffset        : ").append(state.getRegionOffset(0)).append(LS);
     sb.append("Capacity            : ").append(capacity).append(LS);
     sb.append("CumBaseOffset       : ").append(cumBaseOffset).append(LS);
-    sb.append("MemReq, hashCode    : ").append(memReqStr).append(LS);
+    sb.append("MemReqSvr, hashCode : ").append(memReqStr).append(LS);
     sb.append("Valid               : ").append(state.isValid()).append(LS);
     sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
     sb.append("Type Byte Order     : ").append(state.getByteOrder().toString()).append(LS);
@@ -299,25 +287,15 @@ public abstract class BaseStateImpl implements BaseState {
 
   //**NON STATIC METHODS*****************************************
 
-  void checkValid() {
+  void checkValid() { //Java 8 & 11 only
     if (!isValid()) {
       throw new IllegalStateException("Memory not valid.");
     }
   }
 
-  @Override
-  public final void checkValidAndBounds(final long offsetBytes, final long lengthBytes) {
-    checkValid();
-    //read capacityBytes_ directly to eliminate extra checkValid() call
-    checkBounds(offsetBytes, lengthBytes, capacityBytes_);
-  }
-
-  final void checkValidBoundsWritable(final long offsetBytes, final long lengthBytes) {
-    checkValid();
-    //read capacityBytes_ directly to eliminate extra checkValid() call
-    checkBounds(offsetBytes, lengthBytes, capacityBytes_);
+  void checkWritable() { //Java 8 & 11 only
     if (isReadOnly()) {
-      throw new ReadOnlyException("Memory is read-only.");
+      throw new ReadOnlyException("Resource is read-only.");
     }
   }
 
@@ -334,8 +312,8 @@ public abstract class BaseStateImpl implements BaseState {
   }
 
   //Overridden by ByteBuffer Leafs
-  @Override
   public ByteBuffer getByteBuffer() {
+    checkValid();
     return null;
   }
 
@@ -345,14 +323,7 @@ public abstract class BaseStateImpl implements BaseState {
     return capacityBytes_;
   }
 
-  @Override
-  public final long getCumulativeOffset() {
-    checkValid();
-    return cumBaseOffset_;
-  }
-
-  @Override
-  public final long getCumulativeOffset(final long offsetBytes) {
+  public final long getCumulativeOffset(final long offsetBytes) { //Java 8 & 11 only
     checkValid();
     return cumBaseOffset_ + offsetBytes;
   }
@@ -362,46 +333,34 @@ public abstract class BaseStateImpl implements BaseState {
   abstract MemoryRequestServer getMemoryRequestServer();
 
   //Overridden by ByteBuffer, Direct and Map leafs
-  long getNativeBaseOffset() {
+  long getNativeBaseOffset() { //Java 8 & 11 only
     return 0;
   }
 
-  @Override
-  public final long getRegionOffset() {
+  public final long getRegionOffset(final long offsetBytes) { //Java 8 & 11 only
     final Object unsafeObj = getUnsafeObject();
-    return unsafeObj == null
+    return offsetBytes + (unsafeObj == null
         ? cumBaseOffset_ - getNativeBaseOffset()
-        : cumBaseOffset_ - UnsafeUtil.getArrayBaseOffset(unsafeObj.getClass());
-  }
-
-  @Override
-  public final long getRegionOffset(final long offsetBytes) {
-    return getRegionOffset() + offsetBytes;
+        : cumBaseOffset_ - UnsafeUtil.getArrayBaseOffset(unsafeObj.getClass()));
   }
 
   //Overridden by all leafs
-  abstract int getTypeId();
+  abstract int getTypeId(); //Java 8 & 11 only
 
   //Overridden by Heap and ByteBuffer Leafs. Made public as getArray() in WritableMemoryImpl and
   // WritableBufferImpl
-  Object getUnsafeObject() {
+  Object getUnsafeObject() { //Java 8 & 11 only
     return null;
   }
 
   @Override
-  public final boolean hasArray() {
-    checkValid();
-    return getUnsafeObject() != null;
-  }
-
-  @Override
-  public final boolean hasByteBuffer() {
+  public final boolean hasByteBuffer() { //Java 8 & 11 only
     checkValid();
     return isByteBufferType();
   }
 
   @Override
-  public final int hashCode() {
+  public final int hashCode() { //Java 8 & 11 only
     return (int) xxHash64(0, capacityBytes_, 0); //xxHash64() calls checkValid()
   }
 
@@ -463,7 +422,7 @@ public abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final boolean isSameResource(final Object that) {
+  public final boolean isSameResource(final Object that) { //Java 8 & 11 only
     checkValid();
     if (that == null) { return false; }
     final BaseStateImpl that1 = (BaseStateImpl) that;
@@ -478,7 +437,7 @@ public abstract class BaseStateImpl implements BaseState {
 
   //Overridden by Direct and Map leafs
   @Override
-  public boolean isValid() {
+  public boolean isValid() { //Java 8 & 11 only
     return true;
   }
 

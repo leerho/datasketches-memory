@@ -64,9 +64,9 @@ final class HeapNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImpl 
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
         ? new HeapWritableBufferImpl(
-            unsafeObj, getRegionOffset(), getCapacity(), type, memReqSvr)
+            unsafeObj, getRegionOffset(0), getCapacity(), type, memReqSvr)
         : new HeapNonNativeWritableBufferImpl(
-            unsafeObj, getRegionOffset(), getCapacity(), type, memReqSvr);
+            unsafeObj, getRegionOffset(0), getCapacity(), type, memReqSvr);
   }
 
   @Override

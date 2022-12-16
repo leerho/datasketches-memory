@@ -69,7 +69,8 @@ abstract class NonNativeWritableBufferImpl extends BaseWritableBufferImpl {
 
   @Override
   public double getDouble(final long offsetBytes) {
-    checkValidAndBounds(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE);
+    checkValid();
+    checkBounds(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE, capacityBytes_);
     return Double.longBitsToDouble(
         Long.reverseBytes(unsafe.getLong(getUnsafeObject(), getCumulativeOffset(offsetBytes))));
   }
@@ -94,7 +95,8 @@ abstract class NonNativeWritableBufferImpl extends BaseWritableBufferImpl {
 
   @Override
   public float getFloat(final long offsetBytes) {
-    checkValidAndBounds(offsetBytes, ARRAY_FLOAT_INDEX_SCALE);
+    checkValid();
+    checkBounds(offsetBytes, ARRAY_FLOAT_INDEX_SCALE, capacityBytes_);
     return Float.intBitsToFloat(
         Integer.reverseBytes(unsafe.getInt(getUnsafeObject(), getCumulativeOffset(offsetBytes))));
   }
@@ -197,7 +199,9 @@ abstract class NonNativeWritableBufferImpl extends BaseWritableBufferImpl {
 
   @Override
   public void putDouble(final long offsetBytes, final double value) {
-    checkValidBoundsWritable(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE);
+    checkValid();
+    checkBounds(offsetBytes, ARRAY_DOUBLE_INDEX_SCALE, capacityBytes_);
+    checkWritable();
     unsafe.putLong(getUnsafeObject(), getCumulativeOffset(offsetBytes),
         Long.reverseBytes(Double.doubleToRawLongBits(value)));
   }
@@ -222,7 +226,9 @@ abstract class NonNativeWritableBufferImpl extends BaseWritableBufferImpl {
 
   @Override
   public void putFloat(final long offsetBytes, final float value) {
-    checkValidBoundsWritable(offsetBytes, ARRAY_FLOAT_INDEX_SCALE);
+    checkValid();
+    checkBounds(offsetBytes, ARRAY_FLOAT_INDEX_SCALE, capacityBytes_);
+    checkWritable();
     unsafe.putInt(getUnsafeObject(), getCumulativeOffset(offsetBytes),
         Integer.reverseBytes(Float.floatToRawIntBits(value)));
   }

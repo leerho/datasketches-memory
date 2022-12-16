@@ -64,9 +64,9 @@ final class MapNonNativeWritableBufferImpl extends NonNativeWritableBufferImpl {
     final int type = setReadOnlyType(typeId, readOnly) | DUPLICATE;
     return Util.isNativeByteOrder(byteOrder)
         ? new MapWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(), getCapacity(), type, valid)
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid)
         : new MapNonNativeWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(), getCapacity(), type, valid);
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid);
   }
 
   @Override
@@ -74,9 +74,9 @@ final class MapNonNativeWritableBufferImpl extends NonNativeWritableBufferImpl {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
         ? new MapWritableMemoryImpl(
-            nativeBaseOffset, getRegionOffset(), getCapacity(), type, valid)
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid)
         : new MapNonNativeWritableMemoryImpl(
-            nativeBaseOffset, getRegionOffset(), getCapacity(), type, valid);
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid);
   }
 
   @Override

@@ -135,7 +135,7 @@ abstract class BaseStateImpl implements BaseState {
     }
   }
 
-  static String pad(final String s, final int fieldLen) {
+  private static String pad(final String s, final int fieldLen) {
     return characterPad(s, fieldLen, ' ' , true);
   }
 
@@ -159,7 +159,7 @@ abstract class BaseStateImpl implements BaseState {
     return new int[] {p0, p1};
   }
 
-  static final WritableBuffer selectBuffer(
+  static final WritableBuffer selectBuffer( //Java 17 only
       final MemorySegment segment,
       final int type,
       final MemoryRequestServer memReqSvr,
@@ -176,7 +176,7 @@ abstract class BaseStateImpl implements BaseState {
     return wbuf;
   }
 
-  static final WritableMemory selectMemory(
+  static final WritableMemory selectMemory( //Java 17 only
       final MemorySegment segment,
       final int type,
       final MemoryRequestServer memReqSvr,
@@ -225,7 +225,7 @@ abstract class BaseStateImpl implements BaseState {
     sb.append("MemReqSvr, hashCode    : ").append(memReqStr).append(LS);
     sb.append("Read Only              : ").append(state.isReadOnly()).append(LS);
     sb.append("Type Byte Order        : ").append(state.getByteOrder().toString()).append(LS);
-    sb.append("Native Byte Order      : ").append(ByteOrder.nativeOrder().toString()).append(LS);
+    sb.append("Native Byte Order      : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
     sb.append("JDK Runtime Version    : ").append(JDK).append(LS);
     //Data detail
     if (withData) {
@@ -302,7 +302,7 @@ abstract class BaseStateImpl implements BaseState {
 
   //@SuppressWarnings("resource")
   @Override
-  public void close() {
+  public void close() { //moved here
     if (seg != null && seg.scope().isAlive() && !seg.scope().isImplicit()) {
       if (seg.isNative() || seg.isMapped()) {
         seg.scope().close();
@@ -318,16 +318,16 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public void force() { seg.force(); }
-
-  @Override
-  public final long getCapacity() {
-    return seg.byteSize();
-  }
+  public void force() { seg.force(); } //moved here
 
   @Override
   public final ByteOrder getByteOrder() {
     return (typeId & NONNATIVE) > 0 ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
+  }
+
+  @Override
+  public final long getCapacity() {
+    return seg.byteSize();
   }
 
   @Override
@@ -347,7 +347,9 @@ abstract class BaseStateImpl implements BaseState {
 
   //@SuppressWarnings("resource")
   @Override
-  public boolean isAlive() { return seg.scope().isAlive(); }
+  public boolean isAlive() { //Java 17 only
+    return seg.scope().isAlive();
+  }
 
   @Override
   public final boolean isBuffer() {
@@ -357,7 +359,7 @@ abstract class BaseStateImpl implements BaseState {
   @Override
   public final boolean isByteOrderCompatible(final ByteOrder byteOrder) {
     final ByteOrder typeBO = getByteOrder();
-    return typeBO == ByteOrder.nativeOrder() && typeBO == byteOrder;
+    return typeBO == NATIVE_BYTE_ORDER && typeBO == byteOrder;
   }
 
   @Override
@@ -402,10 +404,10 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public void load() { seg.load(); }
+  public void load() { seg.load(); } //moved here
 
   @Override
-  public long mismatch(final BaseState that) {
+  public long mismatch(final BaseState that) { //Java 17 only
     Objects.requireNonNull(that);
     if (!that.isAlive()) { throw new IllegalArgumentException("Given argument is not alive."); }
     BaseStateImpl thatBSI = (BaseStateImpl) that;
@@ -413,7 +415,7 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final long nativeOverlap(final BaseState that) {
+  public final long nativeOverlap(final BaseState that) { //Java 17 only
     if (that == null) { return 0; }
     if (!that.isAlive()) { return 0; }
     BaseStateImpl thatBSI = (BaseStateImpl) that;
@@ -421,7 +423,7 @@ abstract class BaseStateImpl implements BaseState {
     return nativeOverlap(seg, thatBSI.seg);
   }
 
-  static final long nativeOverlap(final MemorySegment segA, final MemorySegment segB) { //used in test
+  static final long nativeOverlap(final MemorySegment segA, final MemorySegment segB) { // //Java 17 only; used in test
     if (!segA.isNative() || !segB.isNative()) { return 0; } //both segments must be native
     //Assume that memory addresses increase from left to right.
     //Identify the left and right edges of two regions, A and B in memory.
@@ -461,21 +463,21 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public ResourceScope scope() { return seg.scope(); }
+  public ResourceScope scope() { return seg.scope(); } //Java 17 only
 
   @Override
-  public ByteBuffer toByteBuffer(final ByteOrder order) {
+  public ByteBuffer toByteBuffer(final ByteOrder order) { //Java 17 only
     Objects.requireNonNull(order, "The input ByteOrder must not be null");
     return ByteBuffer.wrap(seg.toByteArray());
   }
 
-  @Override
+  @Override  //Java 17 only
   public final String toHexString(final String comment, final long offsetBytes, final int lengthBytes,
       final boolean withData) {
     return toHex(this, comment, offsetBytes, lengthBytes, withData);
   }
 
-  @Override
+  @Override //Java 17 only
   public MemorySegment toMemorySegment() {
     final MemorySegment arrSeg = MemorySegment.ofArray(new byte[(int)seg.byteSize()]);
     arrSeg.copyFrom(seg);
@@ -483,7 +485,7 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public void unload() { seg.unload(); }
+  public void unload() { seg.unload(); } //moved here
 
   @Override
   public final long xxHash64(final long in, final long seed) {

@@ -281,7 +281,7 @@ public class BufferTest {
     }
   }
 
-  @Test//(expectedExceptions = IllegalStateException.class)
+  @Test(expectedExceptions = IllegalStateException.class)
   public void checkParentUseAfterFree() throws Exception {
     int bytes = 64 * 8;
     WritableHandle wh = WritableMemory.allocateDirect(bytes);

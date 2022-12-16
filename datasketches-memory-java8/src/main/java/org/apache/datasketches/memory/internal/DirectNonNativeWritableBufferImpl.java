@@ -67,9 +67,9 @@ final class DirectNonNativeWritableBufferImpl extends NonNativeWritableBufferImp
     final int type = setReadOnlyType(typeId, readOnly) | DUPLICATE;
     return Util.isNativeByteOrder(byteOrder)
         ? new DirectWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(), getCapacity(), type, valid, memReqSvr)
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
         : new DirectNonNativeWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(), getCapacity(), type, valid, memReqSvr);
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
   }
 
   @Override
@@ -77,9 +77,9 @@ final class DirectNonNativeWritableBufferImpl extends NonNativeWritableBufferImp
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
         ? new DirectWritableMemoryImpl(
-            nativeBaseOffset, getRegionOffset(), getCapacity(), type, valid, memReqSvr)
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
         : new DirectNonNativeWritableMemoryImpl(
-            nativeBaseOffset, getRegionOffset(), getCapacity(), type, valid, memReqSvr);
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
   }
 
   @Override

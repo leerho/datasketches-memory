@@ -71,9 +71,9 @@ final class BBWritableBufferImpl extends NativeWritableBufferImpl {
     final int type = setReadOnlyType(typeId, readOnly) | DUPLICATE;
     return Util.isNativeByteOrder(byteOrder)
         ? new BBWritableBufferImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(), getCapacity(), type, byteBuf, memReqSvr)
+            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr)
         : new BBNonNativeWritableBufferImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(), getCapacity(), type, byteBuf, memReqSvr);
+            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr);
   }
 
   @Override
@@ -81,9 +81,9 @@ final class BBWritableBufferImpl extends NativeWritableBufferImpl {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
         ? new BBWritableMemoryImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(), getCapacity(), type, byteBuf, memReqSvr)
+            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr)
         : new BBNonNativeWritableMemoryImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(), getCapacity(), type, byteBuf, memReqSvr);
+            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr);
   }
 
   @Override

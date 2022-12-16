@@ -21,7 +21,6 @@ package org.apache.datasketches.memory.internal;
 
 import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
 import static org.apache.datasketches.memory.internal.BaseStateImpl.checkJavaVersion;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.isNativeByteOrder;
 import static org.apache.datasketches.memory.internal.BaseStateImpl.parseJavaVersion;
 import static org.apache.datasketches.memory.internal.BaseStateImpl.typeDecode;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_DOUBLE_INDEX_SCALE;
@@ -155,15 +154,6 @@ public class BaseStateTest {
   public void checkByteOrderNull() {
     Util.isNativeByteOrder(null);
     fail();
-  }
-
-  @Test
-  public void checkIsNativeByteOrder() {
-    assertTrue(isNativeByteOrder(NATIVE_BYTE_ORDER));
-    try {
-      isNativeByteOrder(null);
-      fail();
-    } catch (final IllegalArgumentException e) {}
   }
 
   @Test
