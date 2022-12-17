@@ -39,7 +39,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-@SuppressWarnings("deprecation")
 public class AllocateDirectMapMemoryTest {
   MapHandle hand = null;
 
@@ -123,7 +122,7 @@ public class AllocateDirectMapMemoryTest {
       hand = rh;
       mem = rh.get();
     } //TWR closes
-    assertFalse(mem.isValid());
+    assertFalse(mem.isAlive());
     //println(""+mem.isValid());
   }
 
@@ -142,9 +141,9 @@ public class AllocateDirectMapMemoryTest {
   public void afterAllTests() throws Exception {
       if (hand != null) {
       Memory mem = hand.get();
-      if ((mem != null) && mem.isValid()) {
+      if ((mem != null) && mem.isAlive()) {
         hand.close();
-        assertFalse(mem.isValid());
+        assertFalse(mem.isAlive());
       }
     }
   }

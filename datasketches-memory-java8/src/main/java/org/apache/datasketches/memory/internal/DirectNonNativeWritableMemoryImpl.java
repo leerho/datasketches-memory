@@ -89,7 +89,7 @@ final class DirectNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImp
   }
 
   @Override
-  public boolean isValid() {
+  public boolean isAlive() {
     return valid.get();
   }
 

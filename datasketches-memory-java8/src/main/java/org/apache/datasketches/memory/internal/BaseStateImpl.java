@@ -217,7 +217,7 @@ public abstract class BaseStateImpl implements BaseState {
     sb.append("Capacity            : ").append(capacity).append(LS);
     sb.append("CumBaseOffset       : ").append(cumBaseOffset).append(LS);
     sb.append("MemReqSvr, hashCode : ").append(memReqStr).append(LS);
-    sb.append("Valid               : ").append(state.isValid()).append(LS);
+    sb.append("Valid               : ").append(state.isAlive()).append(LS);
     sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
     sb.append("Type Byte Order     : ").append(state.getByteOrder().toString()).append(LS);
     sb.append("Native Byte Order   : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
@@ -288,7 +288,7 @@ public abstract class BaseStateImpl implements BaseState {
   //**NON STATIC METHODS*****************************************
 
   void checkValid() { //Java 8 & 11 only
-    if (!isValid()) {
+    if (!isAlive()) {
       throw new IllegalStateException("Memory not valid.");
     }
   }
@@ -364,6 +364,12 @@ public abstract class BaseStateImpl implements BaseState {
     return (int) xxHash64(0, capacityBytes_, 0); //xxHash64() calls checkValid()
   }
 
+  //Overridden by Direct and Map leafs
+  @Override
+  public boolean isAlive() {
+    return true;
+  }
+
   final boolean isByteBufferType() {
     return (getTypeId() & BYTEBUF) > 0;
   }
@@ -433,12 +439,6 @@ public abstract class BaseStateImpl implements BaseState {
             && capacityBytes_ == that1.capacityBytes_
             && getUnsafeObject() == that1.getUnsafeObject()
             && getByteBuffer() == that1.getByteBuffer();
-  }
-
-  //Overridden by Direct and Map leafs
-  @Override
-  public boolean isValid() { //Java 8 & 11 only
-    return true;
   }
 
   @Override

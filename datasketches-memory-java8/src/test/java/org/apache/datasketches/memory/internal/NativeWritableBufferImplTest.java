@@ -53,7 +53,7 @@ public class NativeWritableBufferImplTest {
     assertEquals(wbuf.getCapacity(), memCapacity);
 
     wmh.close(); //intentional
-    assertFalse(wbuf.isValid());
+    assertFalse(wbuf.isAlive());
 
     wmh.close(); //intentional, nothing to free
   }

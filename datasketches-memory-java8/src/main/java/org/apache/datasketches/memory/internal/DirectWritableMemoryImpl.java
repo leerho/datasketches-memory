@@ -89,7 +89,7 @@ final class DirectWritableMemoryImpl extends NativeWritableMemoryImpl {
   }
 
   @Override
-  public boolean isValid() {
+  public boolean isAlive() {
     return valid.get();
   }
 

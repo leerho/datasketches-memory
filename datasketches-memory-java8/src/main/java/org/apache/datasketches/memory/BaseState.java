@@ -76,12 +76,12 @@ public interface BaseState {
    */
   boolean hasByteBuffer();
 
-//  /**
-//   * Is this resource alive?
-//   * @return true, if this resource is alive. That is, it has not been closed.
-//   * @see close()
-//   */
-//  boolean isAlive();
+  /**
+   * Is this resource alive?
+   * @return true, if this resource is alive. That is, it has not been closed.
+   * @see close()
+   */
+  boolean isAlive();
 
   /**
    * Returns true if the Native ByteOrder is the same as the ByteOrder of the
@@ -138,7 +138,7 @@ public interface BaseState {
    */
   long xxHash64(long offsetBytes, long lengthBytes, long seed);
 
-  //DEPRECATED. DOES NOT EXIST FOR JAVA 17+ VERSIONS
+  //DEPRECATED. NOT SUPPORTED AS OF JAVA 17+ VERSIONS
 
   /**
    * Returns true if the backing resource of <i>this</i> is identical with the backing resource
@@ -147,7 +147,7 @@ public interface BaseState {
    * @param that A different non-null object
    * @return true if the backing resource of <i>this</i> is the same as the backing resource
    * of <i>that</i>.
-   * @deprecated no longer required or supported for Java 17 versions. Use nativeOverlap(BaseState) instead.
+   * @deprecated no longer supported as of Java 17 versions. Use nativeOverlap(BaseState) instead.
    */
   @Deprecated
   boolean isSameResource(Object that);
@@ -156,9 +156,10 @@ public interface BaseState {
    * Returns true if this object is valid and has not been closed.
    * This is relevant only for direct (off-heap) memory and Mapped Files.
    * @return true if this object is valid and has not been closed.
-   * deprecated no longer supported for Java 17 versions. Use <i>isAlive()</i> instead
+   * @deprecated no longer supported as of Java 17 versions. Use <i>isAlive()</i> instead.
    */
   //@Deprecated
-  boolean isValid();
+  @Deprecated
+  default boolean isValid() { return isAlive(); }
 
 }

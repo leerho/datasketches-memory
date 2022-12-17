@@ -48,7 +48,6 @@ import org.testng.annotations.Test;
  * @author Lee Rhodes
  *
  */
-@SuppressWarnings("deprecation")
 public class DruidIssue11544Test {
 
   @Test
@@ -87,8 +86,8 @@ public class DruidIssue11544Test {
     //Prepare to request deallocation
     //In the DefaultMemoryRequestServer, this is a no-op, so nothing is actually deallocated.
     svr.requestClose(mem1, mem2);
-    assertTrue(mem1.isValid());
-    assertTrue(mem2.isValid());
+    assertTrue(mem1.isAlive());
+    assertTrue(mem2.isAlive());
 
     //Now we are on the heap and need to grow again:
     int size3 = size2 * 2;
@@ -104,8 +103,8 @@ public class DruidIssue11544Test {
     //Prepare to request deallocation
 
     svr.requestClose(mem2, mem3); //No-op
-    assertTrue(mem2.isValid());
-    assertTrue(mem3.isValid());
+    assertTrue(mem2.isAlive());
+    assertTrue(mem3.isAlive());
   }
 
 }

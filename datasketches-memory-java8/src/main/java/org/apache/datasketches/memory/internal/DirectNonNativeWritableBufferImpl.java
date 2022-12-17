@@ -99,7 +99,7 @@ final class DirectNonNativeWritableBufferImpl extends NonNativeWritableBufferImp
   }
 
   @Override
-  public boolean isValid() {
+  public boolean isAlive() {
     return valid.get();
   }
 

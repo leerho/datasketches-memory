@@ -95,7 +95,7 @@ final class MapWritableBufferImpl extends NativeWritableBufferImpl {
   }
 
   @Override
-  public boolean isValid() {
+  public boolean isAlive() {
     return valid.get();
   }
 

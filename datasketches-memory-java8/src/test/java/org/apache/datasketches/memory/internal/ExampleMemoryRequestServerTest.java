@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
  * Examples of how to use the MemoryRequestServer with a memory hungry client.
  * @author Lee Rhodes
  */
-@SuppressWarnings("deprecation")
 public class ExampleMemoryRequestServerTest {
 
   /**
@@ -155,7 +154,7 @@ public class ExampleMemoryRequestServerTest {
 
     public void cleanup() {
       map.forEach((k,v) -> {
-        assertFalse(k.isValid()); //all entries in the map should be invalid
+        assertFalse(k.isAlive()); //all entries in the map should be invalid
         try {
           v.close();
         } catch (Exception e) {

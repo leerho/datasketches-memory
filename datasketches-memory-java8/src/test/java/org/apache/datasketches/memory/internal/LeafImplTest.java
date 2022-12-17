@@ -42,7 +42,6 @@ import org.testng.annotations.Test;
 /**
  * @author Lee Rhodes
  */
-@SuppressWarnings("deprecation")
 public class LeafImplTest {
   private static final MemoryRequestServer dummyMemReqSvr = new DummyMemoryRequestServer();
 
@@ -198,7 +197,7 @@ public class LeafImplTest {
       assertNotNull(obj);
     }
 
-    assertTrue(mem.isValid() == true);
+    assertTrue(mem.isAlive() == true);
 
     WritableBuffer buf = mem.asWritableBuffer();
 
@@ -223,7 +222,7 @@ public class LeafImplTest {
       assertNotNull(obj);
     }
 
-    assertTrue(buf.isValid() == true);
+    assertTrue(buf.isAlive() == true);
 
     WritableMemory nnMem = mem.writableRegion(off, cap, oo);
 
@@ -248,7 +247,7 @@ public class LeafImplTest {
       assertNotNull(obj);
     }
 
-    assertTrue(nnMem.isValid() == true);
+    assertTrue(nnMem.isAlive() == true);
 
     WritableBuffer nnBuf = mem.asWritableBuffer(oo);
 
@@ -273,7 +272,7 @@ public class LeafImplTest {
       assertNotNull(obj);
     }
 
-    assertTrue(nnBuf.isValid() == true);
+    assertTrue(nnBuf.isAlive() == true);
   }
 
 }

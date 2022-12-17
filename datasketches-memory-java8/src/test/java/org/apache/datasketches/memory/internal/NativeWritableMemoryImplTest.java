@@ -51,7 +51,7 @@ public class NativeWritableMemoryImplTest {
     assertEquals(memCapacity, mem.getCapacity());
 
     wmh.close(); //intentional
-    assertFalse(mem.isValid());
+    assertFalse(mem.isAlive());
 
     wmh.close(); //intentional, nothing to free
   }
