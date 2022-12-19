@@ -53,27 +53,25 @@ public abstract class BaseStateImpl implements BaseState {
 
   //class type IDs. Do not change the bit orders
   //The first 3 bits are set dynamically
-  // 0000 0XXX
-  static final int READONLY = 1;
-  static final int REGION = 2;
-  static final int DUPLICATE = 4;
+  // 0000 0XXX Group 1
+  static final int READONLY  = 1;
+  static final int REGION    = 1 << 1;
+  static final int DUPLICATE = 1 << 2; //for Buffer only
 
-  //The following 5 bits are set by the 16 leaf nodes
-  // 000X X000
-  static final int HEAP = 0;
+  // 000X X000 Group 2
+  static final int HEAP   = 0;
   static final int DIRECT = 1 << 3;
-  static final int MAP = 2 << 3;
+  static final int MAP    = 1 << 4; //Map is always Direct also
 
-
-  // 00X0 0000
-  static final int NATIVE = 0;
+  // 00X0 0000 Group 3
+  static final int NATIVE    = 0;
   static final int NONNATIVE = 1 << 5;
 
-  // 0X00 0000
+  // 0X00 0000 Group 4
   static final int MEMORY = 0;
   static final int BUFFER = 1 << 6;
 
-  // X000 0000
+  // X000 0000 Group 5
   static final int BYTEBUF = 1 << 7;
 
   /**
@@ -101,6 +99,8 @@ public abstract class BaseStateImpl implements BaseState {
    * header offset when creating MemoryImpl from primitive arrays.
    */
   final long cumBaseOffset_; //NOT USED in JDK 17
+
+  MemoryRequestServer memReqSvr = null; //selected by the user
 
   /**
    * Constructor
@@ -181,16 +181,21 @@ public abstract class BaseStateImpl implements BaseState {
    * Returns a formatted hex string of an area of this object.
    * Used primarily for testing.
    * @param state the BaseStateImpl
-   * @param preamble a descriptive header
+   * @param comment a descriptive header
    * @param offsetBytes offset bytes relative to the MemoryImpl start
    * @param lengthBytes number of bytes to convert to a hex string
    * @return a formatted hex string in a human readable array
    */
-  static final String toHex(final BaseStateImpl state, final String preamble, final long offsetBytes,
-      final int lengthBytes) {
+  static final String toHex(final BaseStateImpl state, final String comment, final long offsetBytes,
+      final int lengthBytes, final boolean withData) {
     final long capacity = state.getCapacity();
     checkBounds(offsetBytes, lengthBytes, capacity);
-    final StringBuilder sb = new StringBuilder();
+
+    final String theComment = (comment != null) ? comment : "";
+    final String s1 = String.format("(..., %d, %d)", offsetBytes, lengthBytes);
+    final long hcode = state.hashCode() & 0XFFFFFFFFL;
+    final String call = ".toHexString" + s1 + ", hashCode: " + hcode;
+
     final Object uObj = state.getUnsafeObject();
     final String uObjStr;
     final long uObjHeader;
@@ -209,7 +214,11 @@ public abstract class BaseStateImpl implements BaseState {
         ? memReqSvr.getClass().getSimpleName() + ", " + (memReqSvr.hashCode() & 0XFFFFFFFFL)
         : "null";
     final long cumBaseOffset = state.getCumulativeOffset(0);
-    sb.append(preamble).append(LS);
+
+    final StringBuilder sb = new StringBuilder();
+    sb.append(LS + "### DataSketches Memory Component SUMMARY ###").append(LS);
+    sb.append("Header Comment      : ").append(theComment).append(LS);
+    sb.append("Call Parameters     : ").append(call);
     sb.append("UnsafeObj, hashCode : ").append(uObjStr).append(LS);
     sb.append("UnsafeObjHeader     : ").append(uObjHeader).append(LS);
     sb.append("ByteBuf, hashCode   : ").append(bbStr).append(LS);
@@ -217,21 +226,22 @@ public abstract class BaseStateImpl implements BaseState {
     sb.append("Capacity            : ").append(capacity).append(LS);
     sb.append("CumBaseOffset       : ").append(cumBaseOffset).append(LS);
     sb.append("MemReqSvr, hashCode : ").append(memReqStr).append(LS);
-    sb.append("Valid               : ").append(state.isAlive()).append(LS);
     sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
     sb.append("Type Byte Order     : ").append(state.getByteOrder().toString()).append(LS);
     sb.append("Native Byte Order   : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
     sb.append("JDK Runtime Version : ").append(JDK).append(LS);
     //Data detail
-    sb.append("Data, littleEndian  :  0  1  2  3  4  5  6  7");
-
-    for (long i = 0; i < lengthBytes; i++) {
-      final int b = unsafe.getByte(uObj, cumBaseOffset + offsetBytes + i) & 0XFF;
-      if (i % 8 == 0) { //row header
-        sb.append(String.format("%n%20s: ", offsetBytes + i));
+    if (withData) {
+      sb.append("Data, littleEndian  :  0  1  2  3  4  5  6  7");
+      for (long i = 0; i < lengthBytes; i++) {
+        final int b = unsafe.getByte(uObj, cumBaseOffset + offsetBytes + i) & 0XFF;
+        if (i % 8 == 0) { //row header
+          sb.append(String.format("%n%20s: ", offsetBytes + i));
+        }
+        sb.append(String.format("%02x ", b));
       }
-      sb.append(String.format("%02x ", b));
     }
+    sb.append(LS + "### END SUMMARY ###");
     sb.append(LS);
 
     return sb.toString();
@@ -287,7 +297,7 @@ public abstract class BaseStateImpl implements BaseState {
 
   //**NON STATIC METHODS*****************************************
 
-  void checkValid() { //Java 8 & 11 only
+  void checkAlive() { //Java 8 & 11 only
     if (!isAlive()) {
       throw new IllegalStateException("Memory not valid.");
     }
@@ -308,36 +318,39 @@ public abstract class BaseStateImpl implements BaseState {
 
   @Override
   public final ByteOrder getByteOrder() {
-    return isNonNativeType() ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
+    return isNonNativeOrder() ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
   }
 
   //Overridden by ByteBuffer Leafs
-  public ByteBuffer getByteBuffer() {
-    checkValid();
+  public ByteBuffer getByteBuffer() { //TODO Keep??
+    checkAlive();
     return null;
   }
 
   @Override
   public final long getCapacity() {
-    checkValid();
+    checkAlive();
     return capacityBytes_;
   }
 
-  public final long getCumulativeOffset(final long offsetBytes) { //Java 8 & 11 only
-    checkValid();
+  final long getCumulativeOffset(final long offsetBytes) { //Java 8 & 11 only
+    checkAlive();
     return cumBaseOffset_ + offsetBytes;
   }
 
   //Documented in WritableMemory and WritableBuffer interfaces.
-  //Implemented in the Leaf nodes; Required here by toHex(...).
-  abstract MemoryRequestServer getMemoryRequestServer();
+  //Overridden in the Leaf nodes; Required here by toHex(...).
+  @Override
+  public MemoryRequestServer getMemoryRequestServer() {
+    return null;
+  }
 
   //Overridden by ByteBuffer, Direct and Map leafs
   long getNativeBaseOffset() { //Java 8 & 11 only
     return 0;
   }
 
-  public final long getRegionOffset(final long offsetBytes) { //Java 8 & 11 only
+  final long getRegionOffset(final long offsetBytes) { //Java 8 & 11 only
     final Object unsafeObj = getUnsafeObject();
     return offsetBytes + (unsafeObj == null
         ? cumBaseOffset_ - getNativeBaseOffset()
@@ -353,29 +366,15 @@ public abstract class BaseStateImpl implements BaseState {
     return null;
   }
 
-  @Override
-  public final boolean hasByteBuffer() { //Java 8 & 11 only
-    checkValid();
-    return isByteBufferType();
-  }
-
-  @Override
-  public final int hashCode() { //Java 8 & 11 only
-    return (int) xxHash64(0, capacityBytes_, 0); //xxHash64() calls checkValid()
-  }
-
   //Overridden by Direct and Map leafs
   @Override
   public boolean isAlive() {
     return true;
   }
 
-  final boolean isByteBufferType() {
+  @Override
+  public final boolean isByteBufferResource() { //Java 8 & 11 only
     return (getTypeId() & BYTEBUF) > 0;
-  }
-
-  final boolean isBufferType() {
-    return (getTypeId() & BUFFER) > 0;
   }
 
   @Override
@@ -385,54 +384,47 @@ public abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final boolean isDirect() {
-    return getUnsafeObject() == null;
+  public final boolean isDirectResource() {
+    final int bits = (getTypeId() >>> 3) & 3;
+    return bits == 1 || bits == 3 || getUnsafeObject() == null;
   }
 
-  final boolean isDirectType() {
-    return (getTypeId() >>> 3 & 3) == 1;
-  }
-
-  final boolean isDuplicateType() {
+  @Override
+  public final boolean isDuplicateBufferView() {
     return (getTypeId() & DUPLICATE) > 0;
   }
 
-  final boolean isHeapType() {
-    return (getTypeId() >>> 3 & 3) == 0;
-  }
-
-  final boolean isMapType() {
+  @Override
+  public final boolean isMemoryMappedFileResource() {
     return (getTypeId() >>> 3 & 3) == 2;
   }
 
-  final boolean isMemoryType() {
+  @Override
+  public final boolean isMemoryApi() {
     return (getTypeId() & BUFFER) == 0;
   }
 
-  final boolean isNonNativeType() {
+  @Override
+  public final boolean isNonNativeOrder() {
     return (getTypeId() & NONNATIVE) > 0;
   }
 
   @Override
   public final boolean isReadOnly() {
-    checkValid();
-    return isReadOnlyType();
-  }
-
-  final boolean isReadOnlyType() {
     return (getTypeId() & READONLY) > 0;
   }
 
-  final boolean isRegionType() {
+  @Override
+  public final boolean isRegionView() {
     return (getTypeId() & REGION) > 0;
   }
 
-  @Override
-  public final boolean isSameResource(final Object that) { //Java 8 & 11 only
-    checkValid();
+  @Override //Java 8 & 11 only
+  public final boolean isSameResource(final Object that) {
+    checkAlive();
     if (that == null) { return false; }
     final BaseStateImpl that1 = (BaseStateImpl) that;
-    that1.checkValid();
+    that1.checkAlive();
     if (this == that1) { return true; }
 
     return cumBaseOffset_ == that1.cumBaseOffset_
@@ -442,23 +434,15 @@ public abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final String toHexString(final String header, final long offsetBytes,
-      final int lengthBytes) {
-    checkValid();
-    final String klass = this.getClass().getSimpleName();
-    final String s1 = String.format("(..., %d, %d)", offsetBytes, lengthBytes);
-    final long hcode = hashCode() & 0XFFFFFFFFL;
-    final String call = ".toHexString" + s1 + ", hashCode: " + hcode;
-    final StringBuilder sb = new StringBuilder();
-    sb.append("### ").append(klass).append(" SUMMARY ###").append(LS);
-    sb.append("Header Comment      : ").append(header).append(LS);
-    sb.append("Call Parameters     : ").append(call);
-    return toHex(this, sb.toString(), offsetBytes, lengthBytes);
+  public final String toHexString(final String comment, final long offsetBytes,
+      final int lengthBytes, boolean withData) {
+    checkAlive();
+    return toHex(this, comment, offsetBytes, lengthBytes, withData);
   }
 
   @Override
   public final long xxHash64(final long offsetBytes, final long lengthBytes, final long seed) {
-    checkValid();
+    checkAlive();
     return XxHash64.hash(getUnsafeObject(), cumBaseOffset_ + offsetBytes, lengthBytes, seed);
   }
 

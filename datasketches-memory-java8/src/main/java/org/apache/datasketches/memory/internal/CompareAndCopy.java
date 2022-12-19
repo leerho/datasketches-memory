@@ -40,9 +40,9 @@ final class CompareAndCopy {
   static int compare(
       final BaseStateImpl state1, final long offsetBytes1, final long lengthBytes1,
       final BaseStateImpl state2, final long offsetBytes2, final long lengthBytes2) {
-    state1.checkValid();
+    state1.checkAlive();
     checkBounds(offsetBytes1, lengthBytes1, state1.getCapacity());
-    state2.checkValid();
+    state2.checkAlive();
     checkBounds(offsetBytes2, lengthBytes2, state2.getCapacity());
     final long cumOff1 = state1.getCumulativeOffset(offsetBytes1);
     final long cumOff2 = state2.getCumulativeOffset(offsetBytes2);
@@ -72,9 +72,9 @@ final class CompareAndCopy {
   static boolean equals(
       final BaseStateImpl state1, final long offsetBytes1,
       final BaseStateImpl state2, final long offsetBytes2, long lengthBytes) {
-    state1.checkValid();
+    state1.checkAlive();
     checkBounds(offsetBytes1, lengthBytes, state1.getCapacity());
-    state2.checkValid();
+    state2.checkAlive();
     checkBounds(offsetBytes2, lengthBytes, state2.getCapacity());
     long cumOff1 = state1.getCumulativeOffset(offsetBytes1);
     long cumOff2 = state2.getCumulativeOffset(offsetBytes2);
@@ -114,9 +114,9 @@ final class CompareAndCopy {
 
   static void copy(final BaseStateImpl srcState, final long srcOffsetBytes,
       final BaseStateImpl dstState, final long dstOffsetBytes, final long lengthBytes) {
-    srcState.checkValid();
+    srcState.checkAlive();
     checkBounds(srcOffsetBytes, lengthBytes, srcState.getCapacity());
-    dstState.checkValid();
+    dstState.checkAlive();
     checkBounds(dstOffsetBytes, lengthBytes, dstState.getCapacity());
     final long srcAdd = srcState.getCumulativeOffset(srcOffsetBytes);
     final long dstAdd = dstState.getCumulativeOffset(dstOffsetBytes);

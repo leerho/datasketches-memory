@@ -129,11 +129,11 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     final MemorySegment slice = (readOnly && !seg.isReadOnly())
         ? seg.asSlice(offsetBytes, capacityBytes).asReadOnly()
         : seg.asSlice(offsetBytes, capacityBytes);
-    final boolean duplicateType = isDuplicate();
+    final boolean duplicateType = isDuplicateBufferView();
     final boolean mapType = seg.isMapped();
     final boolean directType = seg.isNative();
     final boolean nativeBOType = byteOrder == ByteOrder.nativeOrder();
-    final boolean byteBufferType = hasByteBuffer();
+    final boolean byteBufferType = isByteBufferResource();
     final int type = BUFFER | REGION
         | (readOnly ? READONLY : 0)
         | (duplicateType ? DUPLICATE : 0)
@@ -178,11 +178,11 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     if (!this.isAlive()) { throw new IllegalStateException("This Memory is not alive."); }
     final boolean readOnly = isReadOnly() || localReadOnly;
     final MemorySegment seg2 = (readOnly && !seg.isReadOnly()) ? seg.asReadOnly() : seg;
-    final boolean regionType = isRegion();
+    final boolean regionType = isRegionView();
     final boolean mapType = seg.isMapped();
     final boolean directType = seg.isNative();
     final boolean nativeBOType = byteOrder == ByteOrder.nativeOrder();
-    final boolean byteBufferType = hasByteBuffer();
+    final boolean byteBufferType = isByteBufferResource();
     final int type = BUFFER | DUPLICATE
         | (readOnly ? READONLY : 0)
         | (regionType ? REGION : 0)
@@ -217,12 +217,12 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     Objects.requireNonNull(byteOrder, "byteOrder must be non-null");
     final boolean readOnly = isReadOnly() || localReadOnly;
     final MemorySegment seg2 = (readOnly && !seg.isReadOnly()) ? seg.asReadOnly() : seg;
-    final boolean regionType = isRegion();
-    final boolean duplicateType = isDuplicate();
+    final boolean regionType = isRegionView();
+    final boolean duplicateType = isDuplicateBufferView();
     final boolean mapType = seg.isMapped();
     final boolean directType = seg.isNative();
     final boolean nativeBOType = byteOrder == ByteOrder.nativeOrder();
-    final boolean byteBufferType = hasByteBuffer();
+    final boolean byteBufferType = isByteBufferResource();
     final int type = MEMORY
         | (readOnly ? READONLY : 0)
         | (regionType ? REGION : 0)

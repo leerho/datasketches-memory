@@ -41,8 +41,6 @@ import jdk.incubator.foreign.ResourceScope;
  * @author Lee Rhodes
  */
 public class LeafImplTest {
-  private static final ByteOrder NBO = NATIVE_BYTE_ORDER;
-  private static final ByteOrder NNBO = NON_NATIVE_BYTE_ORDER;
   private static final MemoryRequestServer dummyMemReqSvr = new DummyMemoryRequestServer();
 
   static class DummyMemoryRequestServer implements MemoryRequestServer {
@@ -53,7 +51,7 @@ public class LeafImplTest {
   }
 
   private static ByteOrder otherByteOrder(final ByteOrder order) {
-    return (order == ByteOrder.nativeOrder()) ? NNBO : ByteOrder.nativeOrder();
+    return (order == NATIVE_BYTE_ORDER) ? NON_NATIVE_BYTE_ORDER : NATIVE_BYTE_ORDER;
   }
 
   @Test
@@ -62,17 +60,17 @@ public class LeafImplTest {
     long cap = 128;
     // Off Heap, Native order, No ByteBuffer, has MemReqSvr
     try (ResourceScope scope = ResourceScope.newConfinedScope()) {
-      WritableMemory memNO = WritableMemory.allocateDirect(cap, 8, scope, NBO, dummyMemReqSvr);
+      WritableMemory memNO = WritableMemory.allocateDirect(cap, 8, scope, NATIVE_BYTE_ORDER, dummyMemReqSvr);
       memNO.putShort(0, (short) 1);
-      assertTrue(memNO.isDirect());
-      checkCombinations(memNO, off, cap, memNO.isDirect(), NBO, false, true);
+      assertTrue(memNO.isDirectResource());
+      checkCombinations(memNO, off, cap, memNO.isDirectResource(), NATIVE_BYTE_ORDER, false, true);
     }
     // Off Heap, Non Native order, No ByteBuffer, has MemReqSvr
     try (ResourceScope scope = ResourceScope.newConfinedScope()) {
-      WritableMemory memNNO = WritableMemory.allocateDirect(cap, 8, scope, NNBO, dummyMemReqSvr);
+      WritableMemory memNNO = WritableMemory.allocateDirect(cap, 8, scope, NON_NATIVE_BYTE_ORDER, dummyMemReqSvr);
       memNNO.putShort(0, (short) 1);
-      assertTrue(memNNO.isDirect());
-      checkCombinations(memNNO, off, cap, memNNO.isDirect(), NNBO, false, true);
+      assertTrue(memNNO.isDirectResource());
+      checkCombinations(memNNO, off, cap, memNNO.isDirectResource(), NON_NATIVE_BYTE_ORDER, false, true);
     }
   }
 
@@ -82,39 +80,39 @@ public class LeafImplTest {
     long cap = 128;
     //BB on heap, native order, has ByteBuffer, has MemReqSvr
     ByteBuffer bb = ByteBuffer.allocate((int)cap);
-    bb.order(NBO);
+    bb.order(NATIVE_BYTE_ORDER);
     bb.putShort(0, (short) 1);
-    WritableMemory mem = WritableMemory.writableWrap(bb, NBO, dummyMemReqSvr);
-    assertEquals(bb.isDirect(), mem.isDirect());
+    WritableMemory mem = WritableMemory.writableWrap(bb, NATIVE_BYTE_ORDER, dummyMemReqSvr);
+    assertEquals(bb.isDirect(), mem.isDirectResource());
 
-    checkCombinations(mem, off, cap, mem.isDirect(), mem.getByteOrder(), true, false);
+    checkCombinations(mem, off, cap, mem.isDirectResource(), mem.getByteOrder(), true, false);
 
     //BB off heap, native order, has ByteBuffer, has MemReqSvr
     ByteBuffer dbb = ByteBuffer.allocateDirect((int)cap);
-    dbb.order(NBO);
+    dbb.order(NATIVE_BYTE_ORDER);
     dbb.putShort(0, (short) 1);
-    mem = WritableMemory.writableWrap(dbb, NBO, dummyMemReqSvr);
-    assertEquals(dbb.isDirect(), mem.isDirect());
+    mem = WritableMemory.writableWrap(dbb, NATIVE_BYTE_ORDER, dummyMemReqSvr);
+    assertEquals(dbb.isDirect(), mem.isDirectResource());
 
-    checkCombinations(mem, off, cap,  mem.isDirect(), mem.getByteOrder(), true, false);
+    checkCombinations(mem, off, cap,  mem.isDirectResource(), mem.getByteOrder(), true, false);
 
     //BB on heap, non native order, has ByteBuffer, has MemReqSvr
     bb = ByteBuffer.allocate((int)cap);
-    bb.order(NNBO);
+    bb.order(NON_NATIVE_BYTE_ORDER);
     bb.putShort(0, (short) 1);
-    mem = WritableMemory.writableWrap(bb, NNBO, dummyMemReqSvr);
-    assertEquals(bb.isDirect(), mem.isDirect());
+    mem = WritableMemory.writableWrap(bb, NON_NATIVE_BYTE_ORDER, dummyMemReqSvr);
+    assertEquals(bb.isDirect(), mem.isDirectResource());
 
-    checkCombinations(mem, off, cap, mem.isDirect(), mem.getByteOrder(), true, false);
+    checkCombinations(mem, off, cap, mem.isDirectResource(), mem.getByteOrder(), true, false);
 
     //BB off heap, non native order, has ByteBuffer, has MemReqSvr
     dbb = ByteBuffer.allocateDirect((int)cap);
-    dbb.order(NNBO);
+    dbb.order(NON_NATIVE_BYTE_ORDER);
     dbb.putShort(0, (short) 1);
-    mem = WritableMemory.writableWrap(dbb, NNBO, dummyMemReqSvr);
-    assertEquals(dbb.isDirect(), mem.isDirect());
+    mem = WritableMemory.writableWrap(dbb, NON_NATIVE_BYTE_ORDER, dummyMemReqSvr);
+    assertEquals(dbb.isDirect(), mem.isDirectResource());
 
-    checkCombinations(mem, off, cap,  mem.isDirect(), mem.getByteOrder(), true, false);
+    checkCombinations(mem, off, cap,  mem.isDirectResource(), mem.getByteOrder(), true, false);
   }
 
   @Test
@@ -131,17 +129,17 @@ public class LeafImplTest {
     file.deleteOnExit();  //comment out if you want to examine the file.
     // Off Heap, Native order, No ByteBuffer, No MemReqSvr
     try (ResourceScope scope = ResourceScope.newConfinedScope()) {
-      WritableMemory memNO = WritableMemory.writableMap(file, off, cap, scope, NBO);
+      WritableMemory memNO = WritableMemory.writableMap(file, off, cap, scope, NATIVE_BYTE_ORDER);
       memNO.putShort(0, (short) 1);
-      assertTrue(memNO.isDirect());
-      checkCombinations(memNO, off, cap, memNO.isDirect(), NBO, false, false);
+      assertTrue(memNO.isDirectResource());
+      checkCombinations(memNO, off, cap, memNO.isDirectResource(), NATIVE_BYTE_ORDER, false, false);
     }
     // Off heap, Non Native order, No ByteBuffer, no MemReqSvr
     try (ResourceScope scope = ResourceScope.newConfinedScope()) {
-      WritableMemory memNNO = WritableMemory.writableMap(file, off, cap, scope, NNBO);
+      WritableMemory memNNO = WritableMemory.writableMap(file, off, cap, scope, NON_NATIVE_BYTE_ORDER);
       memNNO.putShort(0, (short) 1);
-      assertTrue(memNNO.isDirect());
-      checkCombinations(memNNO, off, cap, memNNO.isDirect(), NNBO, false, false);
+      assertTrue(memNNO.isDirectResource());
+      checkCombinations(memNNO, off, cap, memNNO.isDirectResource(), NON_NATIVE_BYTE_ORDER, false, false);
     }
   }
 
@@ -150,16 +148,16 @@ public class LeafImplTest {
     long off = 0;
     long cap = 128;
     // On Heap, Native order, No ByteBuffer, MemReqSvr
-    WritableMemory memNO = WritableMemory.allocate((int)cap, NBO, dummyMemReqSvr); //assumes NBO
+    WritableMemory memNO = WritableMemory.allocate((int)cap, NATIVE_BYTE_ORDER, dummyMemReqSvr); //assumes NATIVE_BYTE_ORDER
     memNO.putShort(0, (short) 1);
-    assertFalse(memNO.isDirect());
-    checkCombinations(memNO, off, cap, memNO.isDirect(), NBO, false, true);
+    assertFalse(memNO.isDirectResource());
+    checkCombinations(memNO, off, cap, memNO.isDirectResource(), NATIVE_BYTE_ORDER, false, true);
 
     // On Heap, Non-native order, No ByteBuffer, MemReqSvr
-    WritableMemory memNNO = WritableMemory.allocate((int)cap, NNBO, dummyMemReqSvr);
+    WritableMemory memNNO = WritableMemory.allocate((int)cap, NON_NATIVE_BYTE_ORDER, dummyMemReqSvr);
     memNNO.putShort(0, (short) 1);
-    assertFalse(memNNO.isDirect());
-    checkCombinations(memNNO, off, cap, memNNO.isDirect(), NNBO, false, true);
+    assertFalse(memNNO.isDirectResource());
+    checkCombinations(memNNO, off, cap, memNNO.isDirectResource(), NON_NATIVE_BYTE_ORDER, false, true);
   }
 
   private static void checkCombinations(WritableMemory mem, long off, long cap,
@@ -173,18 +171,18 @@ public class LeafImplTest {
     assertEquals(mem.asWritableBuffer(oo).getShort(0), 256);
     assertTrue(mem.getByteOrder() == bo);
 
-    if (fromByteBuffer) { assertTrue(mem.hasByteBuffer()); }
-    else { assertFalse(mem.hasByteBuffer()); }
+    if (fromByteBuffer) { assertTrue(mem.isByteBufferResource()); }
+    else { assertFalse(mem.isByteBufferResource()); }
 
     if (hasMemReqSvr) {
-      assertTrue(mem.hasMemoryRequestServer());
+      assertTrue(mem.getMemoryRequestServer() != null);
       assertTrue(mem.getMemoryRequestServer() instanceof DummyMemoryRequestServer);
     }
 
     if (direct) {
-      assertTrue(mem.isDirect());
+      assertTrue(mem.isDirectResource());
     } else {
-      assertFalse(mem.isDirect());
+      assertFalse(mem.isDirectResource());
     }
     assertTrue(mem.isAlive() == true);
 
@@ -197,17 +195,17 @@ public class LeafImplTest {
     assertEquals(buf.writableDuplicate(oo).getShort(0), 256);
     assertTrue(buf.getByteOrder() == bo);
 
-    if (fromByteBuffer) { assertTrue(buf.hasByteBuffer()); }
+    if (fromByteBuffer) { assertTrue(buf.isByteBufferResource()); }
 
     if (hasMemReqSvr) {
-      assertTrue(buf.hasMemoryRequestServer());
+      assertTrue(mem.getMemoryRequestServer() != null);
       assertTrue(buf.getMemoryRequestServer() instanceof DummyMemoryRequestServer);
     }
 
     if (direct) {
-      assertTrue(buf.isDirect());
+      assertTrue(buf.isDirectResource());
     } else {
-      assertFalse(buf.isDirect());
+      assertFalse(buf.isDirectResource());
     }
     assertTrue(buf.isAlive() == true);
 
@@ -221,17 +219,17 @@ public class LeafImplTest {
 
     assertTrue(nnMem.getByteOrder() == oo);
 
-    if (fromByteBuffer) { assertTrue(nnMem.hasByteBuffer()); }
+    if (fromByteBuffer) { assertTrue(nnMem.isByteBufferResource()); }
 
     if (hasMemReqSvr) {
-      assertTrue(nnMem.hasMemoryRequestServer());
+      assertTrue(mem.getMemoryRequestServer() != null);
       assertTrue(nnMem.getMemoryRequestServer() instanceof DummyMemoryRequestServer);
     }
 
     if (direct) {
-      assertTrue(nnMem.isDirect());
+      assertTrue(nnMem.isDirectResource());
     } else {
-      assertFalse(nnMem.isDirect());
+      assertFalse(nnMem.isDirectResource());
     }
     assertTrue(nnMem.isAlive() == true);
 
@@ -245,16 +243,41 @@ public class LeafImplTest {
 
     assertTrue(nnBuf.getByteOrder() == oo);
 
-    if (fromByteBuffer) { assertTrue(nnBuf.hasByteBuffer()); }
+    if (fromByteBuffer) { assertTrue(nnBuf.isByteBufferResource()); }
 
     if (hasMemReqSvr) { assertTrue(nnBuf.getMemoryRequestServer() instanceof DummyMemoryRequestServer); }
 
     if (direct) {
-      assertTrue(nnBuf.isDirect());
+      assertTrue(nnBuf.isDirectResource());
     } else {
-      assertFalse(nnBuf.isDirect());
+      assertFalse(nnBuf.isDirectResource());
     }
     assertTrue(nnBuf.isAlive() == true);
+  }
+
+  @Test
+  public void confirmByteBufferView() {
+    long le = 0X0807060504030201L;
+    long be = 0X0102030405060708L;
+    ByteBuffer bb = ByteBuffer.allocate(128);
+    bb.order(NATIVE_BYTE_ORDER);
+    bb.putLong(0, le);
+    WritableMemory mem = WritableMemory.writableWrap(bb, NATIVE_BYTE_ORDER, dummyMemReqSvr);
+    assertEquals(le,  mem.getLong(0)); //mem reads what BB put
+    mem.putLong(0, be);
+    assertEquals(be, bb.getLong(0)); //BB reads what mem put
+    //This confirms that mem and BB both have a R/W view of the same backing store
+
+    //Changing the byte order never changes what is already in the backing store
+    //It will change how bytes in the store are interpreted going in or coming out.
+    bb.order(NON_NATIVE_BYTE_ORDER);
+    assertEquals(le, bb.getLong(0)); //converts to LE on read;
+    assertEquals(be, mem.getLong(0)); //backing memory is still BE!
+
+    WritableMemory mem2 = WritableMemory.writableWrap(bb, NON_NATIVE_BYTE_ORDER, dummyMemReqSvr);
+    assertEquals(le, mem2.getLong(0)); //converts to LE on read;
+    mem2.putLong(0, le); //should put it as BE
+    assertEquals(le, mem2.getLong(0)); //converts to LE on read;
   }
 
 }

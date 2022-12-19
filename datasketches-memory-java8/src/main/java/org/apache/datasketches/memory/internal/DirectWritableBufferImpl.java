@@ -84,7 +84,7 @@ final class DirectWritableBufferImpl extends NativeWritableBufferImpl {
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
-    checkValid();
+    checkAlive();
     return memReqSvr;
   }
 

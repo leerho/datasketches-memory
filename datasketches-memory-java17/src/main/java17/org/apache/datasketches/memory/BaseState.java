@@ -75,10 +75,23 @@ public interface BaseState {
   long getCapacity();
 
   /**
+   * Returns the MemoryRequestSever or null, if it has not been configured.
+   * @return the MemoryRequestSever or null, if it has not been configured.
+   */
+  MemoryRequestServer getMemoryRequestServer();
+
+  /**
+   * Is the underlying resource scope alive?
+   * @return true, if the underlying resource scope is alive.
+   * @see #close()
+   */
+  boolean isAlive();
+
+  /**
    * Returns true if this Memory is backed by a ByteBuffer.
    * @return true if this Memory is backed by a ByteBuffer.
    */
-  boolean hasByteBuffer();
+  boolean isByteBufferResource();
 
   /**
    * Returns true if the Native ByteOrder is the same as the ByteOrder of the
@@ -90,18 +103,58 @@ public interface BaseState {
   boolean isByteOrderCompatible(ByteOrder byteOrder);
 
   /**
-   * Returns true if the backing resource is direct (off-heap) memory.
+   * If true, the backing resource is direct (off-heap) memory.
    * This is the case for allocated direct memory, memory mapped files,
    * or from a wrapped ByteBuffer that was allocated direct.
+   * If false, the backing resource is the normal Java heap.
    * @return true if the backing resource is direct (off-heap) memory.
    */
-  boolean isDirect();
+  boolean isDirectResource();
 
   /**
-   * Returns true if this object or the backing resource is read-only.
-   * @return true if this object or the backing resource is read-only.
+   * Returns true if this instance is a duplicate of a Buffer instance.
+   * @return true if this instance is a duplicate of a Buffer instance.
+   */
+  boolean isDuplicateBufferView();
+
+  /**
+   * If true, this is a <i>Memory</i> or <i>WritableMemory</i> instance, which provides
+   * the Memory API.
+   * The Memory API is the principal API for this Memory Component.
+   * It provides a rich variety of direct manipulations of four types of resources:
+   * On-heap memory, direct (off-heap) memory, memory-mapped files, and ByteBuffers.
+   * If false, this is a <i>Buffer</i> or <i>WritableBuffer</i> instance, which provides the Buffer API.
+   * The Buffer API is largely parallel to the Memory API except that it adds a positional API
+   * similar to that in <i>ByteBuffer</i>.  The positional API is a convenience when iterating over structured
+   * arrays, or buffering input or output streams (thus the name).
+   * @return true if this is a Buffer or WritableBuffer instance, which provides the Buffer API.
+   */
+  boolean isMemoryApi();
+
+  /**
+   * Returns true if the backing resource is a memory mapped file.
+   * @return true if the backing resource is a memory mapped file.
+   */
+  boolean isMemoryMappedFileResource();
+
+  /**
+   * If true, all put and get operations will assume the non-native ByteOrder.
+   * Otherwise, all put and get operations will assume the native ByteOrder.
+   * @return true, if all put and get operations will assume the non-native ByteOrder.
+   */
+  boolean isNonNativeOrder();
+
+  /**
+   * Returns true if this or the backing resource is read-only.
+   * @return true if this or the backing resource is read-only.
    */
   boolean isReadOnly();
+
+  /**
+   * Returns true if this instance is a region view of another Memory or Buffer
+   * @return true if this instance is a region view of another Memory or Buffer
+   */
+  boolean isRegionView();
 
   /**
    * Returns a description of this object with an optional formatted hex string of the data
@@ -168,67 +221,11 @@ public interface BaseState {
   void force();
 
   /**
-   * Returns the configured MemoryRequestSever or null, if it has not been configured.
-   * @return the configured MemoryRequestSever or null, if it has not been configured.
-   */
-  MemoryRequestServer getMemoryRequestServer();
-
-  /**
-   * Returns true if the MemoryRequestServer has been configured.
-   * @return true if the MemoryRequestServer has been configured.
-   */
-  boolean hasMemoryRequestServer();
-
-  /**
-   * Is the underlying resource scope alive?
-   * @return true, if the underlying resource scope is alive.
-   */
-  boolean isAlive();
-
-  /**
-   * Returns true if this instance is a Buffer or WritableBuffer instance.
-   * @return true if this instance is a Buffer or WritableBuffer instance.
-   */
-  boolean isBuffer();
-
-  /**
-   * Returns true if this instance is a duplicate of a Buffer instance.
-   * @return true if this instance is a duplicate of a Buffer instance.
-   */
-  boolean isDuplicate();
-
-  /**
-   * Returns true if the backing resource is on the Java heap.
-   * This can be true for wrapped heap primitive arrays
-   * or from a wrapped ByteBuffer that was allocated on the Java heap.
-   * @return true if the backing resource is on the Java heap.
-   */
-  boolean isHeap();
-
-  /**
    * Tells whether or not the contents of this mapped segment is resident in physical memory. Please refer to
    * <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#isLoaded()">isLoaded()</a>
    * @return true if it is likely that the contents of this segment is resident in physical memory.
    */
   boolean isLoaded();
-
-  /**
-   * Returns true if this instance is of a memory mapped file.
-   * @return true if this instance is of a memory mapped file.
-   */
-  boolean isMapped();
-
-  /**
-   * Returns true if this instance is of a Memory or WritableMemory instance
-   * @return true if this instance is of a Memory or WritableMemory instance
-   */
-  boolean isMemory();
-
-  /**
-   * Returns true if this instance is a region view of another Memory or Buffer
-   * @return true if this instance is a region view of another Memory or Buffer
-   */
-  boolean isRegion();
 
   /**
    * Loads the contents of this mapped segment into physical memory. Please refer to

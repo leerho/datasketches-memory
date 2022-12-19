@@ -111,7 +111,7 @@ public abstract class BaseBufferImpl extends BaseStateImpl implements BaseBuffer
 
   //checks are used for arrays and apply at runtime
   final void incrementAndCheckPosition(final long position, final long increment) {
-    checkValid();
+    checkAlive();
     final long newPos = position + increment;
     checkInvariants(start, newPos, end, capacity);
     pos = newPos;
@@ -125,7 +125,7 @@ public abstract class BaseBufferImpl extends BaseStateImpl implements BaseBuffer
   }
 
   final void checkValidForWrite() {
-    checkValid();
+    checkAlive();
     if (isReadOnly()) {
       throw new ReadOnlyException("Buffer is read-only.");
     }

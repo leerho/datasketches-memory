@@ -105,7 +105,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     if (isReadOnly() && !localReadOnly) {
       throw new ReadOnlyException("Writable region of a read-only Buffer is not allowed.");
     }
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, capacityBytes, capacityBytes_);
     final boolean readOnly = isReadOnly() || localReadOnly;
     final WritableBuffer wbuf = toWritableRegion(offsetBytes, capacityBytes, readOnly, byteOrder);
@@ -183,7 +183,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
 
   @Override
   public final boolean getBoolean(final long offsetBytes) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_BOOLEAN_INDEX_SCALE, capacityBytes_);
     return unsafe.getBoolean(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
@@ -212,7 +212,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
 
   @Override
   public final byte getByte(final long offsetBytes) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_BYTE_INDEX_SCALE, capacityBytes_);
     return unsafe.getByte(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
@@ -240,7 +240,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   }
 
   final char getNativeOrderedChar(final long offsetBytes) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_CHAR_INDEX_SCALE, capacityBytes_);
     return unsafe.getChar(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
@@ -252,7 +252,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   }
 
   final int getNativeOrderedInt(final long offsetBytes) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_INT_INDEX_SCALE, capacityBytes_);
     return unsafe.getInt(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
@@ -264,7 +264,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   }
 
   final long getNativeOrderedLong(final long offsetBytes) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_LONG_INDEX_SCALE, capacityBytes_);
     return unsafe.getLong(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
@@ -276,7 +276,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   }
 
   final short getNativeOrderedShort(final long offsetBytes) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_SHORT_INDEX_SCALE, capacityBytes_);
     return unsafe.getShort(getUnsafeObject(), getCumulativeOffset(offsetBytes));
   }
@@ -304,7 +304,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
 
   @Override
   public final void putBoolean(final long offsetBytes, final boolean value) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_BOOLEAN_INDEX_SCALE, capacityBytes_);
     checkWritable();
     unsafe.putBoolean(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
@@ -334,7 +334,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
 
   @Override
   public final void putByte(final long offsetBytes, final byte value) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_BYTE_INDEX_SCALE, capacityBytes_);
     checkWritable();
     unsafe.putByte(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
@@ -363,7 +363,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   }
 
   final void putNativeOrderedChar(final long offsetBytes, final char value) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_CHAR_INDEX_SCALE, capacityBytes_);
     checkWritable();
     unsafe.putChar(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
@@ -376,7 +376,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   }
 
   final void putNativeOrderedInt(final long offsetBytes, final int value) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_INT_INDEX_SCALE, capacityBytes_);
     checkWritable();
     unsafe.putInt(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
@@ -389,7 +389,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   }
 
   final void putNativeOrderedLong(final long offsetBytes, final long value) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_LONG_INDEX_SCALE, capacityBytes_);
     checkWritable();
     unsafe.putLong(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
@@ -402,7 +402,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   }
 
   final void putNativeOrderedShort(final long offsetBytes, final short value) {
-    checkValid();
+    checkAlive();
     checkBounds(offsetBytes, ARRAY_SHORT_INDEX_SCALE, capacityBytes_);
     checkWritable();
     unsafe.putShort(getUnsafeObject(), getCumulativeOffset(offsetBytes), value);
@@ -411,7 +411,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
   //OTHER
   @Override
   public final Object getArray() {
-    checkValid();
+    checkAlive();
     return getUnsafeObject();
   }
 

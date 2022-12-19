@@ -238,7 +238,7 @@ public class NativeWritableBufferImplTest {
       assertEquals(wbuf.getByte(), byteBuf.get(i));
     }
 
-    assertTrue(wbuf.hasByteBuffer());
+    assertTrue(wbuf.isByteBufferResource());
     ByteBuffer byteBuf2 = wbuf.toByteBuffer(ByteOrder.nativeOrder());
     assertEquals(byteBuf2, byteBuf);
     //println( mem.toHexString("HeapBB", 0, memCapacity));
@@ -330,11 +330,11 @@ public class NativeWritableBufferImplTest {
   public void checkIsDirect() throws Exception {
     int memCapacity = 64;
     WritableBuffer mem = WritableMemory.allocate(memCapacity).asWritableBuffer();
-    assertFalse(mem.isDirect());
+    assertFalse(mem.isDirectResource());
     ResourceScope scope = ResourceScope.newConfinedScope();
     WritableMemory wmem = WritableMemory.allocateDirect(memCapacity, scope, memReqSvr);
     WritableBuffer wbuf = wmem.asWritableBuffer();
-    assertTrue(wbuf.isDirect());
+    assertTrue(wbuf.isDirectResource());
     wmem.close(); //immediate close
   }
 

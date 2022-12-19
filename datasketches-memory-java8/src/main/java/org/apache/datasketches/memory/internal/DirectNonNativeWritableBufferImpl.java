@@ -84,7 +84,7 @@ final class DirectNonNativeWritableBufferImpl extends NonNativeWritableBufferImp
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
-    checkValid();
+    checkAlive();
     return memReqSvr;
   }
 

@@ -78,13 +78,13 @@ final class BBNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImpl {
 
   @Override
   public ByteBuffer getByteBuffer() {
-    checkValid();
+    checkAlive();
     return byteBuf;
   }
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
-    checkValid();
+    checkAlive();
     return memReqSvr;
   }
 
@@ -100,7 +100,7 @@ final class BBNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImpl {
 
   @Override
   Object getUnsafeObject() {
-    checkValid();
+    checkAlive();
     return unsafeObj;
   }
 

@@ -44,12 +44,12 @@ public class AllocateDirectMemoryTest {
         assertEquals(wMem.getLong(i << 3), i);
       }
       //inside the TWR block the memory should be valid
-      ((BaseStateImpl)wMem).checkValid();
+      ((BaseStateImpl)wMem).checkAlive();
       //OK
     }
     //The TWR block has exited, so the memory should be invalid
     try {
-      ((BaseStateImpl)wMem).checkValid();
+      ((BaseStateImpl)wMem).checkAlive();
       fail();
     } catch (final RuntimeException e) {
       //OK
@@ -66,7 +66,7 @@ public class AllocateDirectMemoryTest {
         origWmem.putLong(i << 3, i);
         assertEquals(origWmem.getLong(i << 3), i);
       }
-      println(origWmem.toHexString("Test", 0, 32 * 8));
+      println(origWmem.toHexString("Test", 0, 32 * 8, true));
 
       int longs2 = 64;
       int bytes2 = longs2 << 3;
@@ -77,7 +77,7 @@ public class AllocateDirectMemoryTest {
         memReqSvr = origWmem.getMemoryRequestServer();
       }
       WritableMemory newWmem = memReqSvr.request(origWmem, bytes2);
-      assertFalse(newWmem.isDirect()); //on heap by default
+      assertFalse(newWmem.isDirectResource()); //on heap by default
       for (int i = 0; i < longs2; i++) {
           newWmem.putLong(i << 3, i);
           assertEquals(newWmem.getLong(i << 3), i);

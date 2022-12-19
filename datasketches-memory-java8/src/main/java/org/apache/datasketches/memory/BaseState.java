@@ -71,17 +71,23 @@ public interface BaseState {
   long getCapacity();
 
   /**
+   * Returns the MemoryRequestSever or null, if it has not been configured.
+   * @return the MemoryRequestSever or null, if it has not been configured.
+   */
+  MemoryRequestServer getMemoryRequestServer();
+
+  /**
+   * Is the underlying resource alive?
+   * @return true, if the underlying resource is alive.
+   * @See {@link java.lang.AutoCloseable#close()}
+   */
+  boolean isAlive();
+
+  /**
    * Returns true if this Memory is backed by a ByteBuffer.
    * @return true if this Memory is backed by a ByteBuffer.
    */
-  boolean hasByteBuffer();
-
-  /**
-   * Is this resource alive?
-   * @return true, if this resource is alive. That is, it has not been closed.
-   * @see close()
-   */
-  boolean isAlive();
+  boolean isByteBufferResource();
 
   /**
    * Returns true if the Native ByteOrder is the same as the ByteOrder of the
@@ -93,28 +99,69 @@ public interface BaseState {
   boolean isByteOrderCompatible(ByteOrder byteOrder);
 
   /**
-   * Returns true if the backing resource is direct (off-heap) memory.
+   * If true, the backing resource is direct (off-heap) memory.
    * This is the case for allocated direct memory, memory mapped files,
    * or from a wrapped ByteBuffer that was allocated direct.
+   * If false, the backing resource is the normal Java heap.
    * @return true if the backing resource is direct (off-heap) memory.
    */
-  boolean isDirect();
+  boolean isDirectResource();
 
   /**
-   * Returns true if this object or the backing resource is read-only.
-   * @return true if this object or the backing resource is read-only.
+   * Returns true if this instance is a duplicate of a Buffer instance.
+   * @return true if this instance is a duplicate of a Buffer instance.
+   */
+  boolean isDuplicateBufferView();
+
+  /**
+   * If true, this is a <i>Memory</i> or <i>WritableMemory</i> instance, which provides
+   * the Memory API.
+   * The Memory API is the principal API for this Memory Component.
+   * It provides a rich variety of direct manipulations of four types of resources:
+   * On-heap memory, direct (off-heap) memory, memory-mapped files, and ByteBuffers.
+   * If false, this is a <i>Buffer</i> or <i>WritableBuffer</i> instance, which provides the Buffer API.
+   * The Buffer API is largely parallel to the Memory API except that it adds a positional API
+   * similar to that in <i>ByteBuffer</i>.  The positional API is a convenience when iterating over structured
+   * arrays, or buffering input or output streams (thus the name).
+   * @return true if this is a Buffer or WritableBuffer instance, which provides the Buffer API.
+   */
+  boolean isMemoryApi();
+
+  /**
+   * Returns true if the backing resource is a memory mapped file.
+   * @return true if the backing resource is a memory mapped file.
+   */
+  boolean isMemoryMappedFileResource();
+
+  /**
+   * If true, all put and get operations will assume the non-native ByteOrder.
+   * Otherwise, all put and get operations will assume the native ByteOrder.
+   * @return true, if all put and get operations will assume the non-native ByteOrder.
+   */
+  boolean isNonNativeOrder();
+
+  /**
+   * Returns true if this or the backing resource is read-only.
+   * @return true if this or the backing resource is read-only.
    */
   boolean isReadOnly();
 
   /**
-   * Returns a formatted hex string of a range of this object.
-   * Used primarily for testing.
-   * @param header a descriptive header
+   * Returns true if this instance is a region view of another Memory or Buffer
+   * @return true if this instance is a region view of another Memory or Buffer
+   */
+  boolean isRegionView();
+
+  /**
+   * Returns a description of this object with an optional formatted hex string of the data
+   * for the specified a range. Used primarily for testing.
+   * @param comment a description
    * @param offsetBytes offset bytes relative to this object start
    * @param lengthBytes number of bytes to convert to a hex string
-   * @return a formatted hex string in a human readable array
+   * @param withData include output listing of byte data in the given range
+   * @return a description and hex output in a human readable format.
    */
-  String toHexString(String header, long offsetBytes, int lengthBytes);
+  String toHexString(String comment, long offsetBytes, int lengthBytes, boolean withData);
 
   /**
    * Returns a 64-bit hash from a single long. This method has been optimized for speed when only
@@ -147,19 +194,10 @@ public interface BaseState {
    * @param that A different non-null object
    * @return true if the backing resource of <i>this</i> is the same as the backing resource
    * of <i>that</i>.
-   * @deprecated no longer supported as of Java 17 versions. Use nativeOverlap(BaseState) instead.
+   * @deprecated no longer supported as of Java 17 versions.
+   * With Java 17 use nativeOverlap(other) instead.
    */
   @Deprecated
   boolean isSameResource(Object that);
-
-  /**
-   * Returns true if this object is valid and has not been closed.
-   * This is relevant only for direct (off-heap) memory and Mapped Files.
-   * @return true if this object is valid and has not been closed.
-   * @deprecated no longer supported as of Java 17 versions. Use <i>isAlive()</i> instead.
-   */
-  //@Deprecated
-  @Deprecated
-  default boolean isValid() { return isAlive(); }
 
 }

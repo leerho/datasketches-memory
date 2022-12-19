@@ -77,9 +77,7 @@ public class ExampleMemoryRequestServerTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void checkZeroCapacity() throws Exception {
     ExampleMemoryRequestServer svr = new ExampleMemoryRequestServer();
-    try (WritableHandle wh = WritableMemory.allocateDirect(0, NATIVE_BYTE_ORDER, svr)) {
-
-    }
+    try (WritableHandle wh = WritableMemory.allocateDirect(0, NATIVE_BYTE_ORDER, svr)) { }
   }
 
   /**
@@ -101,7 +99,7 @@ public class ExampleMemoryRequestServerTest {
     void process() {
       long cap1 = smallMem.getCapacity();
       smallMem.fill((byte) 1);                //fill it, but not big enough
-      println(smallMem.toHexString("Small", 0, (int)cap1));
+      println(smallMem.toHexString("Small", 0, (int)cap1, true));
 
       WritableMemory bigMem = svr.request(smallMem, 2 * cap1); //get bigger mem
       long cap2 = bigMem.getCapacity();
@@ -109,7 +107,7 @@ public class ExampleMemoryRequestServerTest {
       svr.requestClose(smallMem, bigMem);     //done with smallMem, release it
 
       bigMem.fill(cap1, cap1, (byte) 2);      //fill the rest of bigMem, still not big enough
-      println(bigMem.toHexString("Big", 0, (int)cap2));
+      println(bigMem.toHexString("Big", 0, (int)cap2, true));
 
       WritableMemory giantMem = svr.request(bigMem, 2 * cap2); //get giant mem
       long cap3 = giantMem.getCapacity();
@@ -117,7 +115,7 @@ public class ExampleMemoryRequestServerTest {
       svr.requestClose(bigMem, giantMem);     //done with bigMem, release it
 
       giantMem.fill(cap2, cap2, (byte) 3);    //fill the rest of giantMem
-      println(giantMem.toHexString("Giant", 0, (int)cap3));
+      println(giantMem.toHexString("Giant", 0, (int)cap3, true));
       svr.requestClose(giantMem, null);                 //done with giantMem, release it
     }
   }

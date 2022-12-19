@@ -61,14 +61,14 @@ public class DruidIssue11544Test {
 
     //Wrap bb into WritableMemory
     WritableMemory mem1 = WritableMemory.writableWrap(bb);
-    assertTrue(mem1.isDirect()); //confirm mem1 is off-heap
+    assertTrue(mem1.isDirectResource()); //confirm mem1 is off-heap
 
     //Request Bigger Memory
     int size2 = size1 * 2;
     WritableMemory mem2 = memReqSvr.request(mem1, size2);
 
     //Confirm that mem2 is on the heap (the default) and 2X size1
-    assertFalse(mem2.isDirect());
+    assertFalse(mem2.isDirectResource());
     assertEquals(mem2.getCapacity(), size2);
 
     //Move data to new memory
@@ -85,7 +85,7 @@ public class DruidIssue11544Test {
     WritableMemory mem3 = memReqSvr.request(mem2, size3);
 
     //Confirm that mem3 is still on the heap and 2X of size2
-    assertFalse(mem3.isDirect());
+    assertFalse(mem3.isDirectResource());
     assertEquals(mem3.getCapacity(), size3);
 
     //Move data to new memory

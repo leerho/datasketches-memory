@@ -44,6 +44,7 @@ abstract class BaseStateImpl implements BaseState {
   static final String JDK; //must be at least "1.8"
   static final int JDK_MAJOR; //8, 11, 17, etc
 
+  //Used to convert "type" to bytes:  bytes = longs << LONG_SHIFT
   static final int BOOLEAN_SHIFT    = 0;
   static final int BYTE_SHIFT       = 0;
   static final long SHORT_SHIFT     = 1;
@@ -53,7 +54,8 @@ abstract class BaseStateImpl implements BaseState {
   static final long FLOAT_SHIFT     = 2;
   static final long DOUBLE_SHIFT    = 3;
 
-  //class type IDs.
+  //class type IDs. Do not change the bit orders
+  //The first 3 bits are set dynamically
   // 0000 0XXX Group 1
   static final int READONLY  = 1;
   static final int REGION    = 1 << 1;
@@ -207,7 +209,7 @@ abstract class BaseStateImpl implements BaseState {
     final MemorySegment seg = state.seg;
     final long capacity = seg.byteSize();
     checkBounds(offsetBytes, lengthBytes, capacity);
-    final StringBuilder sb = new StringBuilder();
+
     final String theComment = (comment != null) ? comment : "";
     final String addHCStr = "" + Integer.toHexString(seg.address().hashCode());
     final MemoryRequestServer memReqSvr = state.getMemoryRequestServer();
@@ -215,8 +217,9 @@ abstract class BaseStateImpl implements BaseState {
         ? memReqSvr.getClass().getSimpleName() + ", " + Integer.toHexString(memReqSvr.hashCode())
         : "null";
 
+    final StringBuilder sb = new StringBuilder();
     sb.append(LS + "### DataSketches Memory Component SUMMARY ###").append(LS);
-    sb.append("Optional Comment       : ").append(theComment).append(LS);
+    sb.append("Header Comment       : ").append(theComment).append(LS);
     sb.append("TypeId String          : ").append(typeDecode(state.typeId)).append(LS);
     sb.append("OffsetBytes            : ").append(offsetBytes).append(LS);
     sb.append("LengthBytes            : ").append(lengthBytes).append(LS);
@@ -294,14 +297,14 @@ abstract class BaseStateImpl implements BaseState {
 
   //**NON STATIC METHODS*****************************************
 
-  @Override
+  @Override //Java 17 only
   public final ByteBuffer asByteBufferView(final ByteOrder order) {
     final ByteBuffer byteBuf = seg.asByteBuffer().order(order);
     return byteBuf;
   }
 
   //@SuppressWarnings("resource")
-  @Override
+  @Override //Java 17 only
   public void close() { //moved here
     if (seg != null && seg.scope().isAlive() && !seg.scope().isImplicit()) {
       if (seg.isNative() || seg.isMapped()) {
@@ -317,7 +320,7 @@ abstract class BaseStateImpl implements BaseState {
     return CompareAndCopy.equals(seg, thisOffsetBytes, ((BaseStateImpl) that).seg, thatOffsetBytes, lengthBytes);
   }
 
-  @Override
+  @Override //Java 17 only
   public void force() { seg.force(); } //moved here
 
   @Override
@@ -335,25 +338,15 @@ abstract class BaseStateImpl implements BaseState {
     return memReqSvr;
   }
 
-  @Override
-  public final boolean hasByteBuffer() {
-    return (typeId & BYTEBUF) > 0;
-  }
-
-  @Override
-  public boolean hasMemoryRequestServer() {
-    return memReqSvr != null;
-  }
-
   //@SuppressWarnings("resource")
   @Override
-  public boolean isAlive() { //Java 17 only
+  public boolean isAlive() {
     return seg.scope().isAlive();
   }
 
   @Override
-  public final boolean isBuffer() {
-    return (typeId & BUFFER) > 0;
+  public final boolean isByteBufferResource() {
+    return (typeId & BYTEBUF) > 0;
   }
 
   @Override
@@ -363,33 +356,33 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final boolean isDirect() {
+  public final boolean isDirectResource() {
     assert seg.isNative() == (typeId & DIRECT) > 0;
     return seg.isNative();
   }
 
   @Override
-  public final boolean isDuplicate() {
+  public final boolean isDuplicateBufferView() {
     return (typeId & DUPLICATE) > 0;
   }
 
-  @Override
-  public final boolean isHeap() {
-    return !isDirect() && !isMapped();
-  }
-
-  @Override
+  @Override //Java 17 only
   public boolean isLoaded() { return seg.isLoaded(); }
 
   @Override
-  public boolean isMapped() {
+  public boolean isMemoryMappedFileResource() {
     assert seg.isMapped() == (typeId & MAP) > 0;
     return seg.isMapped();
   }
 
   @Override
-  public final boolean isMemory() {
+  public final boolean isMemoryApi() {
     return (typeId & BUFFER) == 0;
+  }
+
+  @Override
+  public boolean isNonNativeOrder() {
+    return (typeId & NONNATIVE) > 0;
   }
 
   @Override
@@ -399,11 +392,11 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final boolean isRegion() {
+  public final boolean isRegionView() { //isRegionView
     return (typeId & REGION) > 0;
   }
 
-  @Override
+  @Override //Java 17 only
   public void load() { seg.load(); } //moved here
 
   @Override
@@ -414,7 +407,7 @@ abstract class BaseStateImpl implements BaseState {
     return seg.mismatch(thatBSI.seg);
   }
 
-  @Override
+  @Override //Java 17 only
   public final long nativeOverlap(final BaseState that) { //Java 17 only
     if (that == null) { return 0; }
     if (!that.isAlive()) { return 0; }
@@ -471,7 +464,7 @@ abstract class BaseStateImpl implements BaseState {
     return ByteBuffer.wrap(seg.toByteArray());
   }
 
-  @Override  //Java 17 only
+  @Override
   public final String toHexString(final String comment, final long offsetBytes, final int lengthBytes,
       final boolean withData) {
     return toHex(this, comment, offsetBytes, lengthBytes, withData);
@@ -484,7 +477,7 @@ abstract class BaseStateImpl implements BaseState {
     return arrSeg;
   }
 
-  @Override
+  @Override //Java 17 only
   public void unload() { seg.unload(); } //moved here
 
   @Override

@@ -76,7 +76,7 @@ public class NativeWritableBufferImplTest {
     for (int i=0; i<8; i++) {
       assertEquals(dstArray[i], srcArray[i]);
     }
-    assertFalse(buf.isDirect());
+    assertFalse(buf.isDirectResource());
   }
 
   @Test
@@ -211,7 +211,7 @@ public class NativeWritableBufferImplTest {
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
       WritableMemory wmem = wrh.getWritable();
       WritableBuffer wbuf = wmem.asWritableBuffer();
-      wbuf.toHexString("Force BoundsException", memCapacity, 8);
+      wbuf.toHexString("Force BoundsException", memCapacity, 8, true);
     } catch (BoundsException e) {
       //ok
     }
@@ -257,7 +257,7 @@ public class NativeWritableBufferImplTest {
       assertEquals(wbuf.getByte(), byteBuf.get(i));
     }
 
-    assertTrue(wbuf.hasByteBuffer());
+    assertTrue(wbuf.isByteBufferResource());
     ByteBuffer byteBuf2 = ((BaseStateImpl)wbuf).getByteBuffer();
     assertEquals(byteBuf2, byteBuf);
     //println( mem.toHexString("HeapBB", 0, memCapacity));
@@ -348,11 +348,11 @@ public class NativeWritableBufferImplTest {
   public void checkIsDirect() throws Exception {
     int memCapacity = 64;
     WritableBuffer mem = WritableMemory.allocate(memCapacity).asWritableBuffer();
-    assertFalse(mem.isDirect());
+    assertFalse(mem.isDirectResource());
     try (WritableHandle wrh = WritableMemory.allocateDirect(memCapacity)) {
       WritableMemory mem2 = wrh.getWritable();
       WritableBuffer wbuf = mem2.asWritableBuffer();
-      assertTrue(wbuf.isDirect());
+      assertTrue(wbuf.isDirectResource());
       wrh.close(); //immediate close
     }
   }
