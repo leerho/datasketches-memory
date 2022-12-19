@@ -31,7 +31,7 @@ import jdk.incubator.foreign.ResourceScope;
  *
  * @author Lee Rhodes
  */
-public interface BaseState {
+public interface Resource {
 
   /**
    * Currently used only for test, hold for possible future use
@@ -41,10 +41,10 @@ public interface BaseState {
   /**
    * Returns true if the given object is an instance of this class and has equal contents to
    * this object.
-   * @param that the given BaseState object
+   * @param that the given Resource object
    * @return true if the given object has equal contents to this object.
    */
-  default boolean equalTo(BaseState that) {
+  default boolean equalTo(Resource that) {
     if (that == null || this.getCapacity() != that.getCapacity()) return false;
     return equalTo(0, that, 0, that.getCapacity());
   }
@@ -54,12 +54,12 @@ public interface BaseState {
    * this object in the given range of bytes. This will also check two distinct ranges within the
    * same object for equals.
    * @param thisOffsetBytes the starting offset in bytes for this object.
-   * @param that the given BaseState object
-   * @param thatOffsetBytes the starting offset in bytes for the given BaseState object
+   * @param that the given Resource object
+   * @param thatOffsetBytes the starting offset in bytes for the given Resource object
    * @param lengthBytes the size of the range in bytes
-   * @return true if the given BaseState object has equal contents to this object in the given range of bytes.
+   * @return true if the given Resource object has equal contents to this object in the given range of bytes.
    */
-  boolean equalTo(long thisOffsetBytes, BaseState that, long thatOffsetBytes, long lengthBytes);
+  boolean equalTo(long thisOffsetBytes, Resource that, long thatOffsetBytes, long lengthBytes);
 
   /**
    * Gets the current Type ByteOrder.
@@ -235,11 +235,11 @@ public interface BaseState {
 
   /**
    * See <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#mismatch(jdk.incubator.foreign.MemorySegment)>mismatch</a>
-   * @param that the other BaseState
-   * @return the relative offset, in bytes, of the first mismatch between this and the given other BaseState object,
+   * @param that the other Resource
+   * @return the relative offset, in bytes, of the first mismatch between this and the given other Resource object,
    * otherwise -1 if no mismatch
    */
-  long mismatch(BaseState that);
+  long mismatch(Resource that);
 
   /**
    * Returns a positive number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &le; <i>that</i>
@@ -247,10 +247,10 @@ public interface BaseState {
    * Returns a negative number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &gt; <i>that</i>
    * base address.
    * Returns a zero if there is no overlap or if one or both objects are null, not active or on heap.
-   * @param that the other BaseState object
+   * @param that the other Resource object
    * @return a long value representing the ordering and size of overlap between <i>this</i> and <i>that</i>.
    */
-  long nativeOverlap(BaseState that);
+  long nativeOverlap(Resource that);
 
   /**
    * Returns the resource scope associated with this memory segment.

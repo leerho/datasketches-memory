@@ -19,12 +19,12 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 import jdk.incubator.foreign.ResourceScope;
 
 public class AllocateDirectMemoryTest {
-  private static final MemoryRequestServer memReqSvr = BaseState.defaultMemReqSvr;
+  private static final MemoryRequestServer memReqSvr = Resource.defaultMemReqSvr;
 
   //@SuppressWarnings("resource")
   @Test

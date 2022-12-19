@@ -21,7 +21,7 @@ package org.apache.datasketches.memory.internal;
 
 import static org.testng.Assert.assertEquals;
 
-import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
@@ -33,7 +33,7 @@ import jdk.incubator.foreign.ResourceScope;
  * @author Lee Rhodes
  */
 public class CopyMemoryOverlapTest {
-  private static final MemoryRequestServer memReqSvr = BaseState.defaultMemReqSvr;
+  private static final MemoryRequestServer memReqSvr = Resource.defaultMemReqSvr;
 
   @Test
   public void checkOverlapUsingMemory() throws Exception {

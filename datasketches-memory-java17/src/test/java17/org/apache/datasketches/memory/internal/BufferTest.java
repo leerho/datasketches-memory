@@ -19,14 +19,14 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
-import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.MemoryRequestServer;
@@ -38,7 +38,7 @@ import org.testng.collections.Lists;
 import jdk.incubator.foreign.ResourceScope;
 
 public class BufferTest {
-  private final MemoryRequestServer memReqSvr = BaseState.defaultMemReqSvr;
+  private final MemoryRequestServer memReqSvr = Resource.defaultMemReqSvr;
   @Test
   public void checkDirectRoundTrip() throws Exception {
     int n = 1024; //longs

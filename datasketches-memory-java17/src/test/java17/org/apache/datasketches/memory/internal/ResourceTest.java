@@ -19,8 +19,8 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.nativeOverlap;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.typeDecode;
+import static org.apache.datasketches.memory.internal.ResourceImpl.nativeOverlap;
+import static org.apache.datasketches.memory.internal.ResourceImpl.typeDecode;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
-public class BaseStateTest {
+public class ResourceTest {
 
   @Test
   public void checkNativeOverlap() {

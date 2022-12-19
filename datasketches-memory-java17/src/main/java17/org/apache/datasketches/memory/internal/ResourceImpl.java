@@ -26,8 +26,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-import org.apache.datasketches.memory.BaseState;
 import org.apache.datasketches.memory.MemoryRequestServer;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.WritableBuffer;
 import org.apache.datasketches.memory.WritableMemory;
 
@@ -40,7 +40,7 @@ import jdk.incubator.foreign.ResourceScope;
  *
  * @author Lee Rhodes
  */
-abstract class BaseStateImpl implements BaseState {
+abstract class ResourceImpl implements Resource {
   static final String JDK; //must be at least "1.8"
   static final int JDK_MAJOR; //8, 11, 17, etc
 
@@ -105,7 +105,7 @@ abstract class BaseStateImpl implements BaseState {
    * @param typeId identifies the type parameters for this Memory
    * @param memReqSvr the MemoryRequestServer
    */
-  BaseStateImpl(final MemorySegment seg, final int typeId, final MemoryRequestServer memReqSvr) {
+  ResourceImpl(final MemorySegment seg, final int typeId, final MemoryRequestServer memReqSvr) {
     this.seg = seg;
     this.typeId = typeId;
     this.memReqSvr = memReqSvr;
@@ -198,21 +198,21 @@ abstract class BaseStateImpl implements BaseState {
   /**
    * Returns a formatted hex string of an area of this object.
    * Used primarily for testing.
-   * @param state the BaseStateImpl
+   * @param resource the ResourceImpl
    * @param comment optional unique description
    * @param offsetBytes offset bytes relative to the MemoryImpl start
    * @param lengthBytes number of bytes to convert to a hex string
    * @return a formatted hex string in a human readable array
    */
-  static final String toHex(final BaseStateImpl state, final String comment, final long offsetBytes,
+  static final String toHex(final ResourceImpl resource, final String comment, final long offsetBytes,
       final int lengthBytes, final boolean withData) {
-    final MemorySegment seg = state.seg;
+    final MemorySegment seg = resource.seg;
     final long capacity = seg.byteSize();
     checkBounds(offsetBytes, lengthBytes, capacity);
 
     final String theComment = (comment != null) ? comment : "";
     final String addHCStr = "" + Integer.toHexString(seg.address().hashCode());
-    final MemoryRequestServer memReqSvr = state.getMemoryRequestServer();
+    final MemoryRequestServer memReqSvr = resource.getMemoryRequestServer();
     final String memReqStr = memReqSvr != null
         ? memReqSvr.getClass().getSimpleName() + ", " + Integer.toHexString(memReqSvr.hashCode())
         : "null";
@@ -220,14 +220,14 @@ abstract class BaseStateImpl implements BaseState {
     final StringBuilder sb = new StringBuilder();
     sb.append(LS + "### DataSketches Memory Component SUMMARY ###").append(LS);
     sb.append("Header Comment       : ").append(theComment).append(LS);
-    sb.append("TypeId String          : ").append(typeDecode(state.typeId)).append(LS);
+    sb.append("TypeId String          : ").append(typeDecode(resource.typeId)).append(LS);
     sb.append("OffsetBytes            : ").append(offsetBytes).append(LS);
     sb.append("LengthBytes            : ").append(lengthBytes).append(LS);
     sb.append("Capacity               : ").append(capacity).append(LS);
     sb.append("MemoryAddress hashCode : ").append(addHCStr).append(LS);
     sb.append("MemReqSvr, hashCode    : ").append(memReqStr).append(LS);
-    sb.append("Read Only              : ").append(state.isReadOnly()).append(LS);
-    sb.append("Type Byte Order        : ").append(state.getByteOrder().toString()).append(LS);
+    sb.append("Read Only              : ").append(resource.isReadOnly()).append(LS);
+    sb.append("Type Byte Order        : ").append(resource.getByteOrder().toString()).append(LS);
     sb.append("Native Byte Order      : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
     sb.append("JDK Runtime Version    : ").append(JDK).append(LS);
     //Data detail
@@ -314,10 +314,10 @@ abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final boolean equalTo(final long thisOffsetBytes, final BaseState that,
+  public final boolean equalTo(final long thisOffsetBytes, final Resource that,
       final long thatOffsetBytes, final long lengthBytes) {
     if (that == null) { return false; }
-    return CompareAndCopy.equals(seg, thisOffsetBytes, ((BaseStateImpl) that).seg, thatOffsetBytes, lengthBytes);
+    return CompareAndCopy.equals(seg, thisOffsetBytes, ((ResourceImpl) that).seg, thatOffsetBytes, lengthBytes);
   }
 
   @Override //Java 17 only
@@ -400,18 +400,18 @@ abstract class BaseStateImpl implements BaseState {
   public void load() { seg.load(); } //moved here
 
   @Override
-  public long mismatch(final BaseState that) { //Java 17 only
+  public long mismatch(final Resource that) { //Java 17 only
     Objects.requireNonNull(that);
     if (!that.isAlive()) { throw new IllegalArgumentException("Given argument is not alive."); }
-    BaseStateImpl thatBSI = (BaseStateImpl) that;
+    ResourceImpl thatBSI = (ResourceImpl) that;
     return seg.mismatch(thatBSI.seg);
   }
 
   @Override //Java 17 only
-  public final long nativeOverlap(final BaseState that) { //Java 17 only
+  public final long nativeOverlap(final Resource that) { //Java 17 only
     if (that == null) { return 0; }
     if (!that.isAlive()) { return 0; }
-    BaseStateImpl thatBSI = (BaseStateImpl) that;
+    ResourceImpl thatBSI = (ResourceImpl) that;
     if (this == thatBSI) { return seg.byteSize(); }
     return nativeOverlap(seg, thatBSI.seg);
   }

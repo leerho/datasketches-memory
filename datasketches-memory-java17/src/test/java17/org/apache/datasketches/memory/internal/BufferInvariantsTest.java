@@ -24,7 +24,7 @@ import static org.testng.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableBuffer;
@@ -37,7 +37,7 @@ import jdk.incubator.foreign.ResourceScope;
  * @author Lee Rhodes
  */
 public class BufferInvariantsTest {
-  private static final MemoryRequestServer memReqSvr = BaseState.defaultMemReqSvr;
+  private static final MemoryRequestServer memReqSvr = Resource.defaultMemReqSvr;
 
   @Test
   public void testRegion() {

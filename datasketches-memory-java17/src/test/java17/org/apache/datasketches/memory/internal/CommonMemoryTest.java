@@ -27,7 +27,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 import jdk.incubator.foreign.ResourceScope;
 
 public class CommonMemoryTest {
-  private final MemoryRequestServer memReqSvr = BaseState.defaultMemReqSvr;
+  private final MemoryRequestServer memReqSvr = Resource.defaultMemReqSvr;
   @Test
   public void checkSetGet() throws Exception {
     int memCapacity = 16; //must be at least 8

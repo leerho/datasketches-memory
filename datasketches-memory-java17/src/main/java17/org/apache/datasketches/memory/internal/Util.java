@@ -19,7 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.LS;
+import static org.apache.datasketches.memory.internal.ResourceImpl.LS;
 
 import java.io.File;
 import java.io.IOException;

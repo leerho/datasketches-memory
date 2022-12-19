@@ -19,8 +19,8 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.MemoryRequestServer;
@@ -43,7 +43,7 @@ import jdk.incubator.foreign.ResourceScope;
  * @author Lee Rhodes
  */
 public class SpecificLeafTest {
-  private static final MemoryRequestServer memReqSvr = BaseState.defaultMemReqSvr;
+  private static final MemoryRequestServer memReqSvr = Resource.defaultMemReqSvr;
 
   @Test
   public void checkByteBufferLeafs() {
@@ -78,7 +78,7 @@ public class SpecificLeafTest {
     int bytes = 128;
     try (ResourceScope scope = ResourceScope.newConfinedScope()) {
       WritableMemory wmem = WritableMemory.allocateDirect(bytes, scope, memReqSvr);
-      assertFalse(((BaseStateImpl)wmem).isReadOnly());
+      assertFalse(((ResourceImpl)wmem).isReadOnly());
       assertTrue(wmem.isDirectResource());
       assertFalse(wmem.isReadOnly());
       checkCrossLeafTypeIds(wmem);
@@ -144,7 +144,7 @@ public class SpecificLeafTest {
     int bytes = 128;
     Memory mem = Memory.wrap(new byte[bytes]);
     assertFalse(mem.isDirectResource());
-    assertTrue(((BaseStateImpl)mem).isReadOnly());
+    assertTrue(((ResourceImpl)mem).isReadOnly());
     checkCrossLeafTypeIds(mem);
     Memory nnreg = mem.region(0, bytes, NON_NATIVE_BYTE_ORDER);
 
