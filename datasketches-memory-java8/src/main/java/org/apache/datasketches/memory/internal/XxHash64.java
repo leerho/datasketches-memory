@@ -19,12 +19,12 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.CHAR_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.DOUBLE_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.FLOAT_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.INT_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.LONG_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.SHORT_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.CHAR_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.DOUBLE_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.FLOAT_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.INT_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.LONG_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.SHORT_SHIFT;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_BOOLEAN_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_BYTE_BASE_OFFSET;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_CHAR_BASE_OFFSET;

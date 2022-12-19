@@ -19,12 +19,12 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.fail;
 
-import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.DefaultMemoryRequestServer;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableHandle;
@@ -44,12 +44,12 @@ public class AllocateDirectMemoryTest {
         assertEquals(wMem.getLong(i << 3), i);
       }
       //inside the TWR block the memory should be valid
-      ((BaseStateImpl)wMem).checkAlive();
+      ((ResourceImpl)wMem).checkAlive();
       //OK
     }
     //The TWR block has exited, so the memory should be invalid
     try {
-      ((BaseStateImpl)wMem).checkAlive();
+      ((ResourceImpl)wMem).checkAlive();
       fail();
     } catch (final RuntimeException e) {
       //OK
@@ -71,7 +71,7 @@ public class AllocateDirectMemoryTest {
       int longs2 = 64;
       int bytes2 = longs2 << 3;
       MemoryRequestServer memReqSvr;
-      if (BaseState.defaultMemReqSvr == null) {
+      if (Resource.defaultMemReqSvr == null) {
         memReqSvr = new DefaultMemoryRequestServer();
       } else {
         memReqSvr = origWmem.getMemoryRequestServer();

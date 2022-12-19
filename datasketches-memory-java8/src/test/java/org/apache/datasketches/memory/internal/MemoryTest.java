@@ -23,9 +23,9 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.LS;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.LS;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NON_NATIVE_BYTE_ORDER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -36,7 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
-import org.apache.datasketches.memory.BaseState;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.WritableBuffer;
 import org.apache.datasketches.memory.WritableHandle;
@@ -345,7 +345,7 @@ public class MemoryTest {
   public void checkMemReqSvr() throws Exception {
     WritableMemory wmem;
     WritableBuffer wbuf;
-    if (BaseState.defaultMemReqSvr == null) { //This is a policy choice
+    if (Resource.defaultMemReqSvr == null) { //This is a policy choice
       //ON HEAP
       wmem = WritableMemory.writableWrap(new byte[16]);
       assertNull(wmem.getMemoryRequestServer());

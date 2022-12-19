@@ -25,10 +25,10 @@ import static org.apache.datasketches.memory.internal.Util.characterPad;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.datasketches.memory.BaseState;
 import org.apache.datasketches.memory.BoundsException;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.ReadOnlyException;
+import org.apache.datasketches.memory.Resource;
 
 /**
  * Keeps key configuration state for MemoryImpl and BufferImpl plus some common static variables
@@ -37,7 +37,7 @@ import org.apache.datasketches.memory.ReadOnlyException;
  * @author Lee Rhodes
  */
 @SuppressWarnings("restriction")
-public abstract class BaseStateImpl implements BaseState {
+public abstract class ResourceImpl implements Resource {
   static final String JDK; //must be at least "1.8"
   static final int JDK_MAJOR; //8, 11, 17, etc
 
@@ -113,7 +113,7 @@ public abstract class BaseStateImpl implements BaseState {
    * This offset does not include the size of an object array header, if there is one.
    * @param capacityBytes the capacity of this object. Used by all methods when checking bounds.
    */
-  BaseStateImpl(final Object unsafeObj, final long nativeBaseOffset, final long regionOffset,
+  ResourceImpl(final Object unsafeObj, final long nativeBaseOffset, final long regionOffset,
       final long capacityBytes) {
     capacityBytes_ = capacityBytes;
     cumBaseOffset_ = regionOffset + (unsafeObj == null
@@ -180,23 +180,23 @@ public abstract class BaseStateImpl implements BaseState {
   /**
    * Returns a formatted hex string of an area of this object.
    * Used primarily for testing.
-   * @param state the BaseStateImpl
+   * @param resource the ResourceImpl
    * @param comment a descriptive header
    * @param offsetBytes offset bytes relative to the MemoryImpl start
    * @param lengthBytes number of bytes to convert to a hex string
    * @return a formatted hex string in a human readable array
    */
-  static final String toHex(final BaseStateImpl state, final String comment, final long offsetBytes,
+  static final String toHex(final ResourceImpl resource, final String comment, final long offsetBytes,
       final int lengthBytes, final boolean withData) {
-    final long capacity = state.getCapacity();
+    final long capacity = resource.getCapacity();
     checkBounds(offsetBytes, lengthBytes, capacity);
 
     final String theComment = (comment != null) ? comment : "";
     final String s1 = String.format("(..., %d, %d)", offsetBytes, lengthBytes);
-    final long hcode = state.hashCode() & 0XFFFFFFFFL;
+    final long hcode = resource.hashCode() & 0XFFFFFFFFL;
     final String call = ".toHexString" + s1 + ", hashCode: " + hcode;
 
-    final Object uObj = state.getUnsafeObject();
+    final Object uObj = resource.getUnsafeObject();
     final String uObjStr;
     final long uObjHeader;
     if (uObj == null) {
@@ -206,14 +206,14 @@ public abstract class BaseStateImpl implements BaseState {
       uObjStr =  uObj.getClass().getSimpleName() + ", " + (uObj.hashCode() & 0XFFFFFFFFL);
       uObjHeader = UnsafeUtil.getArrayBaseOffset(uObj.getClass());
     }
-    final ByteBuffer bb = state.getByteBuffer();
+    final ByteBuffer bb = resource.getByteBuffer();
     final String bbStr = bb == null ? "null"
             : bb.getClass().getSimpleName() + ", " + (bb.hashCode() & 0XFFFFFFFFL);
-    final MemoryRequestServer memReqSvr = state.getMemoryRequestServer();
+    final MemoryRequestServer memReqSvr = resource.getMemoryRequestServer();
     final String memReqStr = memReqSvr != null
         ? memReqSvr.getClass().getSimpleName() + ", " + (memReqSvr.hashCode() & 0XFFFFFFFFL)
         : "null";
-    final long cumBaseOffset = state.getCumulativeOffset(0);
+    final long cumBaseOffset = resource.getCumulativeOffset(0);
 
     final StringBuilder sb = new StringBuilder();
     sb.append(LS + "### DataSketches Memory Component SUMMARY ###").append(LS);
@@ -222,12 +222,12 @@ public abstract class BaseStateImpl implements BaseState {
     sb.append("UnsafeObj, hashCode : ").append(uObjStr).append(LS);
     sb.append("UnsafeObjHeader     : ").append(uObjHeader).append(LS);
     sb.append("ByteBuf, hashCode   : ").append(bbStr).append(LS);
-    sb.append("RegionOffset        : ").append(state.getRegionOffset(0)).append(LS);
+    sb.append("RegionOffset        : ").append(resource.getRegionOffset(0)).append(LS);
     sb.append("Capacity            : ").append(capacity).append(LS);
     sb.append("CumBaseOffset       : ").append(cumBaseOffset).append(LS);
     sb.append("MemReqSvr, hashCode : ").append(memReqStr).append(LS);
-    sb.append("Read Only           : ").append(state.isReadOnly()).append(LS);
-    sb.append("Type Byte Order     : ").append(state.getByteOrder().toString()).append(LS);
+    sb.append("Read Only           : ").append(resource.isReadOnly()).append(LS);
+    sb.append("Type Byte Order     : ").append(resource.getByteOrder().toString()).append(LS);
     sb.append("Native Byte Order   : ").append(NATIVE_BYTE_ORDER.toString()).append(LS);
     sb.append("JDK Runtime Version : ").append(JDK).append(LS);
     //Data detail
@@ -310,10 +310,10 @@ public abstract class BaseStateImpl implements BaseState {
   }
 
   @Override
-  public final boolean equalTo(final long thisOffsetBytes, final BaseState that,
+  public final boolean equalTo(final long thisOffsetBytes, final Resource that,
       final long thatOffsetBytes, final long lengthBytes) {
     if (that == null) { return false; }
-    return CompareAndCopy.equals(this, thisOffsetBytes, (BaseStateImpl) that, thatOffsetBytes, lengthBytes);
+    return CompareAndCopy.equals(this, thisOffsetBytes, (ResourceImpl) that, thatOffsetBytes, lengthBytes);
   }
 
   @Override
@@ -423,7 +423,7 @@ public abstract class BaseStateImpl implements BaseState {
   public final boolean isSameResource(final Object that) {
     checkAlive();
     if (that == null) { return false; }
-    final BaseStateImpl that1 = (BaseStateImpl) that;
+    final ResourceImpl that1 = (ResourceImpl) that;
     that1.checkAlive();
     if (this == that1) { return true; }
 

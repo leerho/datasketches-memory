@@ -19,9 +19,9 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.checkBounds;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -453,7 +453,7 @@ public class NativeWritableMemoryImplTest {
     }
 
     assertTrue(wmem.isByteBufferResource());
-    ByteBuffer byteBuf2 = ((BaseStateImpl)wmem).getByteBuffer();
+    ByteBuffer byteBuf2 = ((ResourceImpl)wmem).getByteBuffer();
     assertEquals(byteBuf2, byteBuf);
     //println( mem.toHexString("HeapBB", 0, memCapacity));
   }
@@ -595,7 +595,7 @@ public class NativeWritableMemoryImplTest {
     assertEquals(comp, 0);
     comp = mem3.compareTo(0, 4, mem4, 1, 4);
     assertEquals(comp, -1);
-    BaseStateImpl.checkBounds(0, 5, mem3. getCapacity());
+    ResourceImpl.checkBounds(0, 5, mem3. getCapacity());
   }
 
   @Test
@@ -658,8 +658,8 @@ public class NativeWritableMemoryImplTest {
   public void checkCumAndRegionOffset() {
     WritableMemory wmem = WritableMemory.allocate(64);
     WritableMemory reg = wmem.writableRegion(32, 32);
-    assertEquals(((BaseStateImpl)reg).getRegionOffset(0), 32);
-    assertEquals(((BaseStateImpl)reg).getCumulativeOffset(0), 32 + 16);
+    assertEquals(((ResourceImpl)reg).getRegionOffset(0), 32);
+    assertEquals(((ResourceImpl)reg).getCumulativeOffset(0), 32 + 16);
   }
 
   @Test

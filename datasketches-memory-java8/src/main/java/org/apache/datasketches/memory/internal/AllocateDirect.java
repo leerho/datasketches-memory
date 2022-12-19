@@ -19,7 +19,7 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.reachabilityFence;
+import static org.apache.datasketches.memory.internal.ResourceImpl.reachabilityFence;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
 
 import java.util.logging.Logger;

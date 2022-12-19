@@ -19,13 +19,13 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.CHAR_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.DOUBLE_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.FLOAT_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.INT_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.LONG_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.SHORT_SHIFT;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
+import static org.apache.datasketches.memory.internal.ResourceImpl.CHAR_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.DOUBLE_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.FLOAT_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.INT_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.LONG_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.SHORT_SHIFT;
+import static org.apache.datasketches.memory.internal.ResourceImpl.checkBounds;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.unsafe;
 import static org.apache.datasketches.memory.internal.Util.UNSAFE_COPY_THRESHOLD_BYTES;
 
@@ -38,16 +38,16 @@ final class CompareAndCopy {
   private CompareAndCopy() { }
 
   static int compare(
-      final BaseStateImpl state1, final long offsetBytes1, final long lengthBytes1,
-      final BaseStateImpl state2, final long offsetBytes2, final long lengthBytes2) {
-    state1.checkAlive();
-    checkBounds(offsetBytes1, lengthBytes1, state1.getCapacity());
-    state2.checkAlive();
-    checkBounds(offsetBytes2, lengthBytes2, state2.getCapacity());
-    final long cumOff1 = state1.getCumulativeOffset(offsetBytes1);
-    final long cumOff2 = state2.getCumulativeOffset(offsetBytes2);
-    final Object arr1 = state1.getUnsafeObject();
-    final Object arr2 = state2.getUnsafeObject();
+      final ResourceImpl r1, final long offsetBytes1, final long lengthBytes1,
+      final ResourceImpl r2, final long offsetBytes2, final long lengthBytes2) {
+    r1.checkAlive();
+    checkBounds(offsetBytes1, lengthBytes1, r1.getCapacity());
+    r2.checkAlive();
+    checkBounds(offsetBytes2, lengthBytes2, r2.getCapacity());
+    final long cumOff1 = r1.getCumulativeOffset(offsetBytes1);
+    final long cumOff2 = r2.getCumulativeOffset(offsetBytes2);
+    final Object arr1 = r1.getUnsafeObject();
+    final Object arr2 = r2.getUnsafeObject();
     if ((arr1 != arr2) || (cumOff1 != cumOff2)) {
       final long lenBytes = Math.min(lengthBytes1, lengthBytes2);
       for (long i = 0; i < lenBytes; i++) {
@@ -60,26 +60,26 @@ final class CompareAndCopy {
     return Long.compare(lengthBytes1, lengthBytes2);
   }
 
-  static boolean equals(final BaseStateImpl state1, final BaseStateImpl state2) {
-    final long cap1 = state1.getCapacity();
-    final long cap2 = state2.getCapacity();
-    return (cap1 == cap2) && equals(state1, 0, state2, 0, cap1);
+  static boolean equals(final ResourceImpl r1, final ResourceImpl r2) {
+    final long cap1 = r1.getCapacity();
+    final long cap2 = r2.getCapacity();
+    return (cap1 == cap2) && equals(r1, 0, r2, 0, cap1);
   }
 
   //Developer notes: this is subtly different from (compare == 0) in that this has an early
   // stop if the arrays and offsets are the same as there is only one length.  Also this can take
   // advantage of chunking with longs, while compare cannot.
   static boolean equals(
-      final BaseStateImpl state1, final long offsetBytes1,
-      final BaseStateImpl state2, final long offsetBytes2, long lengthBytes) {
-    state1.checkAlive();
-    checkBounds(offsetBytes1, lengthBytes, state1.getCapacity());
-    state2.checkAlive();
-    checkBounds(offsetBytes2, lengthBytes, state2.getCapacity());
-    long cumOff1 = state1.getCumulativeOffset(offsetBytes1);
-    long cumOff2 = state2.getCumulativeOffset(offsetBytes2);
-    final Object arr1 = state1.getUnsafeObject(); //could be null
-    final Object arr2 = state2.getUnsafeObject(); //could be null
+      final ResourceImpl r1, final long offsetBytes1,
+      final ResourceImpl r2, final long offsetBytes2, long lengthBytes) {
+    r1.checkAlive();
+    checkBounds(offsetBytes1, lengthBytes, r1.getCapacity());
+    r2.checkAlive();
+    checkBounds(offsetBytes2, lengthBytes, r2.getCapacity());
+    long cumOff1 = r1.getCumulativeOffset(offsetBytes1);
+    long cumOff2 = r2.getCumulativeOffset(offsetBytes2);
+    final Object arr1 = r1.getUnsafeObject(); //could be null
+    final Object arr2 = r2.getUnsafeObject(); //could be null
     if ((arr1 == arr2) && (cumOff1 == cumOff2)) { return true; }
 
     while (lengthBytes >= Long.BYTES) {
@@ -112,15 +112,15 @@ final class CompareAndCopy {
     return true;
   }
 
-  static void copy(final BaseStateImpl srcState, final long srcOffsetBytes,
-      final BaseStateImpl dstState, final long dstOffsetBytes, final long lengthBytes) {
-    srcState.checkAlive();
-    checkBounds(srcOffsetBytes, lengthBytes, srcState.getCapacity());
-    dstState.checkAlive();
-    checkBounds(dstOffsetBytes, lengthBytes, dstState.getCapacity());
-    final long srcAdd = srcState.getCumulativeOffset(srcOffsetBytes);
-    final long dstAdd = dstState.getCumulativeOffset(dstOffsetBytes);
-    copyMemory(srcState.getUnsafeObject(), srcAdd, dstState.getUnsafeObject(), dstAdd,
+  static void copy(final ResourceImpl srcR, final long srcOffsetBytes,
+      final ResourceImpl dstR, final long dstOffsetBytes, final long lengthBytes) {
+    srcR.checkAlive();
+    checkBounds(srcOffsetBytes, lengthBytes, srcR.getCapacity());
+    dstR.checkAlive();
+    checkBounds(dstOffsetBytes, lengthBytes, dstR.getCapacity());
+    final long srcAdd = srcR.getCumulativeOffset(srcOffsetBytes);
+    final long dstAdd = dstR.getCumulativeOffset(dstOffsetBytes);
+    copyMemory(srcR.getUnsafeObject(), srcAdd, dstR.getUnsafeObject(), dstAdd,
         lengthBytes);
   }
 
@@ -217,7 +217,7 @@ final class CompareAndCopy {
   private static void getCharArrayChunk(final Object unsafeObj, final long cumOffsetBytes,
       final char[] dstArray, final int dstOffsetChars, final int lengthChars) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthChars; i++) {
       dstArray[dstOffsetChars + i] = Character.reverseBytes(
@@ -246,7 +246,7 @@ final class CompareAndCopy {
   private static void getDoubleArrayChunk(final Object unsafeObj, final long cumOffsetBytes,
       final double[] dstArray, final int dstOffsetDoubles, final int lengthDoubles) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthDoubles; i++) {
       dstArray[dstOffsetDoubles + i] = Double.longBitsToDouble(Long.reverseBytes(
@@ -273,7 +273,7 @@ final class CompareAndCopy {
   private static void getFloatArrayChunk(final Object unsafeObj, final long cumOffsetBytes,
       final float[] dstArray, final int dstOffsetFloats, final int lengthFloats) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthFloats; i++) {
       dstArray[dstOffsetFloats + i] = Float.intBitsToFloat(Integer.reverseBytes(
@@ -300,7 +300,7 @@ final class CompareAndCopy {
   private static void getIntArrayChunk(final Object unsafeObj, final long cumOffsetBytes,
       final int[] dstArray, final int dstOffsetInts, final int lengthInts) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthInts; i++) {
       dstArray[dstOffsetInts + i] = Integer.reverseBytes(
@@ -327,7 +327,7 @@ final class CompareAndCopy {
   private static void getLongArrayChunk(final Object unsafeObj, final long cumOffsetBytes,
       final long[] dstArray, final int dstOffsetLongs, final int lengthLongs) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthLongs; i++) {
       dstArray[dstOffsetLongs + i] = Long.reverseBytes(
@@ -354,7 +354,7 @@ final class CompareAndCopy {
   private static void getShortArrayChunk(final Object unsafeObj, final long cumOffsetBytes,
       final short[] dstArray, final int dstOffsetShorts, final int lengthShorts) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthShorts; i++) {
       dstArray[dstOffsetShorts + i] = Short.reverseBytes(
@@ -380,7 +380,7 @@ final class CompareAndCopy {
   private static void putCharArrayChunk(final char[] srcArray, final int srcOffsetChars,
       final int lengthChars, final Object unsafeObj, final long cumOffsetBytes) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthChars; i++) {
       unsafe.putChar(unsafeObj, cumOffsetBytes + (((long) i) << CHAR_SHIFT),
@@ -408,7 +408,7 @@ final class CompareAndCopy {
   private static void putDoubleArrayChunk(final double[] srcArray, final int srcOffsetDoubles,
       final int lengthDoubles, final Object unsafeObj, final long cumOffsetBytes) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthDoubles; i++) {
       unsafe.putLong(unsafeObj, cumOffsetBytes + (((long) i) << DOUBLE_SHIFT),
@@ -434,7 +434,7 @@ final class CompareAndCopy {
   private static void putFloatArrayChunk(final float[] srcArray, final int srcOffsetFloats,
       final int lengthFloats, final Object unsafeObj, final long cumOffsetBytes) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthFloats; i++) {
       unsafe.putInt(unsafeObj, cumOffsetBytes + (((long) i) << FLOAT_SHIFT),
@@ -460,7 +460,7 @@ final class CompareAndCopy {
   private static void putIntArrayChunk(final int[] srcArray, final int srcOffsetInts,
       final int lengthInts, final Object unsafeObj, final long cumOffsetBytes) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthInts; i++) {
       unsafe.putInt(unsafeObj, cumOffsetBytes + (((long) i) << INT_SHIFT),
@@ -486,7 +486,7 @@ final class CompareAndCopy {
   private static void putLongArrayChunk(final long[] srcArray, final int srcOffsetLongs,
       final int lengthLongs, final Object unsafeObj, final long cumOffsetBytes) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthLongs; i++) {
       unsafe.putLong(unsafeObj, cumOffsetBytes + (((long) i) << LONG_SHIFT),
@@ -512,7 +512,7 @@ final class CompareAndCopy {
   private static void putShortArrayChunk(final short[] srcArray, final int srcOffsetShorts,
       final int lengthShorts, final Object unsafeObj, final long cumOffsetBytes) {
     // JDK 9 adds native intrinsics for such bulk non-native ordered primitive memory copy.
-    // TODO-JDK9 use them when the library adds support for JDK 9
+    // use them when the library adds support for JDK 9
     // int-counted loop to avoid safepoint polls
     for (int i = 0; i < lengthShorts; i++) {
       unsafe.putShort(unsafeObj, cumOffsetBytes + (((long) i) << SHORT_SHIFT),

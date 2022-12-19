@@ -19,8 +19,8 @@
 
 package org.apache.datasketches.memory;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.checkBounds;
 import static org.apache.datasketches.memory.internal.Util.negativeCheck;
 
 import java.io.File;
@@ -38,7 +38,7 @@ import org.apache.datasketches.memory.internal.Prim;
  *
  * @author Lee Rhodes
  */
-public interface Memory extends BaseState {
+public interface Memory extends Resource {
 
   //BYTE BUFFER
 

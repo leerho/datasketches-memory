@@ -19,9 +19,9 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NON_NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NON_NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.checkBounds;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -258,7 +258,7 @@ public class NativeWritableBufferImplTest {
     }
 
     assertTrue(wbuf.isByteBufferResource());
-    ByteBuffer byteBuf2 = ((BaseStateImpl)wbuf).getByteBuffer();
+    ByteBuffer byteBuf2 = ((ResourceImpl)wbuf).getByteBuffer();
     assertEquals(byteBuf2, byteBuf);
     //println( mem.toHexString("HeapBB", 0, memCapacity));
   }
@@ -458,7 +458,7 @@ public class NativeWritableBufferImplTest {
     for (int i = 0; i < 64; i++) { wmem.putByte(i, (byte)i); }
 
     WritableBuffer wbuf = wmem.asWritableBuffer().writableDuplicate();
-    BaseStateImpl.checkBounds(0, 64, wbuf.getCapacity());
+    ResourceImpl.checkBounds(0, 64, wbuf.getCapacity());
     for (int i = 0; i < 64; i++) {
       assertEquals(wbuf.getByte(), i);
     }
@@ -472,7 +472,7 @@ public class NativeWritableBufferImplTest {
       assertEquals(wmem2.getByte(i), i);
     }
     WritableMemory wmem3 = wbuf.asWritableMemory();
-    BaseStateImpl.checkBounds(0, 64, wmem3.getCapacity());
+    ResourceImpl.checkBounds(0, 64, wmem3.getCapacity());
   }
 
   @Test
@@ -480,8 +480,8 @@ public class NativeWritableBufferImplTest {
     WritableMemory wmem = WritableMemory.allocate(64);
     WritableMemory reg = wmem.writableRegion(32, 32);
     WritableBuffer buf = reg.asWritableBuffer();
-    assertEquals(((BaseStateImpl)reg).getRegionOffset(0), 32);
-    assertEquals(((BaseStateImpl)buf).getCumulativeOffset(0), 32 + 16);
+    assertEquals(((ResourceImpl)reg).getRegionOffset(0), 32);
+    assertEquals(((ResourceImpl)buf).getCumulativeOffset(0), 32 + 16);
   }
 
   @Test

@@ -19,10 +19,10 @@
 
 package org.apache.datasketches.memory.internal;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.checkJavaVersion;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.parseJavaVersion;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.typeDecode;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.checkJavaVersion;
+import static org.apache.datasketches.memory.internal.ResourceImpl.parseJavaVersion;
+import static org.apache.datasketches.memory.internal.ResourceImpl.typeDecode;
 import static org.apache.datasketches.memory.internal.UnsafeUtil.ARRAY_DOUBLE_INDEX_SCALE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -36,7 +36,7 @@ import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
 @SuppressWarnings("deprecation")
-public class BaseStateTest {
+public class ResourceTest {
 
   @Test
   public void checkJdkString() {
@@ -140,7 +140,7 @@ public class BaseStateTest {
   @Test
   public void checkGetNativeBaseOffset_Heap() throws Exception {
     WritableMemory wmem = WritableMemory.allocate(8); //heap
-    final long offset = ((BaseStateImpl)wmem).getNativeBaseOffset();
+    final long offset = ((ResourceImpl)wmem).getNativeBaseOffset();
     assertEquals(offset, 0L);
   }
 

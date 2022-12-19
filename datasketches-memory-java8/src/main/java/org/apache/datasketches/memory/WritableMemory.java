@@ -19,8 +19,8 @@
 
 package org.apache.datasketches.memory;
 
-import static org.apache.datasketches.memory.internal.BaseStateImpl.NATIVE_BYTE_ORDER;
-import static org.apache.datasketches.memory.internal.BaseStateImpl.checkBounds;
+import static org.apache.datasketches.memory.internal.ResourceImpl.NATIVE_BYTE_ORDER;
+import static org.apache.datasketches.memory.internal.ResourceImpl.checkBounds;
 import static org.apache.datasketches.memory.internal.Util.negativeCheck;
 
 import java.io.File;
