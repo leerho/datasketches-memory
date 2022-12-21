@@ -49,6 +49,7 @@ local/
 reports/
 .pmd
 tmp
+doc/
 
 # Build artifacts
 target/

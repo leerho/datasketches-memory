@@ -39,7 +39,6 @@ import org.apache.datasketches.memory.WritableMemory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-@SuppressWarnings("deprecation")
 public class NativeWritableBufferImplTest {
 
   //Simple Native direct

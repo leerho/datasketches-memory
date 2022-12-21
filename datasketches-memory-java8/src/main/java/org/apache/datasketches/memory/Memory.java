@@ -326,43 +326,6 @@ public interface Memory extends Resource {
   void getCharArray(long offsetBytes, char[] dstArray, int dstOffsetChars, int lengthChars);
 
   /**
-   * Gets UTF-8 encoded bytes from this Memory, starting at offsetBytes to a length of
-   * utf8LengthBytes, decodes them into characters and appends them to the given Appendable.
-   * This is specifically designed to reduce the production of intermediate objects (garbage),
-   * thus significantly reducing pressure on the JVM Garbage Collector.
-   * @param offsetBytes offset bytes relative to the Memory start
-   * @param utf8LengthBytes the number of encoded UTF-8 bytes to decode. It is assumed that the
-   * caller has the correct number of utf8 bytes required to decode the number of characters
-   * to be appended to dst. Characters outside the ASCII range can require 2, 3 or 4 bytes per
-   * character to decode.
-   * @param dst the destination Appendable to append the decoded characters to.
-   * @return the number of characters decoded
-   * @throws IOException if dst.append() throws IOException
-   * @throws Utf8CodingException in case of malformed or illegal UTF-8 input
-   */
-  int getCharsFromUtf8(long offsetBytes, int utf8LengthBytes, Appendable dst)
-      throws IOException, Utf8CodingException;
-
-  /**
-   * Gets UTF-8 encoded bytes from this Memory, starting at offsetBytes to a length of
-   * utf8LengthBytes, decodes them into characters and appends them to the given StringBuilder.
-   * This method does *not* reset the length of the destination StringBuilder before appending
-   * characters to it.
-   * This is specifically designed to reduce the production of intermediate objects (garbage),
-   * thus significantly reducing pressure on the JVM Garbage Collector.
-   * @param offsetBytes offset bytes relative to the Memory start
-   * @param utf8LengthBytes the number of encoded UTF-8 bytes to decode. It is assumed that the
-   * caller has the correct number of utf8 bytes required to decode the number of characters
-   * to be appended to dst. Characters outside the ASCII range can require 2, 3 or 4 bytes per
-   * character to decode.
-   * @param dst the destination StringBuilder to append decoded characters to.
-   * @return the number of characters decoded.
-   * @throws Utf8CodingException in case of malformed or illegal UTF-8 input
-   */
-  int getCharsFromUtf8(long offsetBytes, int utf8LengthBytes, StringBuilder dst)
-      throws Utf8CodingException;
-
-  /**
    * Gets the double value at the given offset
    * @param offsetBytes offset bytes relative to this Memory start
    * @return the double at the given offset

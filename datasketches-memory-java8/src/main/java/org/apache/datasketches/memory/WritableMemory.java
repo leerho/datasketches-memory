@@ -450,20 +450,6 @@ public interface WritableMemory extends Memory {
   void putCharArray(long offsetBytes, char[] srcArray, int srcOffsetChars, int lengthChars);
 
   /**
-   * Encodes characters from the given CharSequence into UTF-8 bytes and puts them into this
-   * <i>WritableMemory</i> begining at the given offsetBytes.
-   * This is specifically designed to reduce the production of intermediate objects (garbage),
-   * thus significantly reducing pressure on the JVM Garbage Collector.
-   * @param offsetBytes offset bytes relative to this <i>WritableMemory</i> start
-   * @param src The source CharSequence to be encoded and put into this WritableMemory. It is
-   * the responsibility of the caller to provide sufficient capacity in this
-   * <i>WritableMemory</i> for the encoded Utf8 bytes. Characters outside the ASCII range can
-   * require 2, 3 or 4 bytes per character to encode.
-   * @return the number of bytes encoded
-   */
-  long putCharsToUtf8(long offsetBytes, CharSequence src);
-
-  /**
    * Puts the double value at the given offset
    * @param offsetBytes offset bytes relative to this <i>WritableMemory</i> start
    * @param value the value to put
@@ -635,6 +621,7 @@ public interface WritableMemory extends Memory {
    * in the test tree.
    * @return the MemoryRequestServer object or null.
    */
+  @Override
   MemoryRequestServer getMemoryRequestServer();
 
 }

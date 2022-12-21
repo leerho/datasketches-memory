@@ -16,10 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/**
+ * The DataSketches Memory Java Module.
+ * @author lrhodes
+ */
 module org.apache.datasketches.memory {
   requires java.base;
   requires java.logging;
   requires jdk.unsupported;
   requires transitive jdk.incubator.foreign;
+
   exports org.apache.datasketches.memory;
 }

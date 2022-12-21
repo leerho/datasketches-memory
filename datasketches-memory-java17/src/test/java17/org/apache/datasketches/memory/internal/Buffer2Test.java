@@ -27,9 +27,9 @@ import static org.testng.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
+import org.apache.datasketches.memory.Resource;
 import org.apache.datasketches.memory.WritableBuffer;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
@@ -398,25 +398,25 @@ public class Buffer2Test {
   }
 
   @Test
-  public void checkIndependence() {
+  public void checkIsSameResource() {
     int cap = 64;
     ResourceScope scope = ResourceScope.newImplicitScope();
     WritableMemory wmem = WritableMemory.allocateDirect(cap, scope, null);
     WritableBuffer wbuf1 = wmem.asWritableBuffer();
     WritableBuffer wbuf2 = wmem.asWritableBuffer();
     assertFalse(wbuf1 == wbuf2);
-    assertTrue(wbuf1.nativeOverlap(wbuf2) == cap);
+    assertTrue(wbuf1.isSameResource(wbuf2));
 
     WritableMemory reg1 = wmem.writableRegion(0, cap);
     WritableMemory reg2 = wmem.writableRegion(0, cap);
     assertFalse(reg1 == reg2);
-    assertTrue(reg1.nativeOverlap(reg2) == cap);
+    assertTrue(reg1.isSameResource(reg2));
 
 
     WritableBuffer wbuf3 = wbuf1.writableRegion();
     WritableBuffer wbuf4 = wbuf1.writableRegion();
     assertFalse(wbuf3 == wbuf4);
-    assertTrue(wbuf3.nativeOverlap(wbuf4) == cap);
+    assertTrue(wbuf3.isSameResource(wbuf4));
   }
 
   @Test

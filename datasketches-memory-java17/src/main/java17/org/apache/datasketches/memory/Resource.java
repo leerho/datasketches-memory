@@ -26,8 +26,7 @@ import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
 /**
- * Keeps key configuration state for Memory and Buffer plus some common static variables
- * and check methods.
+ * Keeps key configuration state for Memory and Buffer plus some common methods.
  *
  * @author Lee Rhodes
  */
@@ -157,6 +156,16 @@ public interface Resource {
   boolean isRegionView();
 
   /**
+   * Returns true if the backing resource of <i>this</i> is identical with the backing resource
+   * of <i>that</i>. The capacities must be the same.  If <i>this</i> is a region,
+   * the region offset must also be the same.
+   * @param that A different non-null object
+   * @return true if the backing resource of <i>this</i> is the same as the backing resource
+   * of <i>that</i>.
+   */
+  boolean isSameResource(Resource that);
+
+  /**
    * Returns a description of this object with an optional formatted hex string of the data
    * for the specified a range. Used primarily for testing.
    * @param comment a description
@@ -230,27 +239,21 @@ public interface Resource {
   /**
    * Loads the contents of this mapped segment into physical memory. Please refer to
    * <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#load()">load()</a>
+   *
+   * @throws IllegalStateException if the scope associated with the underlying MemorySegment has been closed,
+   * or if access occurs from a thread other than the thread owning that scope.
+   * @throws UnsupportedOperationException if this segment is not a mapped memory segment, e.g. if
+   * {@code isMapped() == false}.
    */
   void load();
 
   /**
-   * See <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#mismatch(jdk.incubator.foreign.MemorySegment)>mismatch</a>
+   * See <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.incubator.foreign/jdk/incubator/foreign/MemorySegment.html#mismatch(jdk.incubator.foreign.MemorySegment)">mismatch</a>
    * @param that the other Resource
    * @return the relative offset, in bytes, of the first mismatch between this and the given other Resource object,
    * otherwise -1 if no mismatch
    */
   long mismatch(Resource that);
-
-  /**
-   * Returns a positive number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &le; <i>that</i>
-   * base address.
-   * Returns a negative number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &gt; <i>that</i>
-   * base address.
-   * Returns a zero if there is no overlap or if one or both objects are null, not active or on heap.
-   * @param that the other Resource object
-   * @return a long value representing the ordering and size of overlap between <i>this</i> and <i>that</i>.
-   */
-  long nativeOverlap(Resource that);
 
   /**
    * Returns the resource scope associated with this memory segment.

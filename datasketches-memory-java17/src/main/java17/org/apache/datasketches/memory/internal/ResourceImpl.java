@@ -35,8 +35,7 @@ import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
 /**
- * Keeps key configuration state for MemoryImpl and BufferImpl plus some common static variables
- * and check methods.
+ * Implements the root Resource methods.
  *
  * @author Lee Rhodes
  */
@@ -303,9 +302,8 @@ abstract class ResourceImpl implements Resource {
     return byteBuf;
   }
 
-  //@SuppressWarnings("resource")
   @Override //Java 17 only
-  public void close() { //moved here
+  public void close() {
     if (seg != null && seg.scope().isAlive() && !seg.scope().isImplicit()) {
       if (seg.isNative() || seg.isMapped()) {
         seg.scope().close();
@@ -321,7 +319,9 @@ abstract class ResourceImpl implements Resource {
   }
 
   @Override //Java 17 only
-  public void force() { seg.force(); } //moved here
+  public void force() {
+    if (seg != null && seg.scope().isAlive() && seg.isMapped()) { seg.force(); }
+  }
 
   @Override
   public final ByteOrder getByteOrder() {
@@ -367,7 +367,12 @@ abstract class ResourceImpl implements Resource {
   }
 
   @Override //Java 17 only
-  public boolean isLoaded() { return seg.isLoaded(); }
+  public boolean isLoaded() {
+    if (seg != null && seg.scope().isAlive() && seg.isMapped()) {
+      return seg.isLoaded();
+    }
+    return false;
+  }
 
   @Override
   public boolean isMemoryMappedFileResource() {
@@ -396,8 +401,18 @@ abstract class ResourceImpl implements Resource {
     return (typeId & REGION) > 0;
   }
 
+  @Override
+  public boolean isSameResource(Resource that) {
+    long thisCap = getCapacity();
+    long thatCap = that.getCapacity();
+    long overlap = nativeOverlap(that);
+    return (thisCap == thatCap && thisCap == overlap);
+  }
+
   @Override //Java 17 only
-  public void load() { seg.load(); } //moved here
+  public void load() {
+    if (seg != null && seg.scope().isAlive() && seg.isMapped()) { seg.load(); }
+  }
 
   @Override
   public long mismatch(final Resource that) { //Java 17 only
@@ -407,8 +422,16 @@ abstract class ResourceImpl implements Resource {
     return seg.mismatch(thatBSI.seg);
   }
 
-  @Override //Java 17 only
-  public final long nativeOverlap(final Resource that) { //Java 17 only
+  /**
+   * Returns a positive number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &le; <i>that</i>
+   * base address.
+   * Returns a negative number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &gt; <i>that</i>
+   * base address.
+   * Returns a zero if there is no overlap or if one or both objects are null, not active or on heap.
+   * @param that the other Resource object
+   * @return a long value representing the ordering and size of overlap between <i>this</i> and <i>that</i>.
+   */
+  final long nativeOverlap(final Resource that) { //Java 17 only
     if (that == null) { return 0; }
     if (!that.isAlive()) { return 0; }
     ResourceImpl thatBSI = (ResourceImpl) that;
@@ -478,7 +501,11 @@ abstract class ResourceImpl implements Resource {
   }
 
   @Override //Java 17 only
-  public void unload() { seg.unload(); } //moved here
+  public void unload() {
+    if (seg != null && seg.scope().isAlive() && seg.isMapped()) {
+      seg.unload();
+    }
+  }
 
   @Override
   public final long xxHash64(final long in, final long seed) {

@@ -48,12 +48,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <!-- Used for UTF8 testing -->
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <!-- Used for xxHash testing -->
       <groupId>net.openhft</groupId>
       <artifactId>zero-allocation-hashing</artifactId>
@@ -66,7 +60,9 @@
     <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
     <testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
     <testResources>
-      <directory>${project.basedir}/src/test/resources</directory>
+      <testResource>
+        <directory>${project.basedir}/src/test/resources</directory>
+      </testResource>
     </testResources>
     <pluginManagement>
       <plugins>

@@ -35,21 +35,14 @@
   <properties>
     <java.version>17</java.version>
     <jdk-toolchain.version>17</jdk-toolchain.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
   </properties>
-
 
   <dependencies>
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <!-- Used for UTF8 testing -->
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -61,12 +54,13 @@
     </dependency>
   </dependencies>
 
-
   <build>
     <sourceDirectory>${project.basedir}/src/main/java17</sourceDirectory>
     <testSourceDirectory>${project.basedir}/src/test/java17</testSourceDirectory>
     <testResources>
-      <directory>${project.basedir}/src/test/resources</directory>
+      <testResource>
+        <directory>${project.basedir}/src/test/resources</directory>
+      </testResource>
     </testResources>
     <pluginManagement>
       <plugins>
@@ -77,8 +71,10 @@
           <configuration>
             <compilerArgs>
               <arg>--add-exports</arg>
-              <arg>java.base/jdk.internal.ref=org.apache.datasketches.memory</arg>
+              <arg>java.base/jdk.incubator.foreign=org.apache.datasketches.memory</arg>
             </compilerArgs>
+            <source>17</source>
+            <target>17</target>
           </configuration>
         </plugin>
       </plugins>

@@ -31,8 +31,7 @@ import org.apache.datasketches.memory.ReadOnlyException;
 import org.apache.datasketches.memory.Resource;
 
 /**
- * Keeps key configuration state for MemoryImpl and BufferImpl plus some common static variables
- * and check methods.
+ * Implements the root Resource methods.
  *
  * @author Lee Rhodes
  */
@@ -420,17 +419,17 @@ public abstract class ResourceImpl implements Resource {
   }
 
   @Override //Java 8 & 11 only
-  public final boolean isSameResource(final Object that) {
+  public final boolean isSameResource(final Resource that) {
     checkAlive();
     if (that == null) { return false; }
-    final ResourceImpl that1 = (ResourceImpl) that;
-    that1.checkAlive();
-    if (this == that1) { return true; }
+    final ResourceImpl thatR = (ResourceImpl) that;
+    thatR.checkAlive();
+    if (this == thatR) { return true; }
 
-    return cumBaseOffset_ == that1.cumBaseOffset_
-            && capacityBytes_ == that1.capacityBytes_
-            && getUnsafeObject() == that1.getUnsafeObject()
-            && getByteBuffer() == that1.getByteBuffer();
+    return cumBaseOffset_ == thatR.cumBaseOffset_
+            && capacityBytes_ == thatR.capacityBytes_
+            && getUnsafeObject() == thatR.getUnsafeObject()
+            && getByteBuffer() == thatR.getByteBuffer();
   }
 
   @Override

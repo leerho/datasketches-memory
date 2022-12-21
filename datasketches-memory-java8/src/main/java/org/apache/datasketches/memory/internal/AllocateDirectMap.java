@@ -69,7 +69,7 @@ class AllocateDirectMap implements Map {
   static final Method MAPPED_BYTE_BUFFER_FORCE0_METHOD;
 
   static {
-    try { //The FileChannelImpl methods map0 and unmap0 still exist in 16
+    try { //The FileChannelImpl methods map0 and unmap0 still exist in JDK16
       FILE_CHANNEL_IMPL_MAP0_METHOD = FileChannelImpl.class
           .getDeclaredMethod("map0", int.class, long.class, long.class); //JDK14 add boolean.class
       FILE_CHANNEL_IMPL_MAP0_METHOD.setAccessible(true);
@@ -79,7 +79,7 @@ class AllocateDirectMap implements Map {
       FILE_CHANNEL_IMPL_UNMAP0_METHOD.setAccessible(true);
 
 
-      //The MappedByteBuffer methods load0, isLoaded0 and force0 are removed in 15
+      //The MappedByteBuffer methods load0, isLoaded0 and force0 are removed in JDK15
       MAPPED_BYTE_BUFFER_LOAD0_METHOD = MappedByteBuffer.class
           .getDeclaredMethod("load0", long.class, long.class); //JDK15 removed
       MAPPED_BYTE_BUFFER_LOAD0_METHOD.setAccessible(true);

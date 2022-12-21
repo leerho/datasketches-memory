@@ -41,7 +41,6 @@ import org.apache.datasketches.memory.Buffer;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.ReadOnlyException;
-import org.apache.datasketches.memory.Utf8CodingException;
 import org.apache.datasketches.memory.WritableBuffer;
 import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMapHandle;
@@ -246,27 +245,6 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
         copyBytes);
   }
 
-  @Override
-  public final int getCharsFromUtf8(final long offsetBytes, final int utf8LengthBytes,
-      final Appendable dst) throws IOException, Utf8CodingException {
-    checkAlive();
-    checkBounds(offsetBytes, utf8LengthBytes, capacityBytes_);
-    return Utf8.getCharsFromUtf8(offsetBytes, utf8LengthBytes, dst, getCumulativeOffset(0),
-        getUnsafeObject());
-  }
-
-  @Override
-  public final int getCharsFromUtf8(final long offsetBytes, final int utf8LengthBytes,
-      final StringBuilder dst) throws Utf8CodingException {
-    try {
-      // Ensure that we do at most one resize of internal StringBuilder's char array
-      dst.ensureCapacity(dst.length() + utf8LengthBytes);
-      return getCharsFromUtf8(offsetBytes, utf8LengthBytes, (Appendable) dst);
-    } catch (final IOException e) {
-      throw new RuntimeException("Should not happen", e);
-    }
-  }
-
   //PRIMITIVE getX() Native Endian (used by both endians)
   final char getNativeOrderedChar(final long offsetBytes) {
     checkAlive();
@@ -372,13 +350,6 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
         getCumulativeOffset(offsetBytes),
         copyBytes
     );
-  }
-
-  @Override
-  public final long putCharsToUtf8(final long offsetBytes, final CharSequence src) {
-    checkAlive();
-    return Utf8.putCharsToUtf8(offsetBytes, src, getCapacity(), getCumulativeOffset(0),
-        getUnsafeObject());
   }
 
   //PRIMITIVE putX() Native Endian (used by both endians)

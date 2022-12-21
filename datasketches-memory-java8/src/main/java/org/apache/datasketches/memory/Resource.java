@@ -22,8 +22,7 @@ package org.apache.datasketches.memory;
 import java.nio.ByteOrder;
 
 /**
- * Keeps key configuration state for Memory and Buffer plus some common static variables
- * and check methods.
+ * Keeps key configuration state for Memory and Buffer plus some common methods.
  *
  * @author Lee Rhodes
  */
@@ -153,6 +152,16 @@ public interface Resource {
   boolean isRegionView();
 
   /**
+   * Returns true if the backing resource of <i>this</i> is identical with the backing resource
+   * of <i>that</i>. The capacities must be the same.  If <i>this</i> is a region,
+   * the region offset must also be the same.
+   * @param that A different non-null object
+   * @return true if the backing resource of <i>this</i> is the same as the backing resource
+   * of <i>that</i>.
+   */
+  boolean isSameResource(Resource that);
+
+  /**
    * Returns a description of this object with an optional formatted hex string of the data
    * for the specified a range. Used primarily for testing.
    * @param comment a description
@@ -185,19 +194,7 @@ public interface Resource {
    */
   long xxHash64(long offsetBytes, long lengthBytes, long seed);
 
-  //DEPRECATED. NOT SUPPORTED AS OF JAVA 17+ VERSIONS
-
-  /**
-   * Returns true if the backing resource of <i>this</i> is identical with the backing resource
-   * of <i>that</i>. The capacities must be the same.  If <i>this</i> is a region,
-   * the region offset must also be the same.
-   * @param that A different non-null object
-   * @return true if the backing resource of <i>this</i> is the same as the backing resource
-   * of <i>that</i>.
-   * @deprecated no longer supported as of Java 17 versions.
-   * With Java 17 use nativeOverlap(other) instead.
-   */
-  @Deprecated
-  boolean isSameResource(Object that);
+  //How to configure MemoryRequestServer, default, set and get
+  //Resort ResourceImpls
 
 }
