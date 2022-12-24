@@ -25,18 +25,18 @@ import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 
 /**
- * Implementation of {@link WritableMemory} for heap-based, non-native byte order.
+ * Implementation of {@link WritableMemory} for heap-based, native byte order.
  *
  * @author Roman Leventov
  * @author Lee Rhodes
  */
-final class HeapNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImpl {
-  private static final int id = MEMORY | NONNATIVE | HEAP;
+final class LeafWritableMemory extends NativeWritableMemory {
+  private static final int id = MEMORY | NATIVE | HEAP;
   private final Object unsafeObj;
   private final MemoryRequestServer memReqSvr;
   private final byte typeId;
 
-  HeapNonNativeWritableMemoryImpl(
+  LeafWritableMemory(
       final Object unsafeObj,
       final long regionOffset,
       final long capacityBytes,
@@ -49,23 +49,23 @@ final class HeapNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImpl 
   }
 
   @Override
-  BaseWritableMemoryImpl toWritableRegion(final long offsetBytes, final long capacityBytes,
+  BaseWritableMemory toWritableRegion(final long offsetBytes, final long capacityBytes,
       final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly) | REGION;
     return Util.isNativeByteOrder(byteOrder)
-        ? new HeapWritableMemoryImpl(
+        ? new LeafWritableMemory(
             unsafeObj, getRegionOffset(offsetBytes), capacityBytes, type, memReqSvr)
-        : new HeapNonNativeWritableMemoryImpl(
+        : new LeafHeapNonNativeWritableMemory(
             unsafeObj, getRegionOffset(offsetBytes), capacityBytes, type, memReqSvr);
   }
 
   @Override
-  BaseWritableBufferImpl toWritableBuffer(final boolean readOnly, final ByteOrder byteOrder) {
+  BaseWritableBuffer toWritableBuffer(final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
-        ? new HeapWritableBufferImpl(
+        ? new LeafWritableBuffer(
             unsafeObj, getRegionOffset(0), getCapacity(), type, memReqSvr)
-        : new HeapNonNativeWritableBufferImpl(
+        : new LeafHeapNonNativeWritableBuffer(
             unsafeObj, getRegionOffset(0), getCapacity(), type, memReqSvr);
   }
 

@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-import org.apache.datasketches.memory.internal.BaseWritableBufferImpl;
+import org.apache.datasketches.memory.internal.BaseWritableBuffer;
 
 /**
  * Defines the read-only API for relative positional access to a resource.
@@ -57,7 +57,7 @@ public interface Buffer extends BaseBuffer {
     Objects.requireNonNull(byteBuffer, "byteBuffer must not be null");
     Objects.requireNonNull(byteOrder, "byteOrder must not be null");
     negativeCheck(byteBuffer.capacity(), "byteBuffer");
-    return BaseWritableBufferImpl.wrapByteBuffer(byteBuffer, true, byteOrder, null);
+    return BaseWritableBuffer.wrapByteBuffer(byteBuffer, true, byteOrder, null);
   }
 
   //DUPLICATES

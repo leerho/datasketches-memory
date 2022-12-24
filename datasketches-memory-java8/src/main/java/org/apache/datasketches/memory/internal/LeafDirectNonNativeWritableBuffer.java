@@ -25,63 +25,67 @@ import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableBuffer;
 
 /**
- * Implementation of {@link WritableBuffer} for map memory, non-native byte order.
+ * Implementation of {@link WritableBuffer} for direct memory, non-native byte order.
  *
  * @author Roman Leventov
  * @author Lee Rhodes
  */
-final class MapNonNativeWritableBufferImpl extends NonNativeWritableBufferImpl {
-  private static final int id = BUFFER | NONNATIVE | MAP;
+final class LeafDirectNonNativeWritableBuffer extends NonNativeWritableBuffer {
+  private static final int id = BUFFER | NONNATIVE | DIRECT;
   private final long nativeBaseOffset; //used to compute cumBaseOffset
   private final StepBoolean valid; //a reference only
+  private final MemoryRequestServer memReqSvr;
   private final byte typeId;
 
-  MapNonNativeWritableBufferImpl(
+  LeafDirectNonNativeWritableBuffer(
       final long nativeBaseOffset,
       final long regionOffset,
       final long capacityBytes,
       final int typeId,
-      final StepBoolean valid) {
+      final StepBoolean valid,
+      final MemoryRequestServer memReqSvr) {
     super(null, nativeBaseOffset, regionOffset, capacityBytes);
     this.nativeBaseOffset = nativeBaseOffset;
     this.valid = valid;
+    this.memReqSvr = memReqSvr;
     this.typeId = (byte) (id | (typeId & 0x7));
   }
 
   @Override
-  BaseWritableBufferImpl toWritableRegion(final long offsetBytes, final long capacityBytes,
+  BaseWritableBuffer toWritableRegion(final long offsetBytes, final long capacityBytes,
       final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly) | REGION;
     return Util.isNativeByteOrder(byteOrder)
-        ? new MapWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid)
-        : new MapNonNativeWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid);
+        ? new LeafDirectWritableBuffer(
+            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid, memReqSvr)
+        : new LeafDirectNonNativeWritableBuffer(
+            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid, memReqSvr);
   }
 
   @Override
-  BaseWritableBufferImpl toDuplicate(final boolean readOnly, final ByteOrder byteOrder) {
+  BaseWritableBuffer toDuplicate(final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly) | DUPLICATE;
     return Util.isNativeByteOrder(byteOrder)
-        ? new MapWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid)
-        : new MapNonNativeWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid);
+        ? new LeafDirectWritableBuffer(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
+        : new LeafDirectNonNativeWritableBuffer(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
   }
 
   @Override
-  BaseWritableMemoryImpl toWritableMemory(final boolean readOnly, final ByteOrder byteOrder) {
+  BaseWritableMemory toWritableMemory(final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
-        ? new MapWritableMemoryImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid)
-        : new MapNonNativeWritableMemoryImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid);
+        ? new LeafDirectWritableMemory(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
+        : new LeafDirectNonNativeWritableMemory(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
   }
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
-    return null;
+    checkAlive();
+    return memReqSvr;
   }
 
   @Override

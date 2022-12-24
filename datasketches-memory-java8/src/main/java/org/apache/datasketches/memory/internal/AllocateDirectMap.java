@@ -156,7 +156,7 @@ class AllocateDirectMap implements Map {
 
   @Override
   public void close() {
-    doClose("AllocateDirectMap");
+    doClose("Memory-mapped file via AllocateDirectMap");
   }
 
   boolean doClose(final String resource) {
@@ -284,7 +284,7 @@ class AllocateDirectMap implements Map {
       if (valid.change()) {
         if (calledFromCleaner) {
           // Warn about non-deterministic resource cleanup.
-          LOG.warning("A WritableMapHandleImpl was not closed manually");
+          LOG.warning("A memory-mapped resource was not closed manually");
         }
         unmap();
         return true;

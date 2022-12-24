@@ -22,70 +22,58 @@ package org.apache.datasketches.memory.internal;
 import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.MemoryRequestServer;
-import org.apache.datasketches.memory.WritableBuffer;
+import org.apache.datasketches.memory.WritableMemory;
 
 /**
- * Implementation of {@link WritableBuffer} for direct memory, native byte order.
+ * Implementation of {@link WritableMemory} for map memory, native byte order.
  *
  * @author Roman Leventov
  * @author Lee Rhodes
  */
-final class DirectWritableBufferImpl extends NativeWritableBufferImpl {
-  private static final int id = BUFFER | NATIVE | DIRECT;
+final class LeafMapWritableMemory extends NativeWritableMemory {
+  private static final int id = MEMORY | NATIVE | MAP;
   private final long nativeBaseOffset; //used to compute cumBaseOffset
   private final StepBoolean valid; //a reference only
-  private final MemoryRequestServer memReqSvr;
+  private final AllocateDirectWritableMap dirWMap;
   private final byte typeId;
 
-  DirectWritableBufferImpl(
+  LeafMapWritableMemory(
       final long nativeBaseOffset,
       final long regionOffset,
       final long capacityBytes,
       final int typeId,
-      final StepBoolean valid,
-      final MemoryRequestServer memReqSvr) {
+      final AllocateDirectWritableMap dirWMap) {
     super(null, nativeBaseOffset, regionOffset, capacityBytes);
     this.nativeBaseOffset = nativeBaseOffset;
-    this.valid = valid;
-    this.memReqSvr = memReqSvr;
+    this.dirWMap = dirWMap;
+    this.valid = dirWMap.getValid();
     this.typeId = (byte) (id | (typeId & 0x7));
   }
 
   @Override
-  BaseWritableBufferImpl toWritableRegion(final long offsetBytes, final long capacityBytes,
+  BaseWritableMemory toWritableRegion(final long offsetBytes, final long capacityBytes,
       final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly) | REGION;
     return Util.isNativeByteOrder(byteOrder)
-        ? new DirectWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid, memReqSvr)
-        : new DirectNonNativeWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid, memReqSvr);
+        ? new LeafMapWritableMemory(
+            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, dirWMap)
+        : new LeafMapNonNativeWritableMemory(
+            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, dirWMap);
   }
 
   @Override
-  BaseWritableBufferImpl toDuplicate(final boolean readOnly, final ByteOrder byteOrder) {
-    final int type = setReadOnlyType(typeId, readOnly) | DUPLICATE;
-    return Util.isNativeByteOrder(byteOrder)
-        ? new DirectWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
-        : new DirectNonNativeWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
-  }
-
-  @Override
-  BaseWritableMemoryImpl toWritableMemory(final boolean readOnly, final ByteOrder byteOrder) {
+  BaseWritableBuffer toWritableBuffer(final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
-        ? new DirectWritableMemoryImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
-        : new DirectNonNativeWritableMemoryImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
+        ? new LeafMapWritableBuffer(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, dirWMap)
+        : new LeafMapNonNativeWritableBuffer(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, dirWMap);
   }
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
-    checkAlive();
-    return memReqSvr;
+    return null;
   }
 
   @Override

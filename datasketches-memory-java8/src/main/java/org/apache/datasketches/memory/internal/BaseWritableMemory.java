@@ -51,7 +51,7 @@ import org.apache.datasketches.memory.WritableMemory;
  * Contains methods which are agnostic to the byte order.
  */
 @SuppressWarnings("restriction")
-public abstract class BaseWritableMemoryImpl extends ResourceImpl implements WritableMemory {
+public abstract class BaseWritableMemory extends ResourceImpl implements WritableMemory {
 
   //1KB of empty bytes for speedy clear()
   private final static byte[] EMPTY_BYTES;
@@ -61,7 +61,7 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
   }
 
   //Pass-through constructor
-  BaseWritableMemoryImpl(final Object unsafeObj, final long nativeBaseOffset,
+  BaseWritableMemory(final Object unsafeObj, final long nativeBaseOffset,
       final long regionOffset, final long capacityBytes) {
     super(unsafeObj, nativeBaseOffset, regionOffset, capacityBytes);
   }
@@ -76,12 +76,12 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
    * @param memReqSvr the requested MemoryRequestServer, which may be null.
    * @return this class constructed via the leaf node.
    */
-  public static BaseWritableMemoryImpl wrapHeapArray(final Object arr, final long offsetBytes, final long lengthBytes,
+  public static BaseWritableMemory wrapHeapArray(final Object arr, final long offsetBytes, final long lengthBytes,
       final boolean localReadOnly, final ByteOrder byteOrder, final MemoryRequestServer memReqSvr) {
     final int typeId = localReadOnly ? READONLY : 0;
     return Util.isNativeByteOrder(byteOrder)
-        ? new HeapWritableMemoryImpl(arr, offsetBytes, lengthBytes, typeId, memReqSvr)
-        : new HeapNonNativeWritableMemoryImpl(arr, offsetBytes, lengthBytes, typeId, memReqSvr);
+        ? new LeafWritableMemory(arr, offsetBytes, lengthBytes, typeId, memReqSvr)
+        : new LeafHeapNonNativeWritableMemory(arr, offsetBytes, lengthBytes, typeId, memReqSvr);
   }
 
   /**
@@ -92,15 +92,15 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
    * @param memReqSvr the requested MemoryRequestServer, which may be null.
    * @return this class constructed via the leaf node.
    */
-  public static BaseWritableMemoryImpl wrapByteBuffer(
+  public static BaseWritableMemory wrapByteBuffer(
       final ByteBuffer byteBuf, final boolean localReadOnly, final ByteOrder byteOrder,
       final MemoryRequestServer memReqSvr) {
     final AccessByteBuffer abb = new AccessByteBuffer(byteBuf);
     final int typeId = (abb.resourceReadOnly || localReadOnly) ? READONLY : 0;
     return Util.isNativeByteOrder(byteOrder)
-        ? new BBWritableMemoryImpl(abb.unsafeObj, abb.nativeBaseOffset,
+        ? new LeafBBWritableMemory(abb.unsafeObj, abb.nativeBaseOffset,
             abb.regionOffset, abb.capacityBytes, typeId, byteBuf, memReqSvr)
-        : new BBNonNativeWritableMemoryImpl(abb.unsafeObj, abb.nativeBaseOffset,
+        : new LeafBBNonNativeWritableMemory(abb.unsafeObj, abb.nativeBaseOffset,
             abb.regionOffset, abb.capacityBytes,  typeId, byteBuf, memReqSvr);
   }
 
@@ -118,11 +118,9 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
     final AllocateDirectWritableMap dirWMap =
         new AllocateDirectWritableMap(file, fileOffsetBytes, capacityBytes, localReadOnly);
     final int typeId = (dirWMap.resourceReadOnly || localReadOnly) ? READONLY : 0;
-    final BaseWritableMemoryImpl wmem = Util.isNativeByteOrder(byteOrder)
-        ? new MapWritableMemoryImpl(dirWMap.nativeBaseOffset, 0L, capacityBytes,
-            typeId, dirWMap.getValid())
-        : new MapNonNativeWritableMemoryImpl(dirWMap.nativeBaseOffset, 0L, capacityBytes,
-            typeId, dirWMap.getValid());
+    final BaseWritableMemory wmem = Util.isNativeByteOrder(byteOrder)
+        ? new LeafMapWritableMemory(dirWMap.nativeBaseOffset, 0L, capacityBytes, typeId, dirWMap)
+        : new LeafMapNonNativeWritableMemory(dirWMap.nativeBaseOffset, 0L, capacityBytes, typeId, dirWMap);
     return new WritableMapHandleImpl(dirWMap, wmem);
   }
 
@@ -137,10 +135,10 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
       final ByteOrder byteOrder, final MemoryRequestServer memReqSvr) {
     final AllocateDirect direct = new AllocateDirect(capacityBytes);
     final int typeId = 0; //direct is never read-only on construction
-    final BaseWritableMemoryImpl wmem = Util.isNativeByteOrder(byteOrder)
-        ? new DirectWritableMemoryImpl(direct.getNativeBaseOffset(), 0L, capacityBytes,
+    final BaseWritableMemory wmem = Util.isNativeByteOrder(byteOrder)
+        ? new LeafDirectWritableMemory(direct.getNativeBaseOffset(), 0L, capacityBytes,
             typeId, direct.getValid(), memReqSvr)
-        : new DirectNonNativeWritableMemoryImpl(direct.getNativeBaseOffset(), 0L, capacityBytes,
+        : new LeafDirectNonNativeWritableMemory(direct.getNativeBaseOffset(), 0L, capacityBytes,
             typeId, direct.getValid(), memReqSvr);
 
     final WritableHandle handle = new WritableDirectHandleImpl(direct, wmem);
@@ -172,7 +170,7 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
     return toWritableRegion(offsetBytes, capacityBytes, readOnly, byteOrder);
   }
 
-  abstract BaseWritableMemoryImpl toWritableRegion(
+  abstract BaseWritableMemory toWritableRegion(
       long offsetBytes, long capcityBytes, boolean readOnly, ByteOrder byteOrder);
 
   //AS BUFFER
@@ -198,7 +196,7 @@ public abstract class BaseWritableMemoryImpl extends ResourceImpl implements Wri
     return wbuf;
   }
 
-  abstract BaseWritableBufferImpl toWritableBuffer(boolean readOnly, ByteOrder byteOrder);
+  abstract BaseWritableBuffer toWritableBuffer(boolean readOnly, ByteOrder byteOrder);
 
   //PRIMITIVE getX() and getXArray()
   @Override

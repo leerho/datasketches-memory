@@ -36,7 +36,7 @@ public final class WritableMapHandleImpl extends MapHandleImpl
 
   WritableMapHandleImpl(
       final AllocateDirectWritableMap dirWmap,
-      final BaseWritableMemoryImpl wMem) {
+      final BaseWritableMemory wMem) {
     super(dirWmap, wMem);
   }
 

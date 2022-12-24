@@ -23,23 +23,23 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.MemoryRequestServer;
-import org.apache.datasketches.memory.WritableMemory;
+import org.apache.datasketches.memory.WritableBuffer;
 
 /**
- * Implementation of {@link WritableMemory} for ByteBuffer, non-native byte order.
+ * Implementation of {@link WritableBuffer} for ByteBuffer, native byte order.
  *
  * @author Roman Leventov
  * @author Lee Rhodes
  */
-final class BBNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImpl {
-  private static final int id = MEMORY | NONNATIVE | BYTEBUF;
+final class LeafBBWritableBuffer extends NativeWritableBuffer {
+  private static final int id = BUFFER | NATIVE | BYTEBUF;
   private final Object unsafeObj;
   private final long nativeBaseOffset; //used to compute cumBaseOffset
   private final ByteBuffer byteBuf; //holds a reference to a ByteBuffer until we are done with it.
   private final MemoryRequestServer memReqSvr;
   private final byte typeId;
 
-  BBNonNativeWritableMemoryImpl(
+  LeafBBWritableBuffer(
       final Object unsafeObj,
       final long nativeBaseOffset,
       final long regionOffset,
@@ -56,23 +56,33 @@ final class BBNonNativeWritableMemoryImpl extends NonNativeWritableMemoryImpl {
   }
 
   @Override
-  BaseWritableMemoryImpl toWritableRegion(final long offsetBytes, final long capacityBytes,
+  BaseWritableBuffer toWritableRegion(final long offsetBytes, final long capacityBytes,
       final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly) | REGION;
     return Util.isNativeByteOrder(byteOrder)
-        ? new BBWritableMemoryImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, getByteBuffer(), memReqSvr)
-        : new BBNonNativeWritableMemoryImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, getByteBuffer(), memReqSvr);
+        ? new LeafBBWritableBuffer(
+            unsafeObj, nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, byteBuf, memReqSvr)
+        : new LeafBBNonNativeWritableBuffer(
+            unsafeObj, nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, byteBuf, memReqSvr);
   }
 
   @Override
-  BaseWritableBufferImpl toWritableBuffer(final boolean readOnly, final ByteOrder byteOrder) {
+  BaseWritableBuffer toDuplicate(final boolean readOnly, final ByteOrder byteOrder) {
+    final int type = setReadOnlyType(typeId, readOnly) | DUPLICATE;
+    return Util.isNativeByteOrder(byteOrder)
+        ? new LeafBBWritableBuffer(
+            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr)
+        : new LeafBBNonNativeWritableBuffer(
+            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr);
+  }
+
+  @Override
+  BaseWritableMemory toWritableMemory(final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
-        ? new BBWritableBufferImpl(
+        ? new LeafBBWritableMemory(
             unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr)
-        : new BBNonNativeWritableBufferImpl(
+        : new LeafBBNonNativeWritableMemory(
             unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr);
   }
 

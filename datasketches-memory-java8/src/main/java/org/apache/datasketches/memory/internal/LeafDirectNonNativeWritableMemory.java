@@ -22,66 +22,65 @@ package org.apache.datasketches.memory.internal;
 import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.MemoryRequestServer;
-import org.apache.datasketches.memory.WritableBuffer;
+import org.apache.datasketches.memory.WritableMemory;
 
 /**
- * Implementation of {@link WritableBuffer} for heap-based, native byte order.
+ * Implementation of {@link WritableMemory} for direct memory, non-native byte order.
  *
  * @author Roman Leventov
  * @author Lee Rhodes
  */
-final class HeapWritableBufferImpl extends NativeWritableBufferImpl {
-  private static final int id = BUFFER | NATIVE | HEAP;
-  private final Object unsafeObj;
+final class LeafDirectNonNativeWritableMemory extends NonNativeWritableMemory {
+  private static final int id = MEMORY | NONNATIVE | DIRECT;
+  private final long nativeBaseOffset; //used to compute cumBaseOffset
+  private final StepBoolean valid; //a reference only
   private final MemoryRequestServer memReqSvr;
   private final byte typeId;
 
-  HeapWritableBufferImpl(
-      final Object unsafeObj,
+  LeafDirectNonNativeWritableMemory(
+      final long nativeBaseOffset,
       final long regionOffset,
       final long capacityBytes,
       final int typeId,
+      final StepBoolean valid,
       final MemoryRequestServer memReqSvr) {
-    super(unsafeObj, 0L, regionOffset, capacityBytes);
-    this.unsafeObj = unsafeObj;
+    super(null, nativeBaseOffset, regionOffset, capacityBytes);
+    this.nativeBaseOffset = nativeBaseOffset;
+    this.valid = valid;
     this.memReqSvr = memReqSvr;
     this.typeId = (byte) (id | (typeId & 0x7));
   }
 
   @Override
-  BaseWritableBufferImpl toWritableRegion(final long offsetBytes, final long capacityBytes,
+  BaseWritableMemory toWritableRegion(final long offsetBytes, final long capacityBytes,
       final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly) | REGION;
     return Util.isNativeByteOrder(byteOrder)
-        ? new HeapWritableBufferImpl(
-            unsafeObj, getRegionOffset(offsetBytes), capacityBytes, type, memReqSvr)
-        : new HeapNonNativeWritableBufferImpl(
-            unsafeObj, getRegionOffset(offsetBytes), capacityBytes, type, memReqSvr);
+        ? new LeafDirectWritableMemory(
+            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid, memReqSvr)
+        : new LeafDirectNonNativeWritableMemory(
+            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid, memReqSvr);
   }
 
   @Override
-  BaseWritableBufferImpl toDuplicate(final boolean readOnly, final ByteOrder byteOrder) {
-    final int type = setReadOnlyType(typeId, readOnly) | DUPLICATE;
-    return Util.isNativeByteOrder(byteOrder)
-        ? new HeapWritableBufferImpl(
-            unsafeObj, getRegionOffset(0), getCapacity(), type, memReqSvr)
-        : new HeapNonNativeWritableBufferImpl(
-            unsafeObj, getRegionOffset(0), getCapacity(), type, memReqSvr);
-  }
-
-  @Override
-  BaseWritableMemoryImpl toWritableMemory(final boolean readOnly, final ByteOrder byteOrder) {
+  BaseWritableBuffer toWritableBuffer(final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
-        ? new HeapWritableMemoryImpl(
-            unsafeObj, getRegionOffset(0), getCapacity(), type, memReqSvr)
-        : new HeapNonNativeWritableMemoryImpl(
-            unsafeObj, getRegionOffset(0), getCapacity(), type, memReqSvr);
+        ? new LeafDirectWritableBuffer(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
+        : new LeafDirectNonNativeWritableBuffer(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
   }
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
+    checkAlive();
     return memReqSvr;
+  }
+
+  @Override
+  long getNativeBaseOffset() {
+    return nativeBaseOffset;
   }
 
   @Override
@@ -90,8 +89,8 @@ final class HeapWritableBufferImpl extends NativeWritableBufferImpl {
   }
 
   @Override
-  Object getUnsafeObject() {
-    return unsafeObj;
+  public boolean isAlive() {
+    return valid.get();
   }
 
 }

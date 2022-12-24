@@ -19,73 +19,61 @@
 
 package org.apache.datasketches.memory.internal;
 
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 
 /**
- * Implementation of {@link WritableMemory} for ByteBuffer, native byte order.
+ * Implementation of {@link WritableMemory} for map memory, non-native byte order.
  *
  * @author Roman Leventov
  * @author Lee Rhodes
  */
-final class BBWritableMemoryImpl extends NativeWritableMemoryImpl {
-  private static final int id = MEMORY | NATIVE | BYTEBUF;
-  private final Object unsafeObj;
+final class LeafMapNonNativeWritableMemory extends NonNativeWritableMemory {
+  private static final int id = MEMORY | NONNATIVE | MAP;
   private final long nativeBaseOffset; //used to compute cumBaseOffset
-  private final ByteBuffer byteBuf; //holds a reference to a ByteBuffer until we are done with it.
-  private final MemoryRequestServer memReqSvr;
+  private final StepBoolean valid; //a reference only
+  private final AllocateDirectWritableMap dirWMap;
   private final byte typeId;
 
-  BBWritableMemoryImpl(
-      final Object unsafeObj,
+  LeafMapNonNativeWritableMemory(
       final long nativeBaseOffset,
       final long regionOffset,
       final long capacityBytes,
       final int typeId,
-      final ByteBuffer byteBuf,
-      final MemoryRequestServer memReqSvr) {
-    super(unsafeObj, nativeBaseOffset, regionOffset, capacityBytes);
-    this.unsafeObj = unsafeObj;
+      final AllocateDirectWritableMap dirWMap) {
+    super(null, nativeBaseOffset, regionOffset, capacityBytes);
     this.nativeBaseOffset = nativeBaseOffset;
-    this.byteBuf = byteBuf;
-    this.memReqSvr = memReqSvr;
+    this.dirWMap = dirWMap;
+    this.valid = dirWMap.getValid();
     this.typeId = (byte) (id | (typeId & 0x7));
   }
 
   @Override
-  BaseWritableMemoryImpl toWritableRegion(final long offsetBytes, final long capacityBytes,
+  BaseWritableMemory toWritableRegion(final long offsetBytes, final long capacityBytes,
       final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly) | REGION;
     return Util.isNativeByteOrder(byteOrder)
-        ? new BBWritableMemoryImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, getByteBuffer(), memReqSvr)
-        : new BBNonNativeWritableMemoryImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, getByteBuffer(), memReqSvr);
+        ? new LeafMapWritableMemory(
+            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, dirWMap)
+        : new LeafMapNonNativeWritableMemory(
+            nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, dirWMap);
   }
 
   @Override
-  BaseWritableBufferImpl toWritableBuffer(final boolean readOnly, final ByteOrder byteOrder) {
+  BaseWritableBuffer toWritableBuffer(final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
-        ? new BBWritableBufferImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr)
-        : new BBNonNativeWritableBufferImpl(
-            unsafeObj, nativeBaseOffset, getRegionOffset(0), getCapacity(), type, byteBuf, memReqSvr);
-  }
-
-  @Override
-  public ByteBuffer getByteBuffer() {
-    checkAlive();
-    return byteBuf;
+        ? new LeafMapWritableBuffer(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, dirWMap)
+        : new LeafMapNonNativeWritableBuffer(
+            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, dirWMap);
   }
 
   @Override
   public MemoryRequestServer getMemoryRequestServer() {
-    checkAlive();
-    return memReqSvr;
+    return null;
   }
 
   @Override
@@ -99,9 +87,8 @@ final class BBWritableMemoryImpl extends NativeWritableMemoryImpl {
   }
 
   @Override
-  Object getUnsafeObject() {
-    checkAlive();
-    return unsafeObj;
+  public boolean isAlive() {
+    return valid.get();
   }
 
 }

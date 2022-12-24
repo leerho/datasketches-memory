@@ -22,22 +22,22 @@ package org.apache.datasketches.memory.internal;
 import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.MemoryRequestServer;
-import org.apache.datasketches.memory.WritableBuffer;
+import org.apache.datasketches.memory.WritableMemory;
 
 /**
- * Implementation of {@link WritableBuffer} for direct memory, non-native byte order.
+ * Implementation of {@link WritableMemory} for direct memory, native byte order.
  *
  * @author Roman Leventov
  * @author Lee Rhodes
  */
-final class DirectNonNativeWritableBufferImpl extends NonNativeWritableBufferImpl {
-  private static final int id = BUFFER | NONNATIVE | DIRECT;
+final class LeafDirectWritableMemory extends NativeWritableMemory {
+  private static final int id = MEMORY | NATIVE | DIRECT;
   private final long nativeBaseOffset; //used to compute cumBaseOffset
   private final StepBoolean valid; //a reference only
   private final MemoryRequestServer memReqSvr;
   private final byte typeId;
 
-  DirectNonNativeWritableBufferImpl(
+  LeafDirectWritableMemory(
       final long nativeBaseOffset,
       final long regionOffset,
       final long capacityBytes,
@@ -52,33 +52,23 @@ final class DirectNonNativeWritableBufferImpl extends NonNativeWritableBufferImp
   }
 
   @Override
-  BaseWritableBufferImpl toWritableRegion(final long offsetBytes, final long capacityBytes,
+  BaseWritableMemory toWritableRegion(final long offsetBytes, final long capacityBytes,
       final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly) | REGION;
     return Util.isNativeByteOrder(byteOrder)
-        ? new DirectWritableBufferImpl(
+        ? new LeafDirectWritableMemory(
             nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid, memReqSvr)
-        : new DirectNonNativeWritableBufferImpl(
+        : new LeafDirectNonNativeWritableMemory(
             nativeBaseOffset, getRegionOffset(offsetBytes), capacityBytes, type, valid, memReqSvr);
   }
 
   @Override
-  BaseWritableBufferImpl toDuplicate(final boolean readOnly, final ByteOrder byteOrder) {
-    final int type = setReadOnlyType(typeId, readOnly) | DUPLICATE;
-    return Util.isNativeByteOrder(byteOrder)
-        ? new DirectWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
-        : new DirectNonNativeWritableBufferImpl(
-            nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
-  }
-
-  @Override
-  BaseWritableMemoryImpl toWritableMemory(final boolean readOnly, final ByteOrder byteOrder) {
+  BaseWritableBuffer toWritableBuffer(final boolean readOnly, final ByteOrder byteOrder) {
     final int type = setReadOnlyType(typeId, readOnly);
     return Util.isNativeByteOrder(byteOrder)
-        ? new DirectWritableMemoryImpl(
+        ? new LeafDirectWritableBuffer(
             nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr)
-        : new DirectNonNativeWritableMemoryImpl(
+        : new LeafDirectNonNativeWritableBuffer(
             nativeBaseOffset, getRegionOffset(0), getCapacity(), type, valid, memReqSvr);
   }
 

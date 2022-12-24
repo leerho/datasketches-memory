@@ -31,10 +31,10 @@ import org.apache.datasketches.memory.WritableBuffer;
  * @author Lee Rhodes
  */
 @SuppressWarnings("restriction")
-abstract class NonNativeWritableBufferImpl extends BaseWritableBufferImpl {
+abstract class NonNativeWritableBuffer extends BaseWritableBuffer {
 
   //Pass-through ctor
-  NonNativeWritableBufferImpl(final Object unsafeObj, final long nativeBaseOffset, final long regionOffset,
+  NonNativeWritableBuffer(final Object unsafeObj, final long nativeBaseOffset, final long regionOffset,
       final long capacityBytes) {
     super(unsafeObj, nativeBaseOffset, regionOffset, capacityBytes);
   }

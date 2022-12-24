@@ -38,9 +38,9 @@ public final class WritableDirectHandleImpl implements WritableHandle {
    * Having at least one final field makes this class safe for concurrent publication.
    */
   final AllocateDirect direct;
-  private BaseWritableMemoryImpl wMem;
+  private BaseWritableMemory wMem;
 
-  WritableDirectHandleImpl(final AllocateDirect allocatedDirect, final BaseWritableMemoryImpl wMem) {
+  WritableDirectHandleImpl(final AllocateDirect allocatedDirect, final BaseWritableMemory wMem) {
     direct = allocatedDirect;
     this.wMem = wMem;
   }

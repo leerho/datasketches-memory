@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-import org.apache.datasketches.memory.internal.BaseWritableBufferImpl;
+import org.apache.datasketches.memory.internal.BaseWritableBuffer;
 import org.apache.datasketches.memory.internal.Util;
 
 /**
@@ -63,7 +63,7 @@ public interface WritableBuffer extends Buffer {
     if (byteBuf.isReadOnly()) {
       throw new ReadOnlyException("Cannot create a WritableBuffer from a ReadOnly ByteBuffer.");
     }
-    return BaseWritableBufferImpl.wrapByteBuffer(byteBuf, false, byteOrder, memReqSvr);
+    return BaseWritableBuffer.wrapByteBuffer(byteBuf, false, byteOrder, memReqSvr);
   }
 
   // NO MAP

@@ -30,7 +30,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.WritableByteChannel;
 import java.util.Objects;
 
-import org.apache.datasketches.memory.internal.BaseWritableMemoryImpl;
+import org.apache.datasketches.memory.internal.BaseWritableMemory;
 import org.apache.datasketches.memory.internal.Prim;
 
 /**
@@ -63,7 +63,7 @@ public interface Memory extends Resource {
     Objects.requireNonNull(byteBuffer, "byteBuffer must not be null");
     Objects.requireNonNull(byteOrder, "byteOrder must not be null");
     negativeCheck(byteBuffer.capacity(), "byteBuffer");
-    return BaseWritableMemoryImpl.wrapByteBuffer(byteBuffer, true, byteOrder, null);
+    return BaseWritableMemory.wrapByteBuffer(byteBuffer, true, byteOrder, null);
   }
 
   //MAP
@@ -94,7 +94,7 @@ public interface Memory extends Resource {
     if (!file.canRead()) { throw new IllegalArgumentException("file must be readable."); }
     negativeCheck(fileOffsetBytes, "fileOffsetBytes");
     negativeCheck(capacityBytes, "capacityBytes");
-    return (MapHandle) BaseWritableMemoryImpl.wrapMap(file, fileOffsetBytes, capacityBytes, true, byteOrder);
+    return (MapHandle) BaseWritableMemory.wrapMap(file, fileOffsetBytes, capacityBytes, true, byteOrder);
   }
 
   //REGIONS
@@ -196,7 +196,7 @@ public interface Memory extends Resource {
     negativeCheck(offsetBytes, "offsetBytes");
     negativeCheck(lengthBytes, "lengthBytes");
     checkBounds(offsetBytes, lengthBytes, array.length);
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0, lengthBytes, true, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -207,7 +207,7 @@ public interface Memory extends Resource {
   static Memory wrap(boolean[] array) {
     Objects.requireNonNull(array, "array must be non-null");
     final long lengthBytes = array.length << Prim.BOOLEAN.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0, lengthBytes, true, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -218,7 +218,7 @@ public interface Memory extends Resource {
   static Memory wrap(char[] array) {
     Objects.requireNonNull(array, "array must be non-null");
     final long lengthBytes = array.length << Prim.CHAR.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -229,7 +229,7 @@ public interface Memory extends Resource {
   static Memory wrap(short[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.SHORT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -240,7 +240,7 @@ public interface Memory extends Resource {
   static Memory wrap(int[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.INT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -251,7 +251,7 @@ public interface Memory extends Resource {
   static Memory wrap(long[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.LONG.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -262,7 +262,7 @@ public interface Memory extends Resource {
   static Memory wrap(float[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.FLOAT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -273,7 +273,7 @@ public interface Memory extends Resource {
   static Memory wrap(double[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.DOUBLE.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, true, NATIVE_BYTE_ORDER, null);
   }
 
   //PRIMITIVE getX() and getXArray()

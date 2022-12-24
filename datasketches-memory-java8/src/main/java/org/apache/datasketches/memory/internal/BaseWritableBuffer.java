@@ -45,10 +45,10 @@ import org.apache.datasketches.memory.WritableMemory;
  * Contains methods which are agnostic to the byte order.
  */
 @SuppressWarnings("restriction")
-public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements WritableBuffer {
+public abstract class BaseWritableBuffer extends BaseBufferImpl implements WritableBuffer {
 
   //Pass-through constructor
-  BaseWritableBufferImpl(final Object unsafeObj, final long nativeBaseOffset,
+  BaseWritableBuffer(final Object unsafeObj, final long nativeBaseOffset,
       final long regionOffset, final long capacityBytes) {
     super(unsafeObj, nativeBaseOffset, regionOffset, capacityBytes);
   }
@@ -61,15 +61,15 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
    * @param memReqSvr the requested MemoryRequestServer, which may be null.
    * @return this class constructed via the leaf node.
    */
-  public static BaseWritableBufferImpl wrapByteBuffer(
+  public static BaseWritableBuffer wrapByteBuffer(
       final ByteBuffer byteBuf, final boolean localReadOnly, final ByteOrder byteOrder,
       final MemoryRequestServer memReqSvr) {
     final AccessByteBuffer abb = new AccessByteBuffer(byteBuf);
     final int typeId = (abb.resourceReadOnly || localReadOnly) ? READONLY : 0;
-    final BaseWritableBufferImpl bwbi = Util.isNativeByteOrder(byteOrder)
-        ? new BBWritableBufferImpl(abb.unsafeObj, abb.nativeBaseOffset,
+    final BaseWritableBuffer bwbi = Util.isNativeByteOrder(byteOrder)
+        ? new LeafBBWritableBuffer(abb.unsafeObj, abb.nativeBaseOffset,
             abb.regionOffset, abb.capacityBytes, typeId, byteBuf, memReqSvr)
-        : new BBNonNativeWritableBufferImpl(abb.unsafeObj, abb.nativeBaseOffset,
+        : new LeafBBNonNativeWritableBuffer(abb.unsafeObj, abb.nativeBaseOffset,
             abb.regionOffset, abb.capacityBytes,  typeId, byteBuf, memReqSvr);
     bwbi.setAndCheckStartPositionEnd(0, byteBuf.position(), byteBuf.limit());
     return bwbi;
@@ -113,7 +113,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     return wbuf;
   }
 
-  abstract BaseWritableBufferImpl toWritableRegion(
+  abstract BaseWritableBuffer toWritableRegion(
       long offsetBytes, long capcityBytes, boolean readOnly, ByteOrder byteOrder);
 
   //DUPLICATES
@@ -147,7 +147,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     return wbuf;
   }
 
-  abstract BaseWritableBufferImpl toDuplicate(boolean readOnly, ByteOrder byteOrder);
+  abstract BaseWritableBuffer toDuplicate(boolean readOnly, ByteOrder byteOrder);
 
   //AS MEMORY
   @Override
@@ -171,7 +171,7 @@ public abstract class BaseWritableBufferImpl extends BaseBufferImpl implements W
     return wmem;
   }
 
-  abstract BaseWritableMemoryImpl toWritableMemory(boolean readOnly, ByteOrder byteOrder);
+  abstract BaseWritableMemory toWritableMemory(boolean readOnly, ByteOrder byteOrder);
 
   //PRIMITIVE getX() and getXArray()
   @Override

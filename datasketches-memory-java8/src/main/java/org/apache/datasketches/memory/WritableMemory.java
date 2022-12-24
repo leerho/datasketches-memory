@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-import org.apache.datasketches.memory.internal.BaseWritableMemoryImpl;
+import org.apache.datasketches.memory.internal.BaseWritableMemory;
 import org.apache.datasketches.memory.internal.Prim;
 
 /**
@@ -76,7 +76,7 @@ public interface WritableMemory extends Memory {
     Objects.requireNonNull(byteOrder, "byteOrder must be non-null");
     negativeCheck(byteBuffer.capacity(), "byteBuffer");
     if (byteBuffer.isReadOnly()) { throw new ReadOnlyException("byteBuffer must be writable."); }
-    return BaseWritableMemoryImpl.wrapByteBuffer(byteBuffer, false, byteOrder, memReqSvr);
+    return BaseWritableMemory.wrapByteBuffer(byteBuffer, false, byteOrder, memReqSvr);
   }
 
   //MAP
@@ -111,7 +111,7 @@ public interface WritableMemory extends Memory {
     negativeCheck(file.length(), "file.length()");
     negativeCheck(fileOffsetBytes, "fileOffsetBytes");
     negativeCheck(capacityBytes, "capacityBytes");
-    return BaseWritableMemoryImpl.wrapMap(file, fileOffsetBytes, capacityBytes, false, byteOrder);
+    return BaseWritableMemory.wrapMap(file, fileOffsetBytes, capacityBytes, false, byteOrder);
   }
 
   //ALLOCATE DIRECT
@@ -150,7 +150,7 @@ public interface WritableMemory extends Memory {
   static WritableHandle allocateDirect(long capacityBytes, ByteOrder byteOrder, MemoryRequestServer memReqSvr) {
     Objects.requireNonNull(byteOrder, "byteOrder must be non-null");
     negativeCheck(capacityBytes, "capacityBytes");
-    return BaseWritableMemoryImpl.wrapDirect(capacityBytes, byteOrder, memReqSvr);
+    return BaseWritableMemory.wrapDirect(capacityBytes, byteOrder, memReqSvr);
   }
 
   //REGIONS
@@ -319,7 +319,7 @@ public interface WritableMemory extends Memory {
     negativeCheck(offsetBytes, "offsetBytes");
     negativeCheck(lengthBytes, "lengthBytes");
     checkBounds(offsetBytes, lengthBytes, array.length);
-    return BaseWritableMemoryImpl.wrapHeapArray(array, offsetBytes, lengthBytes, false, byteOrder, memReqSvr);
+    return BaseWritableMemory.wrapHeapArray(array, offsetBytes, lengthBytes, false, byteOrder, memReqSvr);
   }
 
   /**
@@ -330,7 +330,7 @@ public interface WritableMemory extends Memory {
   static WritableMemory writableWrap(boolean[] array) {
     Objects.requireNonNull(array, "array must be non-null");
     final long lengthBytes = array.length << Prim.BOOLEAN.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0, lengthBytes, false, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0, lengthBytes, false, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -341,7 +341,7 @@ public interface WritableMemory extends Memory {
   static WritableMemory writableWrap(char[] array) {
     Objects.requireNonNull(array, "array must be non-null");
     final long lengthBytes = array.length << Prim.CHAR.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -352,7 +352,7 @@ public interface WritableMemory extends Memory {
   static WritableMemory writableWrap(short[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.SHORT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, false,NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, false,NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -363,7 +363,7 @@ public interface WritableMemory extends Memory {
   static WritableMemory writableWrap(int[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.INT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -374,7 +374,7 @@ public interface WritableMemory extends Memory {
   static WritableMemory writableWrap(long[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.LONG.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -385,7 +385,7 @@ public interface WritableMemory extends Memory {
   static WritableMemory writableWrap(float[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.FLOAT.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
   }
 
   /**
@@ -396,7 +396,7 @@ public interface WritableMemory extends Memory {
   static WritableMemory writableWrap(double[] array) {
     Objects.requireNonNull(array, "arr must be non-null");
     final long lengthBytes = array.length << Prim.DOUBLE.shift();
-    return BaseWritableMemoryImpl.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
+    return BaseWritableMemory.wrapHeapArray(array, 0L, lengthBytes, false, NATIVE_BYTE_ORDER, null);
   }
   //END OF CONSTRUCTOR-TYPE METHODS
 
